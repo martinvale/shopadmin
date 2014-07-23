@@ -1,0 +1,21 @@
+/*header*/
+
+.header {
+    border-top: 5px solid #5DA200;
+    height: 54px;
+    background-color: #F4F4F4;
+    border-bottom: 1px solid #EEEEEE;
+    padding: 0 10px;
+    margin: 0 -10px;
+    -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.4);
+}
+
+.container-box {
+    margin: 2%;
+}
+.container-box .login {
+
+
+}

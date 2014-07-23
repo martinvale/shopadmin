@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:security="http://www.springframework.org/schema/security"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/security
+    http://www.springframework.org/schema/security/spring-security-3.2.xsd">
+
+  <security:http use-expressions="true" entry-point-ref="preAuthenticatedProcessingFilterEntryPoint">
+    <security:intercept-url pattern="/login" access="permitAll" />
+    <security:intercept-url pattern="/logout" access="permitAll" />
+    <security:intercept-url pattern="/css/**" access="permitAll" />
+    <security:intercept-url pattern="/**" access="hasAnyRole('ADMIN')" />
+    <security:form-login
+        login-page="/login"
+        default-target-url="/"
+        authentication-failure-url="/login?error"
+        username-parameter="username"
+        password-parameter="password" />
+    <security:logout logout-success-url="/login?logout" />
+    <!--security:custom-filter position="PRE_AUTH_FILTER" ref="gaeFilter" /-->
+  </security:http>
+
+  <bean id="preAuthenticatedProcessingFilterEntryPoint"
+      class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+      <constructor-arg index="0" value="/login" />
+  </bean>
+
+  <!--bean id="gaeFilter" class="com.ibiscus.propial.web.security.GaeAuthenticationFilter">
+    <property name="authenticationManager" ref="authenticationManager"/>
+    <property name="failureHandler">
+      <bean class="org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler">
+        <property name="exceptionMappings">
+            <map>
+              <entry key="org.springframework.security.authentication.DisabledException" value="/disabled" />
+            </map>
+        </property>
+      </bean>
+    </property>
+  </bean-->
+
+  <security:authentication-manager alias="authenticationManager">
+    <security:authentication-provider ref="daoAuthenticationProvider"/>
+  </security:authentication-manager>
+
+  <bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService" ref="userDetailsService" />
+  </bean>
+
+  <bean id="userDetailsService" class="com.ibiscus.shopnchek.application.security.UserDetailsServiceImpl">
+    <constructor-arg index="0" ref="userRepository" />
+  </bean>
+
+  <bean id="userRepository" class="com.ibiscus.shopnchek.domain.security.UserRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location" value="/WEB-INF/shopnchek.properties" />
+  </bean>
+
+  <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+    <property name="driverClassName" value="${jdbc.driverClassName}" />
+    <property name="url" value="${jdbc.databaseurl}" />
+    <property name="username" value="${jdbc.username}" />
+    <property name="password" value="${jdbc.password}" />
+  </bean>
+
+  <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+    <property name="dataSource" ref="dataSource"></property>
+    <property name="configLocation">
+      <value>classpath:hibernate.cfg.xml</value>
+    </property>
+    <property name="configurationClass">
+      <value>org.hibernate.cfg.AnnotationConfiguration</value>
+    </property>
+    <property name="hibernateProperties">
+      <props>
+        <prop key="hibernate.dialect">${jdbc.dialect}</prop>
+        <prop key="hibernate.show_sql">true</prop>
+      </props>
+    </property>
+  </bean>
+
+  <!--tx:annotation-driven /-->
+
+  <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
+</beans>

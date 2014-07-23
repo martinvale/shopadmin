@@ -1,0 +1,799 @@
+/*
+ 
+ */
+html, body, div, span, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, address, big, cite, code,
+del, em, img, ins, q, s,
+small, strong, sub, sup,
+b, u, i,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, audio, canvas,
+datalist, details, dialog, figure, footer,
+header, mark, menu, meter, nav, output,
+progress, section, time, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    vertical-align: baseline;
+}
+
+ol, ul, menu {
+    list-style: none;
+}
+
+blockquote, q {
+    quotes: none;
+}
+
+blockquote:before,
+blockquote:after,
+q:before, q:after {
+    content: '';
+    content: none;
+}
+
+/* remember to highlight inserts somehow!*/
+ins {
+    text-decoration: none;
+}
+
+del {
+    text-decoration: line-through;
+}
+
+/* tables still need 'cellspacing="0"' in the markup*/
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+/**
+ * Base
+ */
+
+/*
+ * 1. Sets default font family to sans-serif.
+ * 2. Prevents iOS text size adjust after orientation change, without disabling
+ *    user zoom.
+ */
+html {
+    font-family: sans-serif; /* 1 */
+    -webkit-text-size-adjust: 100%; /* 2 */
+    -ms-text-size-adjust: 100%; /* 2 */
+}
+
+body {
+    font-family: trebuchets, Arial, Helvetica, "Nimbus Sans L", sans-serif;
+    padding: 0 10px; /* Prevent layout "sticking" to the edge of the browser */
+    background-color: #FFF;
+    color: #333;
+    margin: 0 auto;
+}
+
+/**
+ * Misc
+ */
+hr {
+    border: none;
+    border-bottom: 1px dashed #CCC;
+}
+
+a img {
+    border: none;
+}
+
+p + p {
+    margin-top: 1em;
+}
+body {
+    font-size: 13px;
+    line-height: 20px;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: normal;
+    margin: 10px 0;
+}
+
+h1 {
+    font-size: 22px;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+h4 {
+    font-size: 16px;
+}
+
+h5 {
+    font-size: 15px;
+}
+
+h6 {
+    font-size: 14px;
+}
+
+/**
+ * Box Headings
+ */
+[class*="container-box"] h1,
+[class*="container-box"] h2,
+[class*="container-box"] h3,
+[class*="container-box"] h4,
+[class*="container-box"] h5,
+[class*="container-box"] h6 {
+    margin-top: 0;
+}
+
+/**
+ * Links
+ */
+a,
+a:active,
+a:link {
+    color: #0033BB;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #880099;
+}
+
+a:hover,
+a:focus {
+    text-decoration: underline;
+}
+
+
+
+
+/* Global */
+[class*="btn-shop"],
+[class*="btn-shop"]:focus {
+    font-family: Arial, Helvetica, "Nimbus Sans L", sans-serif;
+    -webkit-border-radius: 4px; /* Android 2.1 */
+    border-radius: 4px;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Arial, Helvetica, sans-serif;
+    height: auto;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+/* Focus */
+[class*="btn-shop"]:focus,
+input[type="button"]:focus,
+input[type="submit"]:focus,
+input[type="reset"]:focus,
+input[type="file"]::-webkit-file-upload-button:focus,
+button:focus {
+    outline: thin dotted;
+    outline: 5px auto -webkit-focus-ring-color;
+    outline-offset: -2px;
+}
+
+/* Colors */
+.btn-shop,
+.btn-shop:focus,
+.btn-shop:visited {
+    background-color: #5CA000;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #4055A5), color-stop(100%, #283077));
+    background-image: -webkit-linear-gradient(#5CA000, #176600);
+    background-image: -moz-linear-gradient(#5CA000, #176600);
+    background-image: -o-linear-gradient(#5CA000, #176600);
+    background-image: linear-gradient(#5CA000, #176600);
+    border: 1px solid #5CA000;
+    color: #FFFFFF;
+}
+/*
+.btn-shop-skin,
+.btn-shop-skin:focus,
+.btn-shop-skin:visited {
+    background-color: #CCE3F7;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #CCE3F7), color-stop(100%, #AAD0EF));
+    background-image: -webkit-linear-gradient(#CCE3F7, #AAD0EF);
+    background-image: -moz-linear-gradient(#CCE3F7, #AAD0EF);
+    background-image: -o-linear-gradient(#CCE3F7, #AAD0EF);
+    background-image: linear-gradient(#CCE3F7, #AAD0EF);
+    border: 1px solid #79A8C7;
+    -webkit-box-shadow: inset 0 1px #E5F2FC;
+    box-shadow: inset 0 1px #E5F2FC;
+    color: #476274;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+}
+.btn-shop-action,
+.btn-shop-action:focus,
+.btn-shop-action:visited {
+    background-color: #EFEFEF;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #EFEFEF), color-stop(100%, #D0D0D0));
+    background-image: -webkit-linear-gradient(#EFEFEF, #D0D0D0);
+    background-image: -moz-linear-gradient(#EFEFEF, #D0D0D0);
+    background-image: -o-linear-gradient(#EFEFEF, #D0D0D0);
+    background-image: linear-gradient(#EFEFEF, #D0D0D0);
+    border: 1px solid #BBBBBB;
+    -webkit-box-shadow: inset 0 1px #FFFFFF;
+    box-shadow: inset 0 1px #FFFFFF;
+    color: #666666;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+}
+
+*/
+/* Hover */
+.btn-shop:hover,
+.btn-shop-skin:hover {
+    text-decoration: none;
+}
+
+/* Colors on Hover */
+.btn-shop:hover {
+    background-color: #176600;
+    background-image: -webkit-linear-gradient(#176600, #1F5A00);
+    background-image: -moz-linear-gradient(#176600, #1F5A00);
+    background-image: -o-linear-gradient(#176600, #1F5A00);
+    background-image: linear-gradient(#176600, #1F5A00);
+    -webkit-box-shadow: inset 0 1px #1F5A00;
+   
+}
+/*
+.btn-shop-skin:hover {
+    background-color: #DCECFB;
+    background-image: -webkit-linear-gradient(#DCECFB, #C5DFF5);
+    background-image: -moz-linear-gradient(#DCECFB, #C5DFF5);
+    background-image: -o-linear-gradient(#DCECFB, #C5DFF5);
+    background-image: linear-gradient(#DCECFB, #C5DFF5);
+    -webkit-box-shadow: inset 0 1px #ECF5FD;
+    box-shadow: inset 0 1px #ECF5FD;
+}
+
+/* Colors on Hover */
+.btn-shop-action:hover {
+    background-color: #FEFEFE;
+    background-image: -webkit-linear-gradient(#FEFEFE, #E6E6E6);
+    background-image: -moz-linear-gradient(#FEFEFE, #E6E6E6);
+    background-image: -o-linear-gradient(#FEFEFE, #E6E6E6);
+    background-image: linear-gradient(#FEFEFE, #E6E6E6);
+}
+*/
+/* Colors on Active */
+.btn-shop:active {
+    background-color: #1F5A00;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #1F5A00), color-stop(100%, #194800));
+    background-image: -webkit-linear-gradient(#1F5A00, #194800);
+    background-image: -moz-linear-gradient(#1F5A00, #194800);
+    background-image: -o-linear-gradient(#1F5A00, #194800);
+    background-image: linear-gradient(#1F5A00, #194800);
+    box-shadow: inset 0 1px 6px #141452;
+    border-color: #194800;
+}
+
+.btn-shop-skin:active {
+    background-color: #7AB6DC;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #A2C9E1), color-stop(100%, #7AB6DC));
+    background-image: -webkit-linear-gradient(#A2C9E1, #7AB6DC);
+    background-image: -moz-linear-gradient(#A2C9E1, #7AB6DC);
+    background-image: -o-linear-gradient(#A2C9E1, #7AB6DC);
+    background-image: linear-gradient(#A2C9E1, #7AB6DC);
+    -webkit-box-shadow: inset 0 1px 6px rgba(71, 98, 116, .6);
+    box-shadow: inset 0 1px 6px rgba(71, 98, 116, .6);
+    border-color: #79A8C7;
+}
+
+.btn-shop-action:active {
+    background-color: #ADADAD;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ADADAD), color-stop(100%, #B1B1B1));
+    background-image: -webkit-linear-gradient(#ADADAD, #B1B1B1);
+    background-image: -moz-linear-gradient(#ADADAD, #B1B1B1);
+    background-image: -o-linear-gradient(#ADADAD, #B1B1B1);
+    background-image: linear-gradient(#ADADAD, #B1B1B1);
+    -webkit-box-shadow: inset 0 1px 6px #949494;
+    box-shadow: inset 0 1px 6px #949494;
+    border-color: #969696;
+}
+
+/* Disabled */
+[class*="btn-shop"].btn-shop-disabled,
+.btn-shop-disabled:hover,
+.btn-shop-disabled:active,
+.btn-shop-disabled:focus,
+[class*="btn-shop"][disabled],
+[class*="btn-shop"][disabled]:hover,
+[class*="btn-shop"][disabled]:active,
+[class*="btn-shop"][disabled]:focus {
+    background-color: #FEFEFE;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #FEFEFE), color-stop(100%, #E6E6E6));
+    background-image: -webkit-linear-gradient(#FEFEFE, #E6E6E6);
+    background-image: -moz-linear-gradient(#FEFEFE, #E6E6E6);
+    background-image: -o-linear-gradient(#FEFEFE, #E6E6E6);
+    background-image: linear-gradient(#FEFEFE, #E6E6E6);
+    border: 1px solid #CCCCCC !important; /* important for links */
+    -webkit-box-shadow: inset 0px 1px #FEFEFE;
+    box-shadow: inset 0px 1px rgba(240, 240, 240, 1);
+    color: #999999 !important; /* important for links */
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-shadow: none;
+}
+/* Default h: ~30px*/
+.btn-shop,
+.btn-shop:focus {
+    line-height: 1.12em; /* ~20px */
+    padding: 5px 10px;
+}
+
+
+/* IE */
+.lt-ie10 .btn-shop,
+.lt-ie10 .btn-shop:focus,
+.lt-ie10 .btn-shop:visited {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5CA000', endColorstr='#176600');
+}
+
+.lt-ie10 .btn-shop-skin,
+.lt-ie10 .btn-shop-skin:focus,
+.lt-ie10 .btn-shop-skin:visited {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#CCE3F7', endColorstr='#AAD0EF');
+}
+
+.lt-ie10 .btn-shop:hover {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#176600', endColorstr='#2F33AE');
+}
+
+.lt-ie10 .btn-shop-skin:hover {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#DCECFB', endColorstr='#C5DFF5');
+}
+
+.lt-ie10 .btn-shop:active {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0F1534', endColorstr='#171C41');
+}
+
+.lt-ie10 .btn-shop-skin:active {
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#A2C9E1', endColorstr='#7DB7DC');
+}
+
+.lt-ie10 .btn-shop.btn-shop-disabled,
+.lt-ie10 .btn-shop-skin.btn-shop-disabled,
+.lt-ie10 .btn-shop-disabled:hover,
+.lt-ie10 .btn-shop-disabled:active,
+.lt-ie10 .btn-shop-disabled:focus,
+.lt-ie10 [class*="btn-shop"][disabled],
+.lt-ie10 [class*="btn-shop"][disabled]:hover,
+.lt-ie10 [class*="btn-shop"][disabled]:active,
+.lt-ie10 [class*="btn-shop"][disabled]:focus {
+    filter: alpha(opacity=50);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#FEFEFE', endColorstr='#E6E6E6');
+}
+
+.ie8 [class*="btn-shop"]:focus,
+.ie8 input[type="button"]:focus,
+.ie8 input[type="submit"]:focus,
+.ie8 input[type="reset"]:focus,
+.ie8 input[type="file"]:focus,
+.ie8 button:focus {
+    outline: thin dotted;
+    outline-offset: -2px;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    vertical-align: baseline;
+}
+
+
+
+/*
+ * Define consistent border, margin, and padding.
+ */
+
+fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+/*
+ * 1. Corrects color not being inherited in IE 8/9.
+ * 2. Remove padding so people aren't caught out if they zero out fieldsets.
+ */
+
+legend {
+    border: 0; /* 1 */
+    padding: 0; /* 2 */
+}
+
+/*
+ * 1. Corrects font family not being inherited in all browsers.
+ * 2. Corrects font size not being inherited in all browsers.
+ * 3. Addresses margins set differently in Firefox 4+, Safari 5, and Chrome
+ */
+
+button,
+input,
+select,
+textarea {
+    font-family: inherit; /* 1 */
+    font-size: 100%; /* 2 */
+    margin: 0; /* 3 */
+}
+
+/*
+ * Addresses Firefox 4+ setting `line-height` on `input` using `!important` in
+ * the UA stylesheet.
+ */
+
+button,
+input {
+    line-height: normal;
+}
+
+/*
+ * 1. Avoid the WebKit bug in Android 4.0.* where (2) destroys native `audio`
+ *    and `video` controls.
+ * 2. Corrects inability to style clickable `input` types in iOS.
+ * 3. Improves usability and consistency of cursor style between image-type
+ *    `input` and others.
+ */
+
+input[type="search"]{
+  -webkit-appearance: textfield;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Generic input & textarea */
+input[type="text"],
+input[type="url"],
+input[type="email"],
+input[type="search"],
+input[type="date"],
+input[type="datatime"],
+input[type="datatime-local"],
+input[type="month"],
+input[type="week"],
+input[type="time"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+textarea,
+select[multiple],
+.form-shop-select-multiple {
+    border: 1px solid #CDCDCD;
+    border-radius: 3px;
+    padding: 6px;
+}
+
+input[type="text"]:focus,
+input[type="url"]:focus,
+input[type="email"]:focus,
+input[type="search"]:focus,
+input[type="date"]:focus,
+input[type="datatime"]:focus,
+input[type="datatime-local"]:focus,
+input[type="month"]:focus,
+input[type="week"]:focus,
+input[type="time"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+input[type="password"]:focus,
+textarea:focus,
+select[multiple]:focus,
+.form-shop-select-multiple:focus {
+    border: 2px solid #9A9A9A;
+    padding: 5px;
+    outline: 0;
+}
+
+input[type="file"]:focus,
+input[type="checkbox"]:focus,
+input[type="radio"]:focus,
+input[type="range"]:focus,
+select:focus {
+    outline: 1px dotted #9A9A9A;
+}
+
+input[readonly],
+input[readonly]:focus {
+    border: none;
+    color: #999999;
+    padding: 5px 0;
+}
+
+/* Module */
+.form-shop fieldset {
+    margin-bottom: 10px;
+}
+
+    /* Title module */
+    .form-shop legend {
+        color: #9ABD1E;
+        font-size: 14px;
+        
+    }
+
+
+/* Required specification or another */
+.form-shop-hint {
+    color: #999999;
+    font-size: 12px;
+    line-height: 12px;
+}
+
+/* Basic wrapper for horizontal view */
+.form-shop-row {
+    padding: 5px 0;
+    position: relative;
+}
+
+/* Label */
+.form-shop-row label {
+    display:inline-block;
+    position:relative;
+    padding: 7px 11px 5px 0;
+}
+
+/* Label inline not used yet */
+    .form-shop-row input + label,
+    .form-shop-row select + label,
+    .ch-label-inline {
+        text-align: left;
+        width: auto;
+        font-weight: normal;
+        margin-left: 0;
+    }
+
+/* Label required **/
+    .form-shop-required label {
+        font-weight: bold;
+    }
+
+    .form-shop-required.form-shop-options label {
+        font-weight: normal;
+        z-index: 1;
+    }
+
+/* Icon indication of required */
+    .form-shop-required em {
+        display: block;
+        position: absolute;
+        right: 3px;
+        top: 3px;
+    }
+/* Icon indication of required in options */
+    .form-shop-required.form-shop-options em {
+        display: inline;
+        position: relative;
+        vertical-align: super;
+        top: auto;
+        right: auto;
+    }
+
+/* Checkbox inline
+.form-shop-row input + input[type=checkbox],*/
+.form-shop-checkbox-inline {
+    margin-right: 0;
+    border: none;
+}
+
+/* Range
+input[type=range],*/
+.form-shop-range {
+    padding: 4px;
+    vertical-align: middle;
+}
+
+/* Select Multiple */
+.form-shop-row select[multiple],
+.form-shop-select-multiple {
+    vertical-align: top;
+    margin-top: 10px;
+}
+
+/* Textarea */
+.form-shop-row textarea {
+    vertical-align: top;
+}
+
+/* Help bottom line that helps the user */
+.form-shop-row .form-shop-hint {
+    display: block;
+}
+
+/* Subtitle in options */
+.form-shop-options .form-shop-subtitle {
+    margin-bottom: 15px;
+    margin-left: -20px;
+}
+
+/* Subtitle in options & required */
+.form-shop-options.form-shop-required .form-shop-subtitle{
+    font-weight: bold;
+}
+
+/* Label in options */
+.form-shop-options label {
+    padding: 0 0 0 22px;
+    margin: 0;
+}
+
+/* Radio & Checkbox in options */
+.form-shop-options input[type="radio"],
+.form-shop-options input[type="checkbox"] {
+    position: absolute;
+    display: block;
+    width: 16px;
+    height: 16px;
+    top: 1.125em;
+}
+
+.form-shop-options input[type=radio] {
+    margin-top: -9px;
+}
+
+.form-shop-options input[type=checkbox] {
+    margin-top: -8px;
+}
+
+/* Disabled status */
+.form-shop-disabled label {
+    color: #999999;
+}
+
+.form-shop-disabled input,
+.form-shop-disabled input[disabled],
+.form-shop-disabled textarea,
+.form-shop-disabled textarea[disabled] {
+    background-color: #F2F2F2;
+    cursor: not-allowed;
+}
+
+/* Actions */
+.form-shop-actions {
+    text-align: left;
+    margin-top: 10px;
+}
+
+
+/**
+ * Input colorizing
+ */
+
+.form-shop input.validation-error,
+.form-shop textarea.validation-error {
+    border-color: #E05B54;
+}
+
+.validation-error:focus {
+    border-width: 2px;
+}
+input[type="text"],
+input[type="url"],
+input[type="email"],
+input[type="search"],
+input[type="date"],
+input[type="datatime"],
+input[type="datatime-local"],
+input[type="month"],
+input[type="week"],
+input[type="time"],
+input[type="tel"],
+input[type="number"],
+input[type="password"],
+textarea,
+select[multiple],
+.form-shop-select-multiple {
+    font-size: 13px;
+    margin: 5px 0;
+}
+
+/* Label */
+.form-shop-row label {
+    font-size: 13px;
+    text-align: right;
+    width: 130px;
+}
+
+/* Checkbox inline */
+.form-shop-checkbox-inline {
+    margin-left: 11px;
+}
+
+/* Range */
+.form-shop-range {
+    padding: 4px;
+    vertical-align: middle;
+}
+
+/* Select */
+.form-shop-row select {
+    margin: 5px 0;
+}
+
+/* Help bottom line that helps the user */
+.form-shop-row .form-shop-hint {
+    margin-left: 145px;
+}
+
+/* Options */
+.form-shop-options {
+    margin: 0 0 15px 20px;
+}
+
+/* Subtitle in options */
+.form-shop-options .form-shop-subtitle {
+    margin-bottom: 15px;
+    margin-left: -20px;
+}
+
+/* Disabled status */
+.form-shop-disabled label {
+    color: #999999;
+}
+
+.form-shop-disabled input,
+.form-shop-disabled input[disabled],
+.form-shop-disabled textarea,
+.form-shop-disabled textarea[disabled] {
+    background-color: #F2F2F2;
+    cursor: not-allowed;
+}
+
+/* Actions */
+.form-shop-actions {
+    margin-left: 145px;
+}
+
+.lt-ie10 .form-shop-options input[type=radio] {
+    margin-top: -11px;
+}
+
+.lt-ie10 .form-shop-options input[type=checkbox]  {
+    margin-top: -11px;
+}
+.ch-popover {
+    box-shadow: 2px 2px 2px rgba(100, 100, 100, 0.2);
+}
+
+.ch-shownby-pointertap {
+    cursor: pointer;
+}
+
+.ch-shownby-pointerenter {
+    cursor: default;
+}
+
+
+.form-error {
+    display: inline-block;
+    border: 1px solid #EED3D7;
+    padding: 5px;
+    background-color: #FFF9F7;
+    border-radius: 5px;
+    color: #E05B54;
+    margin-right: 5px;
+
+}
