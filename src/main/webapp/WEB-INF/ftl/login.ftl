@@ -10,10 +10,12 @@
 
     </head>
     <body>
-        <div class="header">
-            <h1>Shopncheck</h1>
-        </div>
-        <div class="container-box">
+       <header>
+          <div class="header-box">
+            <h1>Shopncheck<span class="tag-intranet">intranet</span></h1>
+          </div>
+        </header>
+        <div class="container-box-login">
             <form class="form-shop form-shop-big" action="j_spring_security_check" method="POST">
               <fieldset>
                   <legend>Ingresar a <b>shopncheck </b></legend>
