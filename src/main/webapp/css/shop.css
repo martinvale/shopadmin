@@ -94,6 +94,9 @@ h2.subtitulo {
 .form-shop-options-left p {
     font-weight: bold;
     }
+    .form-shop-row-left input {
+        width: 130px;
+    }
     .form-shop-options-left .form-shop {
         margin: 2px 0 5px 10px;
         }
@@ -131,14 +134,18 @@ h2.subtitulo {
         padding:2px 4px 2px 0;
 
     }
-.columnas-form select, .columnas-form input[type="text"] {
-  width: 150px;
-}
+    .columnas-form select{
+        width: 150px
+    }
     .columnas-form.col-three li {
          width: 300px;
     }
      .columnas-form.col-three li label{
          width: 120px;
+    }
+    .columnas-form .form-shop-row input[type="text"],
+    .columnas-form .form-shop-row input[type="number"]{
+        width: 140px;
     }
 
 .action-columns {

@@ -12,10 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderRepository extends HibernateDaoSupport {
 
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-  public OrdenPago save(final OrdenPago ordenPago) {
-    getSession().save(ordenPago);
+  public long save(final OrdenPago ordenPago) {
+    long numeroOrden = (Long) getSession().save(ordenPago);
     getSession().flush();
-    return ordenPago;
+    return numeroOrden;
+  }
+
+  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+  public void update(final OrdenPago ordenPago) {
+    getSession().update(ordenPago);
+  }
+
+  public OrdenPago get(final long id) {
+    return (OrdenPago) getSession().get(OrdenPago.class, id);
   }
 
   public OrderState getOrderState(final long id) {

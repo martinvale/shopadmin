@@ -86,6 +86,21 @@ public class OrdenPago {
     iva = theIva;
   }
 
+  public void update(final int theTipoProveedor, final int theProveedor,
+      final String theTipoFactura, final Date thePayDate,
+      final OrderState theState, final MedioPago theMedioPago,
+      final double theIva, final String unNumeroFactura,
+      final Date unaFechaCheque, final String unNumeroChequera,
+      final String unChequeNumero, final String unTransferId,
+      final String unaLocalidad) {
+    numeroFactura = unNumeroChequera;
+    fechaCheque = unaFechaCheque;
+    numeroChequera = unNumeroChequera;
+    numeroCheque = unChequeNumero;
+    idTransferencia = unTransferId;
+    localidad = unaLocalidad;
+  }
+
   /**
    * @return the numero
    */
@@ -203,5 +218,9 @@ public class OrdenPago {
    */
   public String getObservacionesShopper() {
     return observacionesShopper;
+  }
+
+  void updateNumber(final int theNumber) {
+    numero = theNumber;
   }
 }

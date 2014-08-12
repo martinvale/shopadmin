@@ -5,8 +5,9 @@
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
 
-    <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/shop.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <link rel="stylesheet" href="/css/shop.css">
+    <link rel="stylesheet" href="/css/custom.css">
 
     <link rel="stylesheet" href="/css/jquery-ui/jquery-ui.css">
 
@@ -21,6 +22,14 @@
       App.widget = App.widget || {};
 
 App.widget.OrdenPago = function (container) {
+
+  var initialize = function () {
+    container.find(".js-date" ).datepicker({
+      onSelect: function(dateText, datePicker) {
+        $(this).attr('value', dateText);
+      }
+    });
+  }
 
   var initEventListeners = function () {
   };
@@ -48,6 +57,7 @@ App.widget.OrdenPago = function (container) {
 
   return {
     render: function () {
+      initialize();
       initEventListeners();
       initValidators();
     }
@@ -94,7 +104,7 @@ textarea.LV_invalid_field:active {
 </style>
   </head>
   <body>
-    <#assign user=model["user"] />
+    <#assign user = model["user"] />
     <header>
       <div class="header-box">
         <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
@@ -103,18 +113,49 @@ textarea.LV_invalid_field:active {
     </header>
     <div class="container-box-plantilla">
         <h2 class="container-tit">Orden de pago</h2>
-        <form action="orden" method="POST" class="form-shop form-shop-big js-orden-pago">
+        <#assign numero = "" />
+        <#assign tipoFactura = "" />
+        <#assign fechaPago = "" />
+        <#assign medioPagoId = "" />
+        <#assign state = "" />
+        <#assign iva = "" />
+        <#assign facturaNumero = "" />
+        <#assign fechaCheque = "" />
+        <#assign localidad = "" />
+        <#assign numeroChequera = "" />
+        <#assign numeroCheque = "" />
+        <#assign transferId = "" />
+        <#if model["ordenPago"]??>
+          <#assign numero = "${model['ordenPago'].numero?c}" />
+          <#assign tipoFactura = "${model['ordenPago'].tipoFactura}" />
+          <#assign fechaPago = "${model['ordenPago'].fechaPago?string('dd/MM/yyyy')}" />
+          <#assign medioPagoId = "${model['ordenPago'].medioPago.id?c}" />
+          <#assign state = "${model['ordenPago'].estado.id?c}" />
+          <#assign iva = "${model['ordenPago'].iva?c}" />
+          <#assign facturaNumero = "${model['ordenPago'].numeroFactura}" />
+          <#assign fechaCheque = "${model['ordenPago'].fechaCheque?string('dd/MM/yyyy')}" />
+          <#assign localidad = "${model['ordenPago'].localidad}" />
+          <#assign numeroChequera = "${model['ordenPago'].numeroChequera}" />
+          <#assign numeroCheque = "${model['ordenPago'].numeroCheque}" />
+          <#assign transferId = "${model['ordenPago'].idTransferencia}" />
+        </#if>
+
+        <#assign action = "create" />
+        <#if model["ordenPago"]??>
+          <#assign action = "save" />
+        </#if>
+        <form action="${action}" method="POST" class="form-shop form-shop-big js-orden-pago">
           <!-- FILA 1 -->
           <div class="cell">
             <div class="box-green cell-c1">
               <div class="form-shop-row-left">
                 <label for="number">N&uacute;mero</label>
-                <input type="number" placeholder="30" name="number" id="number">
+                <input type="text" name="numeroOrden" readOnly=true id="number" value="${numero}"/>
               </div>
             </div>
             <div class="box-green cell-c2">
               <div class="form-shop-options-left js-titular-selector">
-                <p> Titular</p>
+                <p class="mandatory">Titular</p>
                 <ul>
                   <li class="form-shop">
                     <input type="radio" name="tipoTitular" id="shopper" value="1" class="js-shopper" checked="checked">
@@ -126,8 +167,14 @@ textarea.LV_invalid_field:active {
                   </li>
                 </ul>
                 <div class="combo-titular">
-                  <input type="text" value="" class="js-titulares" />
-                  <input type="hidden" name="titularId" value="" class="js-titular-id" />
+                  <#assign titularId = "" />
+                  <#assign titularNombre = "" />
+                  <#if model["titular"]??>
+                    <#assign titularId = "${model['titular'].id?c}" />
+                    <#assign titularNombre = "${model['titular'].name}" />
+                  </#if>
+                  <input type="text" value="${titularNombre}" class="js-titulares" />
+                  <input type="hidden" name="titularId" value="${titularId}" class="js-titular-id" />
                 </div>
               </div>
             </div>
@@ -137,25 +184,25 @@ textarea.LV_invalid_field:active {
           <ul class="columnas-form">
             <li>
               <div class="form-shop-row">
-                <label for="tipoFactura">Factura</label>
+                <label for="tipoFactura" class="mandatory">Factura</label>
                 <select id="tipoFactura" name="tipoFactura">
                   <option value="Seleccionar">Seleccionar</option>
                   <option value="S/F">S/F</option>
-                  <option value="A">A</option>
-                  <option value="C">C</option>
-                  <option value="M">M</option>
+                  <option value="A" <#if tipoFactura == 'A'>selected="selected"</#if>>A</option>
+                  <option value="C" <#if tipoFactura == 'C'>selected="selected"</#if>>C</option>
+                  <option value="M" <#if tipoFactura == 'M'>selected="selected"</#if>>M</option>
                 </select>
               </div>
               <div class="form-shop-row">
-                <label for="fechaPago">Fecha pago</label>
-                <input type="text" placeholder="11/10/2014" id="fechaPago" name="fechaPago">
+                <label for="fechaPago" class="mandatory">Fecha pago</label>
+                <input type="text" id="fechaPago" name="fechaPago" class="js-date" value="${fechaPago}"/>
               </div>
               <div class="form-shop-row">
-                <label for="medioPago">M. de pago</label>
+                <label for="medioPago" class="mandatory">M. de pago</label>
                 <select id="medioPago" name="medioPagoId">
                   <option value="Seleccionar">Seleccionar</option>
                   <#list model["mediosPago"] as medioPago>
-                    <option value="${medioPago.id}">${medioPago.description}</option>
+                    <option value="${medioPago.id}" <#if medioPago.id?c == medioPagoId>selected="selected"</#if>>${medioPago.description}</option>
                   </#list>
                 </select>
               </div>
@@ -163,53 +210,55 @@ textarea.LV_invalid_field:active {
             <li>
               <div class="form-shop-row">
                 <label for="numeroFactura">Factura N&deg;</label>
-                <input type="number" name="numeroFactura" id="numeroFactura" />
+                <input type="number" name="numeroFactura" id="numeroFactura" value="${facturaNumero}"/>
               </div>
               <div class="form-shop-row">
-                <label for="state">Estado</label>
+                <label for="state" class="mandatory">Estado</label>
                 <select id="state" name="estadoId">
                   <#list model["orderStates"] as orderState>
-                    <option value="${orderState.id}">${orderState.description}</option>
+                    <option value="${orderState.id}" <#if orderState.id?c == state>selected="selected"</#if>>${orderState.description}</option>
                   </#list>
                 </select>
               </div>
               <div class="form-shop-row">
                 <label for="numeroChequera">Chequera N&deg;</label>
-                <input type="number" name="numeroChequera" id="numeroChequera" />
+                <input type="number" name="numeroChequera" id="numeroChequera" value="${numeroChequera}"/>
               </div>
               <div class="form-shop-row">
                 <label for="transferId">ID Transfer</label>
-                <input type="number" name="transferId" id="transferId" />
+                <input type="number" name="transferId" id="transferId" value="${transferId}"/>
               </div>
             </li>
             <li>
               <div class="form-shop-row">
-                <label for="iva">IVA %</label>
-                <input type="text" name="iva" id="iva" />
+                <label for="iva" class="mandatory">IVA %</label>
+                <input type="text" name="iva" id="iva" value="${iva}"/>
               </div>
               <div class="form-shop-row">
                 <label for="localidad">Localidad</label>
                 <select id="localidad" name="localidad">
-                  <option value="0">Seleccionar</option>
+                  <option value="">Seleccionar</option>
+                  <option value="Buenos Aires" <#if localidad == 'Buenos Aires'>selected="selected"</#if>>Buenos Aires</option>
+                  <option value="Interior" <#if localidad == 'Interior'>selected="selected"</#if>>Interior</option>
                 </select>
               </div>
               <div class="form-shop-row">
                 <label for="numeroCheque">Cheque N&deg;</label>
-                <input type="number" name="numeroCheque" id="numeroCheque">
+                <input type="number" name="numeroCheque" id="numeroCheque" value="${numeroCheque}"/>
               </div>
             </li>
             <li>
               <div class="form-shop-row">
                 <label for="fechaCheque">Fecha cheque</label>
-                <input type="text" placeholder="11/10/2014" id="fechaCheque" name="fechaCheque">
+                <input type="text" id="fechaCheque" name="fechaCheque" class="js-date" value="${fechaCheque}">
               </div>
             </li>
           </ul>
           <ul class="action-columns">
             <li> <input type="submit" class="btn-shop-small" value="Guardar" name="save"></li>
-            <li> <input type="submit" class="btn-shop-small" value="Carátula" name="carta"></li>
-            <li> <input type="submit" class="btn-shop-small" value="Observaciones" name="obs"></li>
-            <li> <input type="submit" class="btn-shop-small" value="Obsp/Shopper" name="shop"></li>
+            <li> <input type="button" class="btn-shop-small" value="Car&aacute;tula" name="carta" <#if !model["ordenPago"]??>disabled="true"></#if></li>
+            <li> <input type="button" class="btn-shop-small" value="Observaciones" name="obs" <#if !model["ordenPago"]??>disabled="true"></#if></li>
+            <li> <input type="button" class="btn-shop-small" value="Obsp/Shopper" name="shop" <#if !model["ordenPago"]??>disabled="true"></#if></li>
           </ul>
           <!-- FIN FILA 2 -->
 
@@ -263,9 +312,9 @@ textarea.LV_invalid_field:active {
             </table>
         </div>
         <ul class="action-columns">
-            <li> <input type="submit" class="btn-shop-small" value="Agregar" name="ass"></li>
-            <li> <input type="submit" class="btn-shop-small" value="Deuda Shopper" name="deusa"></li>
-            <li> <input type="submit" class="btn-shop-small" value="Eliminar item" name="delete"></li>
+            <li> <input type="submit" class="btn-shop-small" value="Agregar" name="ass" disabled="true"></li>
+            <li> <input type="submit" class="btn-shop-small" value="Deuda Shopper" name="deusa" disabled="true"></li>
+            <li> <input type="submit" class="btn-shop-small" value="Eliminar item" name="delete" disabled="true"></li>
         </ul>
 
   <!-- FIN FILA 3 -->
@@ -305,14 +354,14 @@ textarea.LV_invalid_field:active {
             </li>
          </ul>
 
-    <div class="actions-form">
+        <div class="actions-form">
           <ul class="action-columns">
-            <li> <input type="submit" class="btn-shop" value="Imprimir" name="imp"></li>
-            <li> <input type="submit" class="btn-shop" value="Imprimir Detalle" name="detail"></li>
-            <li> <input type="submit" class="btn-shop-action" value="Eliminar Shopper" name="deleteshop"></li>
-            <li> <input type="submit" class="btn-shop-action" value="Cerrar" name="cerrar"></li>
-        </ul>
-    </div>
+            <li> <input type="submit" class="btn-shop" value="Imprimir" name="imp" disabled="true"></li>
+            <li> <input type="submit" class="btn-shop" value="Imprimir Detalle" name="detail" disabled="true"></li>
+            <li> <input type="submit" class="btn-shop-action" value="Eliminar Shopper" name="deleteshop" disabled="true"></li>
+            <li> <input type="button" class="btn-shop-action" value="Cerrar" name="cerrar"></li>
+          </ul>
+        </div>
     </form>
     </div>
   </body>

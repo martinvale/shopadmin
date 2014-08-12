@@ -16,4 +16,8 @@ public class ShopperRepository extends HibernateDaoSupport {
     criteria.add(Expression.like("name", pattern + "%"));
     return (List<Shopper>) criteria.list();
   }
+
+  public Shopper get(final long id) {
+    return (Shopper) getSession().get(Shopper.class, id);
+  }
 }

@@ -18,6 +18,7 @@
   <mvc:annotation-driven />
 
   <context:component-scan base-package="com.ibiscus.shopnchek.web.controller" />
+  <context:component-scan base-package="com.ibiscus.shopnchek.domain.admin" />
 
   <!-- Configuration service -->
   <!-- bean id="configurationService"
