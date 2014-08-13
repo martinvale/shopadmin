@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
 import com.ibiscus.shopnchek.domain.admin.MedioPago;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
@@ -30,6 +31,10 @@ public class OrdenPagoController {
   /** Repository of shoppers. */
   @Autowired
   private ShopperRepository shopperRepository;
+
+  /** Repository of shoppers. */
+  @Autowired
+  private ItemsOrdenService itemsOrdenService;
 
   @RequestMapping(value="/")
   public String index(@ModelAttribute("model") final ModelMap model) {

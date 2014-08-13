@@ -2,3 +2,7 @@
   color: red;
   font-weight: bold;
 }
+
+.shopper-widget input {
+  width: 300px;
+}

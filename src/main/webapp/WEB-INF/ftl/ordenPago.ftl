@@ -21,7 +21,64 @@
 
       App.widget = App.widget || {};
 
+App.widget.ShopperSelector = function (container) {
+  var selector = container.find(".js-shopper");
+
+  var initEventListeners = function () {
+    var filter = selector.autocomplete({
+      source: "/services/shoppers/suggest",
+      minLength: 2,
+      select: function(event, ui) {
+        selector.val(ui.item.name);
+        container.find(".js-shopper-id").val(ui.item.id);
+        return false;
+      }
+    });
+    filter.data( "ui-autocomplete" )._renderItem = function(ul, item) {
+      return $("<li>")
+        .append("<a>" + item.name + "</a>")
+        .appendTo(ul);
+    };
+  };
+
+  return {
+    render: function () {
+      initEventListeners();
+    }
+  };
+};
+
+App.widget.ItemsSelector = function (container) {
+
+  var itemDialog = container.dialog({autoOpen: false, width: 900});
+
+  var shopperSelector = new App.widget.ShopperSelector(container.find(".js-shopper-selector"));
+
+  var initialize = function () {
+    itemDialog.find(".js-tabs").tabs();
+    shopperSelector.render();
+  }
+
+  var initEventListeners = function () {
+    container.find(".js-mcd-items .js-buscar" ).click(function () {
+      alert("hola");
+    });
+  };
+
+  return {
+    render: function () {
+      initialize();
+      initEventListeners();
+    },
+    open: function () {
+      itemDialog.dialog("open");
+    }
+  };
+}
+
 App.widget.OrdenPago = function (container) {
+
+  var itemSelector = new App.widget.ItemsSelector(jQuery("#item-selector"));
 
   var initialize = function () {
     container.find(".js-date" ).datepicker({
@@ -29,9 +86,13 @@ App.widget.OrdenPago = function (container) {
         $(this).attr('value', dateText);
       }
     });
+    itemSelector.render();
   }
 
   var initEventListeners = function () {
+    container.find(".js-add-item" ).click(function () {
+      itemSelector.open();
+    });
   };
 
   var initValidators = function () {
@@ -266,53 +327,42 @@ textarea.LV_invalid_field:active {
          <h2 class="subtitulo">Items</h2>
          <div class="scroll-table">
              <table summary="Listado de cobros en MercadoPago" class="table-form ">
-            
                 <thead>
                     <tr>
                         <th scope="col">Shopper</th>
                         <th scope="col">Cliente</th>
                         <th scope="col">Mes</th>
-                        <th scope="col">Año</th>
+                        <th scope="col">A&ntilde;o</th>
                         <th scope="col">Sucursal</th>
                         <th scope="col">Pago</th>
                         <th scope="col">Importe</th>
                         <th scope="col">DNI</th>
-                        <th scope="col">Asignación</th>
+                        <th scope="col">Asignaci&oacute;n</th>
                         <th scope="col">Fecha</th>
                     </tr>
                 </thead>
                 <tbody>
+                  <#if model["ordenPago"]??>
+                    <#list model["ordenPago"].items as item>
                     <tr>
                         <td></td>
+                        <td>${item.cliente!''}</td>
+                        <td>${item.mes!''}</td>
+                        <td>${item.anio!''}</td>
+                        <td>${item.sucursal!''}</td>
                         <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        
+                        <td>${item.importe}</td>
+                        <td>${item.shopperDni}</td>
+                        <td>${item.asignacion!''}</td>
+                        <td>${item.fecha!''}</td>
                     </tr>
-                     <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        
-                    </tr>
+                    </#list>
+                  </#if>
                 </tbody>
             </table>
         </div>
         <ul class="action-columns">
-            <li> <input type="submit" class="btn-shop-small" value="Agregar" name="ass" disabled="true"></li>
+            <li> <input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !model["ordenPago"]??>disabled="true"></#if>></li>
             <li> <input type="submit" class="btn-shop-small" value="Deuda Shopper" name="deusa" disabled="true"></li>
             <li> <input type="submit" class="btn-shop-small" value="Eliminar item" name="delete" disabled="true"></li>
         </ul>
@@ -349,7 +399,7 @@ textarea.LV_invalid_field:active {
                 
                 <div class="form-shop-row">
                     <label for="tot">Total general</label>
-                    <input type="number"  max="99" min="18" name="tot" id="tot">
+                    <input type="text" max="99" min="18" name="tot" id="tot">
                 </div>
             </li>
          </ul>
@@ -363,6 +413,138 @@ textarea.LV_invalid_field:active {
           </ul>
         </div>
     </form>
+    </div>
+    <div id="item-selector" style="display:none;">
+        <div class="container-box-plantilla">
+            <h2 class="container-tit">Items de la orden de pago</h2>
+            <form class="">
+              <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
+                <div class="ch-popover-content">
+                    Revisa los datos. Debes completar campos "Número" y "Factura".
+                </div>
+              </div-->
+            <!-- FILA 1 -->
+                <div class="cell">
+                    <div class="box-green">
+                      <div class="form-shop-row-left shopper-widget js-shopper-selector">
+                        <label for="shopper">Shooper: </label>
+                        <#assign titularId = "" />
+                        <#assign titularNombre = "" />
+                        <#if model["titular"]??>
+                          <#assign titularId = "${model['titular'].id?c}" />
+                          <#assign titularNombre = "${model['titular'].name}" />
+                        </#if>
+                        <input type="text" value="" id="shopper" class="js-shopper" />
+                        <input type="hidden" name="shopperId" value="" class="js-shopper-id" />
+                      </div>
+                    </div>
+                    <div class="tabs_holder js-tabs">
+                        <ul>
+                            <!--li><a href="#your-tab-id-1">I Plan </a></li-->
+                            <li><a href="#your-tab-id-2">MCD</a></li>
+                            <!--li><a href="#your-tab-id-3">GAC</a></li>
+                            <li><a href="#your-tab-id-4">Adicionales</a></li>
+                            <li><a href="#your-tab-id-5">Manuales</a></li-->
+                        </ul>
+                        <div class="content_holder">
+                          <!--div id="your-tab-id-1">
+                           I Plan
+                          </div-->
+                          <div id="your-tab-id-2" class="js-mcd-items">
+                            <ul class="action-columns">
+                                <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
+                            </ul>
+                            <div class="scroll-table">
+                                 <table summary="Lista de items" class="table-form ">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Shopper</th>
+                                            <th scope="col">Cliente</th>
+                                            <th scope="col">Mes</th>
+                                            <th scope="col">A&ntilde;o</th>
+                                            <th scope="col">Sucursal</th>
+                                            <th scope="col">Pago</th>
+                                            <th scope="col">Importe</th>
+                                            <th scope="col">DNI</th>
+                                            <th scope="col">Asignaci&oacute;n</th>
+                                            <th scope="col">Fecha</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                         <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                          </div>
+                          <!--div id="your-tab-id-3">
+                           Some content tab 3
+                          </div>
+                          <div id="your-tab-id-4">
+                           Some content tab 4
+                          </div>
+                           <div id="your-tab-id-5">
+                           Some content tab 5
+                          </div-->
+                        </div>
+                    </div>
+
+
+            <!-- Item -->
+             <h2 class="subtitulo">Items</h2>
+             <div class="scroll-table">
+                 <table summary="Lista de items" class="table-form ">
+                    <thead>
+                        <tr>
+                            <th scope="col">Shopper</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Mes</th>
+                            <th scope="col">A&ntilde;o</th>
+                            <th scope="col">Sucursal</th>
+                            <th scope="col">Pago</th>
+                            <th scope="col">Importe</th>
+                            <th scope="col">DNI</th>
+                            <th scope="col">Asignaci&oacute;n</th>
+                            <th scope="col">Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                         <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <ul class="action-columns">
+                <li> <input type="button" class="btn-shop-small" value="Agregar" name="ass"></li>
+                <li> <input type="button" class="btn-shop-small" value="Deuda Shopper" name="deusa"></li>
+                <li> <input type="button" class="btn-shop-small" value="Eliminar item" name="delete"></li>
+            </ul>
+
+      <!-- FIN FILA 3 -->
+        </form>
+        </div>
+
     </div>
   </body>
 </html>

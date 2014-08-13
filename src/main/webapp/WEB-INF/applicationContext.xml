@@ -68,6 +68,11 @@
     <property name="sessionFactory" ref="sessionFactory2"></property>
   </bean>
 
+  <!-- Services -->
+  <bean id="itemsOrdenService" class="com.ibiscus.shopnchek.application.orden.ItemsOrdenService">
+    <constructor-arg index="0" ref="dataSource" />
+  </bean>
+
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="/WEB-INF/shopnchek.properties" />
   </bean>

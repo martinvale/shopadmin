@@ -1,13 +1,17 @@
 package com.ibiscus.shopnchek.domain.admin;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -68,6 +72,10 @@ public class OrdenPago {
 
   @Column(name="obspshopper")
   private String observacionesShopper;
+
+  @OneToMany(fetch = FetchType.EAGER)
+  @JoinColumn(name = "orden_nro")
+  private List<ItemOrden> items = new LinkedList<ItemOrden>();
 
   /** Default constructor for Hibernate. */
   OrdenPago() {
@@ -218,6 +226,10 @@ public class OrdenPago {
    */
   public String getObservacionesShopper() {
     return observacionesShopper;
+  }
+
+  public List<ItemOrden> getItems() {
+    return items;
   }
 
   void updateNumber(final int theNumber) {
