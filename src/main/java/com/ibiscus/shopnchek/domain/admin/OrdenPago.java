@@ -235,4 +235,34 @@ public class OrdenPago {
   void updateNumber(final int theNumber) {
     numero = theNumber;
   }
+
+  public double getHonorarios() {
+    double honorarios = 0;
+    for (ItemOrden unItemOrden : items) {
+      if (unItemOrden.getTipoPago().getDescription().equals("HONORARIOS")) {
+        honorarios += unItemOrden.getImporte();
+      }
+    }
+    return honorarios;
+  }
+
+  public double getReintegros() {
+    double reintegros = 0;
+    for (ItemOrden unItemOrden : items) {
+      if (unItemOrden.getTipoPago().getDescription().equals("REINTEGROS")) {
+        reintegros += unItemOrden.getImporte();
+      }
+    }
+    return reintegros;
+  }
+
+  public double getOtrosGastos() {
+    double otrosGastos = 0;
+    for (ItemOrden unItemOrden : items) {
+      if (unItemOrden.getTipoPago().getDescription().equals("OTROS GASTOS")) {
+        otrosGastos += unItemOrden.getImporte();
+      }
+    }
+    return otrosGastos;
+  }
 }

@@ -4,11 +4,11 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "items_orden")
@@ -16,7 +16,6 @@ public class ItemOrden {
 
   @Id
   @Column(name="id")
-  @GeneratedValue
   private long id;
 
   @ManyToOne
@@ -36,7 +35,7 @@ public class ItemOrden {
   private Integer anio;
 
   @Column(name = "fecha")
-  private Date fecha;
+  private String fecha;
 
   @Column(name = "importe")
   private double importe;
@@ -50,34 +49,54 @@ public class ItemOrden {
   @Column(name = "tipo_item")
   private int tipoItem;
 
-  @Column(name = "tipo_pago")
-  private int tipoPago;
+  @ManyToOne
+  @JoinColumn(name = "tipo_pago")
+  private TipoPago tipoPago;
 
   @Column(name = "usuario_autorizacion_1")
   private long usuarioAutorizacion;
 
+  @Column(name = "descripcion")
+  private String descripcion;
+
   @Column(name = "estado")
   private int estado;
+
+  @Column(name = "fecha_insercion")
+  private Date fechaInsercion = new Date();
+
+  @Transient
+  private Shopper shopper;
 
   /** Constructor for Hibernate. */
   ItemOrden() {
   }
 
-  public ItemOrden(final String theShopperDni, final Integer unaAsignacion,
-      final Integer unTipoItem, final int unTipoPago, final String unCliente,
+  public ItemOrden(final long theId, final OrdenPago unaOrden,
+      final long usuario, final String theShopperDni, final Integer unaAsignacion,
+      final Integer unTipoItem, final TipoPago unTipoPago, final String unCliente,
       final String unaSucursal, final int unMes, final int unAnio,
-      final Date unaFecha, final double unImporte, final int unEstado) {
+      final String unaFecha, final double unImporte, final String unaDescripcion,
+      final int unEstado) {
+    id = theId;
+    ordenPago = unaOrden;
+    usuarioAutorizacion = usuario;
     shopperDni = theShopperDni;
     asignacion = unaAsignacion;
-    tipoPago = unTipoPago;
     tipoItem = unTipoItem;
+    tipoPago = unTipoPago;
     cliente = unCliente;
     sucursal = unaSucursal;
     mes = unMes;
     anio = unAnio;
     fecha = unaFecha;
     importe = unImporte;
+    descripcion = unaDescripcion;
     estado = unEstado;
+  }
+
+  public void updateShopper(final Shopper unShopper) {
+    shopper = unShopper;
   }
 
   public long getId() {
@@ -112,6 +131,10 @@ public class ItemOrden {
     return anio;
   }
 
+  public String getFecha() {
+    return fecha;
+  }
+
   /**
    * @return the importe
    */
@@ -138,5 +161,13 @@ public class ItemOrden {
    */
   public int getTipoItem() {
     return tipoItem;
+  }
+
+  public TipoPago getTipoPago() {
+    return tipoPago;
+  }
+
+  public Shopper getShopper() {
+    return shopper;
   }
 }

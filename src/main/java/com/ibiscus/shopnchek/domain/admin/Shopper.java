@@ -15,8 +15,14 @@ public class Shopper {
   @GeneratedValue
   private long id;
 
-  @Column(name="nombre")
+  @Column(name="nro_documento")
+  private String dni;
+
+  @Column(name="apellido_y_nombre")
   private String name;
+
+  @Column(name="nombre")
+  private String usuario;
 
   Shopper() {
   }
@@ -25,7 +31,15 @@ public class Shopper {
     return id;
   }
 
+  public String getDni() {
+    return dni;
+  }
+
   public String getName() {
     return name;
+  }
+
+  public String getUsername() {
+    return usuario;
   }
 }

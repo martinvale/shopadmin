@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
+import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.MedioPago;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
@@ -55,6 +56,10 @@ public class OrdenPagoController {
     model.addAttribute("orderStates", orderRepository.findOrderStates());
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
     OrdenPago ordenPago = orderRepository.get(orderId);
+    for (ItemOrden itemOrden : ordenPago.getItems()) {
+      Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
+      itemOrden.updateShopper(itemShopper);
+    }
     model.addAttribute("ordenPago", ordenPago);
     Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
     model.addAttribute("titular", shopper);
@@ -86,7 +91,7 @@ public class OrdenPagoController {
     model.addAttribute("ordenPago", ordenPago);
     Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
     model.addAttribute("titular", shopper);
-    return "ordenPago";
+    return "redirect:" + numeroOrden;
   }
 
   @RequestMapping(value="save", method=RequestMethod.POST)
@@ -113,6 +118,6 @@ public class OrdenPagoController {
     model.addAttribute("ordenPago", ordenPago);
     Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
     model.addAttribute("titular", shopper);
-    return "ordenPago";
+    return "redirect:" + numeroOrden;
   }
 }

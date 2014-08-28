@@ -6,3 +6,7 @@
 .shopper-widget input {
   width: 300px;
 }
+
+a.action {
+  font-size: 10px;
+}

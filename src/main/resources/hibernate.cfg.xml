@@ -12,5 +12,6 @@
     <mapping class="com.ibiscus.shopnchek.domain.admin.ItemOrden"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.OrderState"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.MedioPago"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.admin.TipoPago"></mapping>
   </session-factory>
 </hibernate-configuration>

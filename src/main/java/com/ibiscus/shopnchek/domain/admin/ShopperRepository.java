@@ -17,6 +17,13 @@ public class ShopperRepository extends HibernateDaoSupport {
     return (List<Shopper>) criteria.list();
   }
 
+  public Shopper findByDni(final String dni) {
+    Validate.notNull(dni, "The shopper dni cannot be null");
+    Criteria criteria = getSession().createCriteria(Shopper.class);
+    criteria.add(Expression.eq("dni", dni));
+    return (Shopper) criteria.uniqueResult();
+  }
+
   public Shopper get(final long id) {
     return (Shopper) getSession().get(Shopper.class, id);
   }

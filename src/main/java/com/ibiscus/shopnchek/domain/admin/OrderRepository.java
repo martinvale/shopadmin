@@ -19,12 +19,22 @@ public class OrderRepository extends HibernateDaoSupport {
   }
 
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+  public long saveItem(final ItemOrden itemOrden) {
+    long numeroItem = (Long) getSession().save(itemOrden);
+    return numeroItem;
+  }
+
+  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public void update(final OrdenPago ordenPago) {
     getSession().update(ordenPago);
   }
 
   public OrdenPago get(final long id) {
     return (OrdenPago) getSession().get(OrdenPago.class, id);
+  }
+
+  public TipoPago getTipoPago(final long id) {
+    return (TipoPago) getSession().get(TipoPago.class, id);
   }
 
   public OrderState getOrderState(final long id) {

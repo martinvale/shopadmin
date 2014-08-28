@@ -13,7 +13,45 @@
 
     <script src="/script/jquery.js"></script>
     <script src="/script/jquery-ui.js"></script>
+    <script src="/script/pure.min.js"></script>
     <script src="/script/livevalidation.js"></script>
+
+    <#assign numero = "" />
+    <#assign tipoFactura = "" />
+    <#assign fechaPago = "" />
+    <#assign medioPagoId = "" />
+    <#assign state = "" />
+    <#assign iva = "" />
+    <#assign facturaNumero = "" />
+    <#assign fechaCheque = "" />
+    <#assign localidad = "" />
+    <#assign numeroChequera = "" />
+    <#assign numeroCheque = "" />
+    <#assign transferId = "" />
+    <#assign totalHonorarios = "" />
+    <#assign totalReintegros = "" />
+    <#assign totalOtrosGastos = "" />
+    <#assign totalHonorariosConIva = "" />
+    <#if model["ordenPago"]??>
+      <#assign numero = "${model['ordenPago'].numero?c}" />
+      <#assign tipoFactura = "${model['ordenPago'].tipoFactura}" />
+      <#assign fechaPago = "${model['ordenPago'].fechaPago?string('dd/MM/yyyy')}" />
+      <#assign medioPagoId = "${model['ordenPago'].medioPago.id?c}" />
+      <#assign state = "${model['ordenPago'].estado.id?c}" />
+      <#assign iva = "${model['ordenPago'].iva?c}" />
+      <#assign facturaNumero = "${model['ordenPago'].numeroFactura}" />
+      <#assign fechaCheque = "${model['ordenPago'].fechaCheque?string('dd/MM/yyyy')}" />
+      <#assign localidad = "${model['ordenPago'].localidad}" />
+      <#assign numeroChequera = "${model['ordenPago'].numeroChequera}" />
+      <#assign numeroCheque = "${model['ordenPago'].numeroCheque}" />
+      <#assign transferId = "${model['ordenPago'].idTransferencia}" />
+      <#assign totalHonorarios = "${model['ordenPago'].honorarios}" />
+      <#assign totalReintegros = "${model['ordenPago'].reintegros}" />
+      <#assign totalOtrosGastos = "${model['ordenPago'].otrosGastos}" />
+      <#assign ivaHonorarios = "${model['ordenPago'].honorarios * (model['ordenPago'].iva / 100)}" />
+      <#assign totalHonorariosConIva = "${model['ordenPago'].honorarios + ivaHonorarios?number}" />
+      <#assign total = "${totalReintegros?number + totalOtrosGastos?number + totalHonorariosConIva?number}" />
+    </#if>
 
     <script type="text/javascript">
 
@@ -22,15 +60,20 @@
       App.widget = App.widget || {};
 
 App.widget.ShopperSelector = function (container) {
+
   var selector = container.find(".js-shopper");
+
+  var currentShopper = null;
 
   var initEventListeners = function () {
     var filter = selector.autocomplete({
       source: "/services/shoppers/suggest",
       minLength: 2,
       select: function(event, ui) {
+        currentShopper = ui.item;
         selector.val(ui.item.name);
         container.find(".js-shopper-id").val(ui.item.id);
+        container.find(".js-shopper-dni").val(ui.item.dni);
         return false;
       }
     });
@@ -44,25 +87,218 @@ App.widget.ShopperSelector = function (container) {
   return {
     render: function () {
       initEventListeners();
+    },
+    getCurrentShopper: function () {
+      return currentShopper;
+    },
+    reset: function () {
+      currentShopper = null;
+      selector.val('');
+      container.find(".js-shopper-id").val('');
+      container.find(".js-shopper-dni").val('');
     }
   };
 };
 
-App.widget.ItemsSelector = function (container) {
+App.widget.ItemsSelector = function (container, numeroOrden, callback) {
 
-  var itemDialog = container.dialog({autoOpen: false, width: 900});
+  var itemDialog = container.dialog({
+    autoOpen: false,
+    width: 900,
+    close: callback
+  });
 
   var shopperSelector = new App.widget.ShopperSelector(container.find(".js-shopper-selector"));
+
+  var rows = $p("#" + container.prop("id") + " .js-mcd-items .items");
+
+  var rowsTemplate = null;
+
+  var visitas = [];
+
+  var rowsAdicionales = $p("#" + container.prop("id") + " .js-items-adicionales .items");
+
+  var rowsAdicionalesTemplate = null;
+
+  var adicionales = [];
+
+  var formVisita;
+
+  var dialogVisita = $("#ammount-confirmation").dialog({
+    autoOpen: false,
+    width: 350,
+    modal: true,
+    callback: function () {},
+    buttons: {
+      "Ok": function() {
+        var importe = formVisita.find(".js-importe").val();
+        var index = parseInt(formVisita.find(".js-index").val());
+        dialogVisita.callback(index, importe);
+      },
+      Cancel: function() {
+        dialogVisita.dialog("close");
+      }
+    },
+    close: function() {
+      formVisita.find("js-importe").val();
+      formVisita.find("js-index").val();
+      //allFields.removeClass( "ui-state-error" );
+    }
+  });
 
   var initialize = function () {
     itemDialog.find(".js-tabs").tabs();
     shopperSelector.render();
+    var directives = {
+      'tr': {
+        'itemOrden<-itemsOrden': {
+          '.programa': function (a) {
+            return a.item.programa + ' <a href="#" class="action js-add-visita">agregar</a>';
+          },
+          '.local': 'itemOrden.local',
+          '.mes': 'itemOrden.mes',
+          '.anio': 'itemOrden.anio',
+          '.fecha': 'itemOrden.fecha',
+          '.descripcion': 'itemOrden.descripcion',
+          '.importe': 'itemOrden.importe',
+          '.fechaCobro': 'itemOrden.fechaCobro',
+          '.asignacion': 'itemOrden.asignacion'
+        }
+      }
+    }
+    rowsTemplate = rows.compile(directives);
+
+    directives = {
+      'tr': {
+        'itemOrden<-itemsOrden': {
+          '.pago': 'itemOrden.pago',
+          '.cliente': function (a) {
+            return a.item.cliente + ' <a href="#" class="action js-add-visita">agregar</a>';
+          },
+          '.sucursal': 'itemOrden.sucursal',
+          '.mes': 'itemOrden.mes',
+          '.anio': 'itemOrden.anio',
+          '.fecha': 'itemOrden.fecha',
+          '.observaciones': 'itemOrden.observacion',
+          '.importe': 'itemOrden.importe'
+        }
+      }
+    }
+    rowsAdicionalesTemplate = rowsAdicionales.compile(directives);
+
+    formVisita = dialogVisita.find("form").on("submit", function(event) {
+      event.preventDefault();
+      var importe = formVisita.find(".js-importe").val();
+      var index = parseInt(formVisita.find(".js-index").val());
+      dialogVisita.callback(index, importe);
+    });
   }
 
   var initEventListeners = function () {
     container.find(".js-mcd-items .js-buscar" ).click(function () {
-      alert("hola");
+      var currentShopper = shopperSelector.getCurrentShopper();
+      jQuery.ajax({
+        url: "/item/mdc/" + currentShopper.dni
+      }).done(function (data) {
+        visitas = data;
+        rows = rows.render({'itemsOrden': data}, rowsTemplate);
+        var actions = container.find(".js-mcd-items .js-add-visita").click(function (event) {
+          event.preventDefault();
+          var index = actions.index(this);
+          addVisita(index);
+        })
+      })
     });
+
+    container.find(".js-items-adicionales .js-buscar" ).click(function () {
+      var currentShopper = shopperSelector.getCurrentShopper();
+      jQuery.ajax({
+        url: "/item/adicionales/" + currentShopper.dni
+      }).done(function (data) {
+        adicionales = data;
+        rowsAdicionales = rowsAdicionales.render({'itemsOrden': data}, rowsAdicionalesTemplate);
+        var actions = container.find(".js-items-adicionales .js-add-visita").click(function (event) {
+          event.preventDefault();
+          var index = actions.index(this);
+          addAdicional(index);
+        })
+      })
+    });
+  };
+
+  var createVisita = function (index, importe) {
+    var visita = visitas[index];
+    visita.importe = importe;
+    var currentShopper = shopperSelector.getCurrentShopper();
+    jQuery.ajax({
+      url: "/item/create",
+      type: 'POST',
+      data: {
+        ordenNro: numeroOrden,
+        tipoPago: visita.tipoPago,
+        asignacion: visita.asignacion,
+        shopperDni: currentShopper.dni,
+        importe: visita.importe,
+        cliente: visita.programa,
+        sucursal: visita.local,
+        mes: visita.mes,
+        anio: visita.anio,
+        fecha: visita.fecha
+      }
+    }).done(function (data) {
+      dialogVisita.dialog("close");
+      visitas.splice(index, 1);
+      rows = rows.render({'itemsOrden': visitas}, rowsTemplate);
+    });
+  };
+
+  var createAdicional = function (index, importe) {
+    var adicional = adicionales[index];
+    adicional.importe = importe;
+    var currentShopper = shopperSelector.getCurrentShopper();
+    jQuery.ajax({
+      url: "/item/createAdicional",
+      type: 'POST',
+      data: {
+        ordenNro: numeroOrden,
+        tipoPago: adicional.tipoPago,
+        asignacion: adicional.id,
+        shopperDni: currentShopper.dni,
+        importe: adicional.importe,
+        cliente: adicional.cliente,
+        sucursal: adicional.sucursal,
+        descripcion: adicional.observacion,
+        mes: adicional.mes,
+        anio: adicional.anio,
+        fecha: adicional.fecha
+      }
+    }).done(function (data) {
+      dialogVisita.dialog("close");
+      adicionales.splice(index, 1);
+      rowsAdicionales = rowsAdicionales.render({'itemsOrden': adicionales}, rowsAdicionalesTemplate);
+    });
+  };
+
+  var addVisita = function (index) {
+    var visita = visitas[index];
+    formVisita.find(".js-index").val(index);
+    formVisita.find(".js-importe").val(visita.importe);
+    dialogVisita.callback = createVisita;
+    dialogVisita.dialog("open");
+  };
+
+  var addAdicional = function (index) {
+    var adicional = adicionales[index];
+    formVisita.find(".js-index").val(index);
+    formVisita.find(".js-importe").val(adicional.importe);
+    dialogVisita.callback = createAdicional;
+    dialogVisita.dialog("open");
+  };
+
+  var reset = function () {
+    shopperSelector.reset();
+    visitas = [];
+    rows = rows.render({'itemsOrden': []}, rowsTemplate);
   };
 
   return {
@@ -71,16 +307,47 @@ App.widget.ItemsSelector = function (container) {
       initEventListeners();
     },
     open: function () {
+      reset();
       itemDialog.dialog("open");
     }
   };
 }
 
-App.widget.OrdenPago = function (container) {
+App.widget.OrdenPago = function (container, numeroOrden) {
 
-  var itemSelector = new App.widget.ItemsSelector(jQuery("#item-selector"));
+  var itemSelector;
+
+  /*var itemsTable = $p("#items-table-template");
+
+  var itemsTableTemplate = null;*/
+
+  var refreshOrden = function () {
+    location.href = location.href;
+  }
 
   var initialize = function () {
+    /*var directives = {
+      'tr': {
+        'itemOrden<-itemsOrden': {
+          '.programa': function (a) {
+            return a.item.programa + ' <a href="#" class="action js-add-visita">agregar</a>';
+          },
+          '.local': 'itemOrden.local',
+          '.mes': 'itemOrden.mes',
+          '.anio': 'itemOrden.anio',
+          '.fecha': 'itemOrden.fecha',
+          '.descripcion': 'itemOrden.descripcion',
+          '.importe': 'itemOrden.importe',
+          '.fechaCobro': 'itemOrden.fechaCobro',
+          '.asignacion': 'itemOrden.asignacion'
+        }
+      }
+    }
+    itemsTableTemplate = itemsTable.compile(directives);*/
+
+    itemSelector = new App.widget.ItemsSelector(jQuery("#item-selector"),
+        numeroOrden, refreshOrden);
+
     container.find(".js-date" ).datepicker({
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
@@ -131,7 +398,7 @@ App.widget.OrdenPago = function (container) {
         var titularSelectorWidget = new App.widget.TitularSelector(jQuery(".js-titular-selector"));
         titularSelectorWidget.render();
 
-        var ordenPago = new App.widget.OrdenPago(jQuery(".js-orden-pago"));
+        var ordenPago = new App.widget.OrdenPago(jQuery(".js-orden-pago"), ${numero});
         ordenPago.render();
       });
     </script>
@@ -174,33 +441,6 @@ textarea.LV_invalid_field:active {
     </header>
     <div class="container-box-plantilla">
         <h2 class="container-tit">Orden de pago</h2>
-        <#assign numero = "" />
-        <#assign tipoFactura = "" />
-        <#assign fechaPago = "" />
-        <#assign medioPagoId = "" />
-        <#assign state = "" />
-        <#assign iva = "" />
-        <#assign facturaNumero = "" />
-        <#assign fechaCheque = "" />
-        <#assign localidad = "" />
-        <#assign numeroChequera = "" />
-        <#assign numeroCheque = "" />
-        <#assign transferId = "" />
-        <#if model["ordenPago"]??>
-          <#assign numero = "${model['ordenPago'].numero?c}" />
-          <#assign tipoFactura = "${model['ordenPago'].tipoFactura}" />
-          <#assign fechaPago = "${model['ordenPago'].fechaPago?string('dd/MM/yyyy')}" />
-          <#assign medioPagoId = "${model['ordenPago'].medioPago.id?c}" />
-          <#assign state = "${model['ordenPago'].estado.id?c}" />
-          <#assign iva = "${model['ordenPago'].iva?c}" />
-          <#assign facturaNumero = "${model['ordenPago'].numeroFactura}" />
-          <#assign fechaCheque = "${model['ordenPago'].fechaCheque?string('dd/MM/yyyy')}" />
-          <#assign localidad = "${model['ordenPago'].localidad}" />
-          <#assign numeroChequera = "${model['ordenPago'].numeroChequera}" />
-          <#assign numeroCheque = "${model['ordenPago'].numeroCheque}" />
-          <#assign transferId = "${model['ordenPago'].idTransferencia}" />
-        </#if>
-
         <#assign action = "create" />
         <#if model["ordenPago"]??>
           <#assign action = "save" />
@@ -326,7 +566,7 @@ textarea.LV_invalid_field:active {
          <!-- FILA 3 -->
          <h2 class="subtitulo">Items</h2>
          <div class="scroll-table">
-             <table summary="Listado de cobros en MercadoPago" class="table-form ">
+             <table summary="Listado de items de la orden de pago" class="table-form ">
                 <thead>
                     <tr>
                         <th scope="col">Shopper</th>
@@ -339,22 +579,24 @@ textarea.LV_invalid_field:active {
                         <th scope="col">DNI</th>
                         <th scope="col">Asignaci&oacute;n</th>
                         <th scope="col">Fecha</th>
+                        <th scope="col">Tipo de Item</th>
                     </tr>
                 </thead>
                 <tbody>
                   <#if model["ordenPago"]??>
                     <#list model["ordenPago"].items as item>
                     <tr>
-                        <td></td>
-                        <td>${item.cliente!''}</td>
-                        <td>${item.mes!''}</td>
-                        <td>${item.anio!''}</td>
-                        <td>${item.sucursal!''}</td>
-                        <td></td>
-                        <td>${item.importe}</td>
-                        <td>${item.shopperDni}</td>
-                        <td>${item.asignacion!''}</td>
-                        <td>${item.fecha!''}</td>
+                        <td>${item.shopper.name} (${item.shopper.username})</td>
+                        <td class="js-cliente">${item.cliente!''}</td>
+                        <td class="js-mes">${item.mes!''}</td>
+                        <td class="js-anio">${(item.anio?c)!''}</td>
+                        <td class="js-sucursal">${item.sucursal!''}</td>
+                        <td>${item.tipoPago.description}</td>
+                        <td class="js-importe">${item.importe}</td>
+                        <td class="js-dni">${item.shopperDni}</td>
+                        <td class="js-asignacion">${(item.asignacion?c)!''}</td>
+                        <td class="js-fecha">${item.fecha!''}</td>
+                        <td class="js-tipo-item">${item.tipoItem?c}</td>
                     </tr>
                     </#list>
                   </#if>
@@ -374,32 +616,32 @@ textarea.LV_invalid_field:active {
             <li>
                 <div class="form-shop-row">
                     <label for="subt0">Subt. honorarios</label>
-                    <input type="text" id="sbt0">
+                    <input type="text" id="sbt0" value="${totalHonorarios}">
                 </div>
                 <div class="form-shop-row">
                     <label for="sbt1">Subt. reintegros</label>
-                    <input type="text" id="sbt1">
+                    <input type="text" id="sbt1" value="${totalReintegros}">
                 </div>
             </li>
             <li>
                 <div class="form-shop-row">
-                    <label for="facN">IVA $</label>
-                     <input type="text" id="sbt1">
+                    <label for="iva-honorarios">IVA $</label>
+                     <input type="text" id="iva-honorarios" value="${ivaHonorarios}">
                 </div>
                 <div class="form-shop-row">
                    <label for="sbt3">Subt. otros gastos</label>
-                    <input type="text" id="sbt3">
+                    <input type="text" id="sbt3" value="${totalOtrosGastos}">
                 </div>
             </li>
             <li>
                   <div class="form-shop-row">
                    <label for="honorarios">Honorarios c/IVA</label>
-                    <input type="text" id="honorarios">
+                    <input type="text" id="honorarios" value="${totalHonorariosConIva}">
                 </div>
                 
                 <div class="form-shop-row">
-                    <label for="tot">Total general</label>
-                    <input type="text" max="99" min="18" name="tot" id="tot">
+                    <label for="total">Total general</label>
+                    <input type="text" id="total" value="${total}">
                 </div>
             </li>
          </ul>
@@ -436,15 +678,16 @@ textarea.LV_invalid_field:active {
                         </#if>
                         <input type="text" value="" id="shopper" class="js-shopper" />
                         <input type="hidden" name="shopperId" value="" class="js-shopper-id" />
+                        <input type="hidden" name="shopperDni" value="" class="js-shopper-dni" />
                       </div>
                     </div>
                     <div class="tabs_holder js-tabs">
                         <ul>
                             <!--li><a href="#your-tab-id-1">I Plan </a></li-->
                             <li><a href="#your-tab-id-2">MCD</a></li>
-                            <!--li><a href="#your-tab-id-3">GAC</a></li>
+                            <!--li><a href="#your-tab-id-3">GAC</a></li-->
                             <li><a href="#your-tab-id-4">Adicionales</a></li>
-                            <li><a href="#your-tab-id-5">Manuales</a></li-->
+                            <!--li><a href="#your-tab-id-5">Manuales</a></li-->
                         </ul>
                         <div class="content_holder">
                           <!--div id="your-tab-id-1">
@@ -458,93 +701,119 @@ textarea.LV_invalid_field:active {
                                  <table summary="Lista de items" class="table-form ">
                                     <thead>
                                         <tr>
-                                            <th scope="col">Shopper</th>
-                                            <th scope="col">Cliente</th>
-                                            <th scope="col">Mes</th>
+                                            <th scope="col">Programa</th>
+                                            <th scope="col">Local</th>
                                             <th scope="col">A&ntilde;o</th>
-                                            <th scope="col">Sucursal</th>
+                                            <th scope="col">Mes</th>
+                                            <th scope="col">Fecha</th>
                                             <th scope="col">Pago</th>
                                             <th scope="col">Importe</th>
-                                            <th scope="col">DNI</th>
+                                            <th scope="col">Fecha Cobro</th>
                                             <th scope="col">Asignaci&oacute;n</th>
-                                            <th scope="col">Fecha</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                         <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
+                                    <tbody class="items">
+                                       <tr>
+                                          <td class="programa"></td>
+                                          <td class="local"></td>
+                                          <td class="anio"></td>
+                                          <td class="mes"></td>
+                                          <td class="fecha"></td>
+                                          <td class="descripcion"></td>
+                                          <td class="importe"></td>
+                                          <td class="fechaCobro"></td>
+                                          <td class="asignacion"></td>
+                                      </tr>
                                     </tbody>
                                 </table>
                             </div>
                           </div>
                           <!--div id="your-tab-id-3">
                            Some content tab 3
+                          </div-->
+                          <div id="your-tab-id-4" class="js-items-adicionales">
+                            <ul class="action-columns">
+                                <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
+                            </ul>
+                            <div class="scroll-table">
+                               <table summary="Lista de items" class="table-form ">
+                                  <thead>
+                                      <tr>
+                                          <th scope="col">Pago</th>
+                                          <th scope="col">Cliente</th>
+                                          <th scope="col">Sucursal</th>
+                                          <th scope="col">Mes</th>
+                                          <th scope="col">A&ntilde;o</th>
+                                          <th scope="col">Importe</th>
+                                          <th scope="col">Fecha</th>
+                                          <th scope="col">Observaciones</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody class="items">
+                                     <tr>
+                                        <td class="pago"></td>
+                                        <td class="cliente"></td>
+                                        <td class="sucursal"></td>
+                                        <td class="mes"></td>
+                                        <td class="anio"></td>
+                                        <td class="importe"></td>
+                                        <td class="fecha"></td>
+                                        <td class="observaciones"></td>
+                                    </tr>
+                                  </tbody>
+                              </table>
+                            </div>
                           </div>
-                          <div id="your-tab-id-4">
-                           Some content tab 4
-                          </div>
-                           <div id="your-tab-id-5">
+                          <!--div id="your-tab-id-5">
                            Some content tab 5
                           </div-->
                         </div>
                     </div>
-
-
-            <!-- Item -->
-             <h2 class="subtitulo">Items</h2>
-             <div class="scroll-table">
-                 <table summary="Lista de items" class="table-form ">
-                    <thead>
-                        <tr>
-                            <th scope="col">Shopper</th>
-                            <th scope="col">Cliente</th>
-                            <th scope="col">Mes</th>
-                            <th scope="col">A&ntilde;o</th>
-                            <th scope="col">Sucursal</th>
-                            <th scope="col">Pago</th>
-                            <th scope="col">Importe</th>
-                            <th scope="col">DNI</th>
-                            <th scope="col">Asignaci&oacute;n</th>
-                            <th scope="col">Fecha</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <ul class="action-columns">
-                <li> <input type="button" class="btn-shop-small" value="Agregar" name="ass"></li>
-                <li> <input type="button" class="btn-shop-small" value="Deuda Shopper" name="deusa"></li>
-                <li> <input type="button" class="btn-shop-small" value="Eliminar item" name="delete"></li>
-            </ul>
 
       <!-- FIN FILA 3 -->
         </form>
         </div>
 
     </div>
+    <div id="ammount-confirmation" title="Importe">
+      <form>
+        <label for="importe-asignacion">Ingrese el importe de la asignaci&oacute;n seleccionada</label>
+        <input id="importe-asignacion" type="text" value="" class="js-importe" />
+        <input type="hidden" value="" class="js-index" />
+        <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" />
+      </form>
+    </div>
+    <!--div id="items-table-template" style="display:none">
+         <table summary="Listado de items de la orden de pago" class="table-form ">
+            <thead>
+              <tr>
+                <th scope="col">Shopper</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Mes</th>
+                <th scope="col">A&ntilde;o</th>
+                <th scope="col">Sucursal</th>
+                <th scope="col">Pago</th>
+                <th scope="col">Importe</th>
+                <th scope="col">DNI</th>
+                <th scope="col">Asignaci&oacute;n</th>
+                <th scope="col">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td></td>
+                <td class="js-cliente"></td>
+                <td class="js-mes"></td>
+                <td class="js-anio"></td>
+                <td class="js-sucursal"></td>
+                <td></td>
+                <td class="js-importe"></td>
+                <td class="js-dni"></td>
+                <td class="js-asignacion"></td>
+                <td class="js-fecha"></td>
+              </tr>
+            </tbody>
+        </table>
+    </div-->
   </body>
 </html>
