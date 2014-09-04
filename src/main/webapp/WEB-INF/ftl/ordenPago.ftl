@@ -22,35 +22,47 @@
     <#assign medioPagoId = "" />
     <#assign state = "" />
     <#assign iva = "" />
+    <#assign tipoTitular = 1 />
+    <#assign titularId = "" />
     <#assign facturaNumero = "" />
     <#assign fechaCheque = "" />
     <#assign localidad = "" />
     <#assign numeroChequera = "" />
     <#assign numeroCheque = "" />
     <#assign transferId = "" />
+    <#assign observaciones = "" />
+    <#assign observacionesShopper = "" />
     <#assign totalHonorarios = "" />
     <#assign totalReintegros = "" />
     <#assign totalOtrosGastos = "" />
+    <#assign ivaHonorarios = "" />
     <#assign totalHonorariosConIva = "" />
+    <#assign total = "" />
     <#if model["ordenPago"]??>
       <#assign numero = "${model['ordenPago'].numero?c}" />
       <#assign tipoFactura = "${model['ordenPago'].tipoFactura}" />
       <#assign fechaPago = "${model['ordenPago'].fechaPago?string('dd/MM/yyyy')}" />
-      <#assign medioPagoId = "${model['ordenPago'].medioPago.id?c}" />
+      <#if model['ordenPago'].medioPago??>
+        <#assign medioPagoId = "${model['ordenPago'].medioPago.id?c}" />
+      </#if>
       <#assign state = "${model['ordenPago'].estado.id?c}" />
       <#assign iva = "${model['ordenPago'].iva?c}" />
+      <#assign tipoTitular = model['ordenPago'].tipoProveedor />
+      <#assign titularId = "${model['ordenPago'].proveedor}" />
       <#assign facturaNumero = "${model['ordenPago'].numeroFactura}" />
       <#assign fechaCheque = "${model['ordenPago'].fechaCheque?string('dd/MM/yyyy')}" />
       <#assign localidad = "${model['ordenPago'].localidad}" />
       <#assign numeroChequera = "${model['ordenPago'].numeroChequera}" />
       <#assign numeroCheque = "${model['ordenPago'].numeroCheque}" />
-      <#assign transferId = "${model['ordenPago'].idTransferencia}" />
-      <#assign totalHonorarios = "${model['ordenPago'].honorarios}" />
-      <#assign totalReintegros = "${model['ordenPago'].reintegros}" />
-      <#assign totalOtrosGastos = "${model['ordenPago'].otrosGastos}" />
-      <#assign ivaHonorarios = "${model['ordenPago'].honorarios * (model['ordenPago'].iva / 100)}" />
-      <#assign totalHonorariosConIva = "${model['ordenPago'].honorarios + ivaHonorarios?number}" />
-      <#assign total = "${totalReintegros?number + totalOtrosGastos?number + totalHonorariosConIva?number}" />
+      <#assign transferId = "${model['ordenPago'].idTransferencia!''}" />
+      <#assign observaciones = "${model['ordenPago'].observaciones!''}" />
+      <#assign observacionesShopper = "${model['ordenPago'].observacionesShopper!''}" />
+      <#assign totalHonorarios = model['ordenPago'].honorarios />
+      <#assign totalReintegros = model['ordenPago'].reintegros />
+      <#assign totalOtrosGastos = model['ordenPago'].otrosGastos />
+      <#assign ivaHonorarios = (totalHonorarios * (model['ordenPago'].iva / 100)) />
+      <#assign totalHonorariosConIva = (totalHonorarios + ivaHonorarios) />
+      <#assign total = (totalReintegros + totalOtrosGastos + totalHonorariosConIva) />
     </#if>
 
     <script type="text/javascript">
@@ -317,6 +329,8 @@ App.widget.OrdenPago = function (container, numeroOrden) {
 
   var itemSelector;
 
+  var titularSelector;
+
   /*var itemsTable = $p("#items-table-template");
 
   var itemsTableTemplate = null;*/
@@ -357,8 +371,64 @@ App.widget.OrdenPago = function (container, numeroOrden) {
   }
 
   var initEventListeners = function () {
+    var medioDefault = container.find(".js-medio-pago-predeterminado");
+    var sinMedioSeleccionado = container.find(".js-sin-medio-pago");
+    var asociarMedio = container.find(".js-asociar-medio");
+
     container.find(".js-add-item" ).click(function () {
       itemSelector.open();
+    });
+
+    container.find(".js-medio-pago").change(function (event) {
+      medioDefault.hide();
+      sinMedioSeleccionado.hide();
+      asociarMedio.show();
+    });
+
+    asociarMedio.click(function (event) {
+      event.preventDefault();
+
+      var medioPagoSeleccionado = container.find(".js-medio-pago").val();
+      var titular = titularSelector.getTitularSelected();
+
+      jQuery.ajax({
+        url: "asociarMedioPago",
+        data: {
+          tipoProveedor: titular.tipo,
+          titularId: titular.id,
+          medioPagoId: medioPagoSeleccionado
+        },
+        method: 'POST'
+      }).done(function (data) {
+        asociarMedio.hide();
+        sinMedioSeleccionado.hide();
+        medioDefault.text('Medio de pago predeterminado: ' + data);
+        medioDefault.show();
+      })
+    });
+
+    container.find(".js-delete-item" ).click(function (event) {
+      event.preventDefault();
+      $( "#dialog-confirm" ).dialog({
+        resizable: false,
+        height:140,
+        modal: true,
+        buttons: {
+          "Delete all items": function() {
+            $( this ).dialog( "close" );
+          },
+          Cancel: function() {
+            $( this ).dialog( "close" );
+          }
+        }
+      });
+      var itemId = event.target.id.substr(5);
+      jQuery.ajax({
+        url: numeroOrden + "/item/" + itemId,
+        method: 'DELETE'
+      }).done(function (data) {
+        location.href = location.href;
+      })
     });
   };
 
@@ -385,6 +455,10 @@ App.widget.OrdenPago = function (container, numeroOrden) {
 
   return {
     render: function () {
+      titularSelector = new App.widget.TitularSelector(
+          container.find(".js-titular-selector"));
+      titularSelector.render();
+
       initialize();
       initEventListeners();
       initValidators();
@@ -394,9 +468,6 @@ App.widget.OrdenPago = function (container, numeroOrden) {
 
 
       jQuery(document).ready(function() {
-
-        var titularSelectorWidget = new App.widget.TitularSelector(jQuery(".js-titular-selector"));
-        titularSelectorWidget.render();
 
         var ordenPago = new App.widget.OrdenPago(jQuery(".js-orden-pago"), ${numero});
         ordenPago.render();
@@ -459,21 +530,16 @@ textarea.LV_invalid_field:active {
                 <p class="mandatory">Titular</p>
                 <ul>
                   <li class="form-shop">
-                    <input type="radio" name="tipoTitular" id="shopper" value="1" class="js-shopper" checked="checked">
+                    <input type="radio" name="tipoTitular" id="shopper" value="1" class="js-shopper" <#if tipoTitular == 1>checked="checked"</#if>>
                     <label for="shopper">Shopper</label>
                   </li>
                   <li class="form-shop">
-                    <input type="radio" name="tipoTitular" id="proveedor" value="2" class="js-proveedor">
+                    <input type="radio" name="tipoTitular" id="proveedor" value="2" class="js-proveedor" <#if tipoTitular == 2>checked="checked"</#if>>
                     <label for="proveedor">Proveedor</label>
                   </li>
                 </ul>
                 <div class="combo-titular">
-                  <#assign titularId = "" />
-                  <#assign titularNombre = "" />
-                  <#if model["titular"]??>
-                    <#assign titularId = "${model['titular'].id?c}" />
-                    <#assign titularNombre = "${model['titular'].name}" />
-                  </#if>
+                  <#assign titularNombre = "${model['titularNombre']!''}" />
                   <input type="text" value="${titularNombre}" class="js-titulares" />
                   <input type="hidden" name="titularId" value="${titularId}" class="js-titular-id" />
                 </div>
@@ -500,12 +566,26 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="medioPago" class="mandatory">M. de pago</label>
-                <select id="medioPago" name="medioPagoId">
+                <select id="medioPago" name="medioPagoId" class="js-medio-pago">
                   <option value="Seleccionar">Seleccionar</option>
                   <#list model["mediosPago"] as medioPago>
                     <option value="${medioPago.id}" <#if medioPago.id?c == medioPagoId>selected="selected"</#if>>${medioPago.description}</option>
                   </#list>
                 </select>
+                <div class="js-medio-pago-asociado">
+                  <#if model["medioPagoPredeterminado"]??>
+                    <span class="medio-pago js-medio-pago-predeterminado">Medio de pago predeterminado: ${model["medioPagoPredeterminado"]}</span>
+                    <a href="#" class="asociar-medio js-asociar-medio" style="display:none">Asociar medio de pago al titular</a>
+                  <#else>
+                    <span class="medio-pago js-medio-pago-predeterminado" style="display:none">Medio de pago predeterminado: </span>
+                    <#if medioPagoId != "">
+                      <a href="#" class="asociar-medio js-asociar-medio">Asociar medio de pago al titular</a>
+                    <#else>
+                      <span class="sin-medio-pago js-sin-medio-pago">(El titular no tiene un medio de pago asociado)</span>
+                      <a href="#" class="asociar-medio js-asociar-medio" style="display:none">Asociar medio de pago al titular</a>
+                    </#if>
+                  </#if>
+                </div>
               </div>
             </li>
             <li>
@@ -555,11 +635,17 @@ textarea.LV_invalid_field:active {
               </div>
             </li>
           </ul>
+          <p class="observacion">
+            <label for="observaciones">Observaciones</label>
+            <textarea id="observaciones" name="observaciones">${observaciones}</textarea>
+          </p>
+          <p class="observacion">
+            <label for="observacionesShopper">Obs. p/shopper</label>
+            <textarea id="observacionesShopper" name="observacionesShopper">${observacionesShopper}</textarea>
+          </p>
           <ul class="action-columns">
             <li> <input type="submit" class="btn-shop-small" value="Guardar" name="save"></li>
             <li> <input type="button" class="btn-shop-small" value="Car&aacute;tula" name="carta" <#if !model["ordenPago"]??>disabled="true"></#if></li>
-            <li> <input type="button" class="btn-shop-small" value="Observaciones" name="obs" <#if !model["ordenPago"]??>disabled="true"></#if></li>
-            <li> <input type="button" class="btn-shop-small" value="Obsp/Shopper" name="shop" <#if !model["ordenPago"]??>disabled="true"></#if></li>
           </ul>
           <!-- FIN FILA 2 -->
 
@@ -586,7 +672,10 @@ textarea.LV_invalid_field:active {
                   <#if model["ordenPago"]??>
                     <#list model["ordenPago"].items as item>
                     <tr>
-                        <td>${item.shopper.name} (${item.shopper.username})</td>
+                        <#if item.shopper??>
+                          <#assign shopperDescription = "${item.shopper.name} (${item.shopper.username})">
+                        </#if>
+                        <td>${shopperDescription!'No encontrado'} <a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></td>
                         <td class="js-cliente">${item.cliente!''}</td>
                         <td class="js-mes">${item.mes!''}</td>
                         <td class="js-anio">${(item.anio?c)!''}</td>
@@ -606,7 +695,6 @@ textarea.LV_invalid_field:active {
         <ul class="action-columns">
             <li> <input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !model["ordenPago"]??>disabled="true"></#if>></li>
             <li> <input type="submit" class="btn-shop-small" value="Deuda Shopper" name="deusa" disabled="true"></li>
-            <li> <input type="submit" class="btn-shop-small" value="Eliminar item" name="delete" disabled="true"></li>
         </ul>
 
   <!-- FIN FILA 3 -->
@@ -616,32 +704,32 @@ textarea.LV_invalid_field:active {
             <li>
                 <div class="form-shop-row">
                     <label for="subt0">Subt. honorarios</label>
-                    <input type="text" id="sbt0" value="${totalHonorarios}">
+                    <input type="text" id="sbt0" value="${totalHonorarios?string.currency}">
                 </div>
                 <div class="form-shop-row">
                     <label for="sbt1">Subt. reintegros</label>
-                    <input type="text" id="sbt1" value="${totalReintegros}">
+                    <input type="text" id="sbt1" value="${totalReintegros?string.currency}">
                 </div>
             </li>
             <li>
                 <div class="form-shop-row">
                     <label for="iva-honorarios">IVA $</label>
-                     <input type="text" id="iva-honorarios" value="${ivaHonorarios}">
+                     <input type="text" id="iva-honorarios" value="${ivaHonorarios?string.currency}">
                 </div>
                 <div class="form-shop-row">
                    <label for="sbt3">Subt. otros gastos</label>
-                    <input type="text" id="sbt3" value="${totalOtrosGastos}">
+                    <input type="text" id="sbt3" value="${totalOtrosGastos?string.currency}">
                 </div>
             </li>
             <li>
                   <div class="form-shop-row">
                    <label for="honorarios">Honorarios c/IVA</label>
-                    <input type="text" id="honorarios" value="${totalHonorariosConIva}">
+                    <input type="text" id="honorarios" value="${totalHonorariosConIva?string.currency}">
                 </div>
                 
                 <div class="form-shop-row">
                     <label for="total">Total general</label>
-                    <input type="text" id="total" value="${total}">
+                    <input type="text" id="total" value="${total?string.currency}">
                 </div>
             </li>
          </ul>
@@ -782,6 +870,9 @@ textarea.LV_invalid_field:active {
         <input type="hidden" value="" class="js-index" />
         <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" />
       </form>
+    </div>
+    <div id="confirm-delete-item" title="Borrar el item?">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Esta seguro que desea borrar el item?</p>
     </div>
     <!--div id="items-table-template" style="display:none">
          <table summary="Listado de items de la orden de pago" class="table-form ">

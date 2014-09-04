@@ -64,6 +64,10 @@
     <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
 
+  <bean id="proveedorRepository" class="com.ibiscus.shopnchek.domain.admin.ProveedorRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
   <bean id="shopperRepository" class="com.ibiscus.shopnchek.domain.admin.ShopperRepository">
     <property name="sessionFactory" ref="sessionFactory2"></property>
   </bean>

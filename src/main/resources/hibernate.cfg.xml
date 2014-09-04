@@ -8,10 +8,12 @@
     <mapping class="com.ibiscus.shopnchek.domain.security.User"></mapping>
 
     <mapping class="com.ibiscus.shopnchek.domain.admin.Shopper"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.admin.Proveedor"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.OrdenPago"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.ItemOrden"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.OrderState"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.MedioPago"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.TipoPago"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.admin.AsociacionMedioPago"></mapping>
   </session-factory>
 </hibernate-configuration>

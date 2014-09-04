@@ -14,6 +14,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 @Entity
 @Table(name="ordenes")
 public class OrdenPago {
@@ -75,6 +78,7 @@ public class OrdenPago {
 
   @OneToMany(fetch = FetchType.EAGER)
   @JoinColumn(name = "orden_nro")
+  @Fetch(value = FetchMode.SELECT)
   private List<ItemOrden> items = new LinkedList<ItemOrden>();
 
   /** Default constructor for Hibernate. */
@@ -100,13 +104,22 @@ public class OrdenPago {
       final double theIva, final String unNumeroFactura,
       final Date unaFechaCheque, final String unNumeroChequera,
       final String unChequeNumero, final String unTransferId,
-      final String unaLocalidad) {
+      final String unaLocalidad, final String unaObservacion,
+      final String unaObservacionShopper) {
+    tipoProveedor = theTipoProveedor;
+    proveedor = theProveedor;
+    tipoFactura = theTipoFactura;
+    fechaPago = thePayDate;
+    estado = theState;
+    medioPago = theMedioPago;
     numeroFactura = unNumeroChequera;
     fechaCheque = unaFechaCheque;
     numeroChequera = unNumeroChequera;
     numeroCheque = unChequeNumero;
     idTransferencia = unTransferId;
     localidad = unaLocalidad;
+    observaciones = unaObservacion;
+    observacionesShopper = unaObservacionShopper;
   }
 
   /**
@@ -234,6 +247,14 @@ public class OrdenPago {
 
   void updateNumber(final int theNumber) {
     numero = theNumber;
+  }
+
+  public double getImporte() {
+    double importe = 0;
+    for (ItemOrden unItemOrden : items) {
+      importe += unItemOrden.getImporte();
+    }
+    return importe;
   }
 
   public double getHonorarios() {

@@ -3,10 +3,72 @@
   font-weight: bold;
 }
 
-.shopper-widget input {
+.titular-widget .nombre-titular {
   width: 300px;
 }
 
 a.action {
   font-size: 10px;
+}
+
+.observacion label {
+  float: left;
+  margin-right: 15px;
+  text-align: right;
+  width: 90px;
+}
+
+.observacion textarea {
+  width: 500px;
+}
+
+.ui-widget-content {
+  background-color: #f3f8db;
+  background-image: none;
+  border: none;
+}
+
+.ui-widget-header {
+  background-color: #f3f8db;
+  background-image: none;
+  border: none;
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-active {
+  background-color: #f3f8db;
+  background-image: none;
+  border-color: #ddd;
+}
+
+.ui-autocomplete {
+  border: 1px solid #9ebe00;
+}
+
+.LV_validation_message.LV_valid {
+  display: none;
+}
+
+.LV_invalid {
+  color:#CC0000;
+}
+
+.LV_valid_field,
+input.LV_valid_field:hover, 
+input.LV_valid_field:active,
+textarea.LV_valid_field:hover, 
+textarea.LV_valid_field:active {
+  border: 1px solid #00CC00;
+}
+    
+.LV_invalid_field, 
+input.LV_invalid_field:hover, 
+input.LV_invalid_field:active,
+textarea.LV_invalid_field:hover, 
+textarea.LV_invalid_field:active {
+  border: 1px solid #CC0000;
+}
+
+.buscador .field label {
+  display: inline-block;
+  width: 125px;
 }
