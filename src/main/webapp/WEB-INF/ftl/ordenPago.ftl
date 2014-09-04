@@ -16,6 +16,14 @@
     <script src="/script/pure.min.js"></script>
     <script src="/script/livevalidation.js"></script>
 
+    <#assign user = model["user"] />
+    <#assign canEdit = false />
+    <#list user.authorities as role>
+      <#assign canEdit = (role.authority == 'ADMIN') />
+    </#list>
+    <#assign ordenAbierta = true />
+    <#assign estadoOrden = "ABIERTA" />
+
     <#assign numero = "" />
     <#assign tipoFactura = "" />
     <#assign fechaPago = "" />
@@ -46,14 +54,18 @@
         <#assign medioPagoId = "${model['ordenPago'].medioPago.id?c}" />
       </#if>
       <#assign state = "${model['ordenPago'].estado.id?c}" />
+      <#assign ordenAbierta = model['ordenPago'].estado.description == 'Abierta' />
+      <#assign estadoOrden = "${model['ordenPago'].estado.description}" />
       <#assign iva = "${model['ordenPago'].iva?c}" />
       <#assign tipoTitular = model['ordenPago'].tipoProveedor />
       <#assign titularId = "${model['ordenPago'].proveedor}" />
-      <#assign facturaNumero = "${model['ordenPago'].numeroFactura}" />
-      <#assign fechaCheque = "${model['ordenPago'].fechaCheque?string('dd/MM/yyyy')}" />
+      <#assign facturaNumero = "${model['ordenPago'].numeroFactura!''}" />
+      <#if model['ordenPago'].fechaCheque??>
+        <#assign fechaCheque = "${model['ordenPago'].fechaCheque?string('dd/MM/yyyy')}" />
+      </#if>
       <#assign localidad = "${model['ordenPago'].localidad}" />
-      <#assign numeroChequera = "${model['ordenPago'].numeroChequera}" />
-      <#assign numeroCheque = "${model['ordenPago'].numeroCheque}" />
+      <#assign numeroChequera = "${model['ordenPago'].numeroChequera!''}" />
+      <#assign numeroCheque = "${model['ordenPago'].numeroCheque!''}" />
       <#assign transferId = "${model['ordenPago'].idTransferencia!''}" />
       <#assign observaciones = "${model['ordenPago'].observaciones!''}" />
       <#assign observacionesShopper = "${model['ordenPago'].observacionesShopper!''}" />
@@ -503,7 +515,6 @@ textarea.LV_invalid_field:active {
 </style>
   </head>
   <body>
-    <#assign user = model["user"] />
     <header>
       <div class="header-box">
         <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
@@ -562,7 +573,7 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="fechaPago" class="mandatory">Fecha pago</label>
-                <input type="text" id="fechaPago" name="fechaPago" class="js-date" value="${fechaPago}"/>
+                <input type="text" id="fechaPago" name="fechaPago" class="js-date" value="${fechaPago}" <#if !canEdit>disabled="true"</#if>/>
               </div>
               <div class="form-shop-row">
                 <label for="medioPago" class="mandatory">M. de pago</label>
@@ -595,7 +606,7 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="state" class="mandatory">Estado</label>
-                <select id="state" name="estadoId">
+                <select id="state" name="estadoId" <#if !canEdit>disabled="true"</#if>>
                   <#list model["orderStates"] as orderState>
                     <option value="${orderState.id}" <#if orderState.id?c == state>selected="selected"</#if>>${orderState.description}</option>
                   </#list>
@@ -603,11 +614,11 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="numeroChequera">Chequera N&deg;</label>
-                <input type="number" name="numeroChequera" id="numeroChequera" value="${numeroChequera}"/>
+                <input type="number" name="numeroChequera" id="numeroChequera" value="${numeroChequera}" <#if !canEdit || estadoOrden == 'Abierta' || estadoOrden == 'En Espera'>disabled="true"</#if>/>
               </div>
               <div class="form-shop-row">
                 <label for="transferId">ID Transfer</label>
-                <input type="number" name="transferId" id="transferId" value="${transferId}"/>
+                <input type="number" name="transferId" id="transferId" value="${transferId}" <#if !canEdit || estadoOrden == 'Abierta' || estadoOrden == 'En Espera'>disabled="true"</#if>/>
               </div>
             </li>
             <li>
@@ -625,13 +636,13 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="numeroCheque">Cheque N&deg;</label>
-                <input type="number" name="numeroCheque" id="numeroCheque" value="${numeroCheque}"/>
+                <input type="number" name="numeroCheque" id="numeroCheque" value="${numeroCheque}" <#if !canEdit || estadoOrden == 'Abierta' || estadoOrden == 'En Espera'>disabled="true"</#if>/>
               </div>
             </li>
             <li>
               <div class="form-shop-row">
                 <label for="fechaCheque">Fecha cheque</label>
-                <input type="text" id="fechaCheque" name="fechaCheque" class="js-date" value="${fechaCheque}">
+                <input type="text" id="fechaCheque" name="fechaCheque" class="js-date" value="${fechaCheque}" <#if !canEdit || estadoOrden == 'Abierta' || estadoOrden == 'En Espera'>disabled="true"</#if>/>
               </div>
             </li>
           </ul>
@@ -644,8 +655,8 @@ textarea.LV_invalid_field:active {
             <textarea id="observacionesShopper" name="observacionesShopper">${observacionesShopper}</textarea>
           </p>
           <ul class="action-columns">
-            <li> <input type="submit" class="btn-shop-small" value="Guardar" name="save"></li>
-            <li> <input type="button" class="btn-shop-small" value="Car&aacute;tula" name="carta" <#if !model["ordenPago"]??>disabled="true"></#if></li>
+            <li> <input type="submit" class="btn-shop-small" value="Guardar" <#if !canEdit>disabled="true"</#if>></li>
+            <li> <input type="button" class="btn-shop-small" value="Car&aacute;tula" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
           </ul>
           <!-- FIN FILA 2 -->
 
@@ -675,7 +686,7 @@ textarea.LV_invalid_field:active {
                         <#if item.shopper??>
                           <#assign shopperDescription = "${item.shopper.name} (${item.shopper.username})">
                         </#if>
-                        <td>${shopperDescription!'No encontrado'} <a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></td>
+                        <td>${shopperDescription!'No encontrado'} <#if canEdit && ordenAbierta><a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></#if></td>
                         <td class="js-cliente">${item.cliente!''}</td>
                         <td class="js-mes">${item.mes!''}</td>
                         <td class="js-anio">${(item.anio?c)!''}</td>
@@ -693,8 +704,8 @@ textarea.LV_invalid_field:active {
             </table>
         </div>
         <ul class="action-columns">
-            <li> <input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !model["ordenPago"]??>disabled="true"></#if>></li>
-            <li> <input type="submit" class="btn-shop-small" value="Deuda Shopper" name="deusa" disabled="true"></li>
+            <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
+            <li><input type="submit" class="btn-shop-small" value="Deuda Shopper" disabled="true"></li>
         </ul>
 
   <!-- FIN FILA 3 -->
@@ -736,10 +747,9 @@ textarea.LV_invalid_field:active {
 
         <div class="actions-form">
           <ul class="action-columns">
-            <li> <input type="submit" class="btn-shop" value="Imprimir" name="imp" disabled="true"></li>
-            <li> <input type="submit" class="btn-shop" value="Imprimir Detalle" name="detail" disabled="true"></li>
-            <li> <input type="submit" class="btn-shop-action" value="Eliminar Shopper" name="deleteshop" disabled="true"></li>
-            <li> <input type="button" class="btn-shop-action" value="Cerrar" name="cerrar"></li>
+            <li><input type="submit" class="btn-shop" value="Imprimir" disabled="true"></li>
+            <li><input type="submit" class="btn-shop" value="Imprimir Detalle" disabled="true"></li>
+            <li><input type="submit" class="btn-shop-action" value="Eliminar Shopper" disabled="true"></li>
           </ul>
         </div>
     </form>

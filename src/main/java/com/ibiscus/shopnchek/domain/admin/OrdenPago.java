@@ -112,7 +112,7 @@ public class OrdenPago {
     fechaPago = thePayDate;
     estado = theState;
     medioPago = theMedioPago;
-    numeroFactura = unNumeroChequera;
+    numeroFactura = unNumeroFactura;
     fechaCheque = unaFechaCheque;
     numeroChequera = unNumeroChequera;
     numeroCheque = unChequeNumero;

@@ -63,7 +63,6 @@ public class OrdenPagoController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
-    model.addAttribute("orderStates", orderRepository.findOrderStates());
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
     OrdenPago ordenPago = orderRepository.get(orderId);
     for (ItemOrden itemOrden : ordenPago.getItems()) {
@@ -88,6 +87,38 @@ public class OrdenPagoController {
           asociacion.getMedioPago());
       model.addAttribute("medioPagoPredeterminado", medioPago.getDescription());
     }
+    List<OrderState> states = new ArrayList<OrderState>();
+    List<OrderState> availableStates = orderRepository.findOrderStates();
+    if (ordenPago.getEstado().getId() == 3
+        || ordenPago.getEstado().getId() == 4) {
+      for (OrderState state : availableStates) {
+        if (state.getId() == 3 || state.getId() == 4) {
+          states.add(state);
+        }
+      }
+    } else if (ordenPago.getEstado().getId() == 5) {
+      for (OrderState state : availableStates) {
+        if (state.getId() == 1 || state.getId() == 5) {
+          states.add(state);
+        }
+      }
+    } else if (ordenPago.getEstado().getId() == 2) {
+      for (OrderState state : availableStates) {
+        if (state.getId() > 1 && state.getId() < 5) {
+          states.add(state);
+        }
+      }
+    } else if (ordenPago.getEstado().getId() == 6) {
+      for (OrderState state : availableStates) {
+        if (state.getId() == 6) {
+          states.add(state);
+        }
+      }
+    } else {
+      states.addAll(availableStates);
+    }
+    model.addAttribute("orderStates", states);
+
     return "ordenPago";
   }
 
@@ -105,7 +136,7 @@ public class OrdenPagoController {
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
 
     OrderState state = orderRepository.getOrderState(estadoId);
-    MedioPago medioPago = orderRepository.getMedioPago(estadoId);
+    MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
     OrdenPago ordenPago = new OrdenPago(tipoTitular, titularId,
         tipoFactura, fechaPago, state, medioPago, iva);
     ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago, state,
@@ -135,7 +166,7 @@ public class OrdenPagoController {
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
 
     OrderState state = orderRepository.getOrderState(estadoId);
-    MedioPago medioPago = orderRepository.getMedioPago(estadoId);
+    MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
 
     OrdenPago ordenPago = orderRepository.get(numeroOrden);
     ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago,

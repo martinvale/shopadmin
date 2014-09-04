@@ -24,6 +24,9 @@ public class User {
   @Column(name="PASSWORD")
   private String password;
 
+  @Column(name="PERFIL")
+  private int perfil;
+
   User() {
   }
 
@@ -41,5 +44,9 @@ public class User {
 
   public String getPassword() {
     return password;
+  }
+
+  public int getPerfil() {
+    return perfil;
   }
 }

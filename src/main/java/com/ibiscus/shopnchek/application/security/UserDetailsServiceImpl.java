@@ -30,7 +30,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
       throw new UsernameNotFoundException("The user does not exists");
     }
     List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-    authorities.add(new SimpleGrantedAuthority("ADMIN"));
+    if (user.getPerfil() == 2) {
+      authorities.add(new SimpleGrantedAuthority("ADMIN"));
+    } else {
+      authorities.add(new SimpleGrantedAuthority("GUEST"));
+    }
     return new org.springframework.security.core.userdetails.User(
         username, user.getPassword(), authorities);
   }
