@@ -221,6 +221,7 @@ button:focus {
 }
 
 
+
 .btn-shop-small.btn-green, 
 .btn-shop-small.btn-green:focus,
 .btn-shop-small.btn-green:visited{
@@ -323,7 +324,9 @@ button:focus {
     box-shadow: inset 0 1px 6px #949494;
     border-color: #969696;
 }
-
+.btn-shop.btn-big {
+    padding: 10px 20px;
+}
 /* Disabled */
 [class*="btn-shop"].btn-shop-disabled,
 .btn-shop-disabled:hover,
@@ -339,7 +342,7 @@ button:focus {
     background-image: -moz-linear-gradient(#FEFEFE, #E6E6E6);
     background-image: -o-linear-gradient(#FEFEFE, #E6E6E6);
     background-image: linear-gradient(#FEFEFE, #E6E6E6);
-    border: 1px solid #CCCCCC !important; /* important for links */
+    border: 1px solid #999 !important; /* important for links */
     -webkit-box-shadow: inset 0px 1px #FEFEFE;
     box-shadow: inset 0px 1px rgba(240, 240, 240, 1);
     color: #999999 !important; /* important for links */
@@ -1201,3 +1204,69 @@ table {
  .skin5.top .tab_content {
     padding: 0px 10px;
     }
+
+
+nav {
+    display: inline-block;
+    border-left: 1px solid #ccc;
+    margin-left: 10px;
+}
+
+.menu{display:block;}
+     
+    .menu li{display: inline-block;
+    position: relative;
+    z-index:100;}
+     
+    .menu li a {
+        font-weight:14px;
+        text-decoration:none;
+        padding:11px;
+        display:block;
+        color:#333;
+     
+    -webkit-transition: all 0.2s ease-in-out 0s;
+    -moz-transition: all 0.2s ease-in-out 0s;
+    -o-transition: all 0.2s ease-in-out 0s;
+    -ms-transition: all 0.2s ease-in-out 0s;
+    transition: all 0.2s ease-in-out 0s;
+    }
+     
+    .menu li a:hover, 
+    .menu li:hover > a{
+        color:#333;
+    background:#E5E5E5;}
+    /* hide the second level menu */
+    .menu ul {display: none;
+            margin: 0;
+            padding: 0;
+            width: 150px;
+            position: absolute;
+            top: 43px;
+            left: 0px;
+          background: #eee;
+    }
+     
+    /* display second level menu on hover */
+    .menu li:hover > ul{ display: block;}
+     
+    .menu ul li {display:block;
+    float: none;
+    background:none;
+    margin:0;
+    padding:0;
+    }
+     
+    .menu ul li a {font-size:12px;
+    font-weight:normal;
+    display:block;
+    color:#797979;
+    border-left:3px solid #F4F4F4;
+    background:#F4F4F4;}
+     
+    .menu ul li a:hover, .menu ul li:hover > a{
+    background:#f0f0f0;
+    border-left:3px solid #9ABD1E;
+    color:#333;
+    }
+

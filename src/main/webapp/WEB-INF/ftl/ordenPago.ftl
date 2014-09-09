@@ -5,11 +5,11 @@
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
 
+    <link rel="stylesheet" href="/css/jquery-ui/jquery-ui.css">
+
     <link rel="stylesheet" href="/css/base.css">
     <link rel="stylesheet" href="/css/shop.css">
     <link rel="stylesheet" href="/css/custom.css">
-
-    <link rel="stylesheet" href="/css/jquery-ui/jquery-ui.css">
 
     <script src="/script/jquery.js"></script>
     <script src="/script/jquery-ui.js"></script>
@@ -40,12 +40,12 @@
     <#assign transferId = "" />
     <#assign observaciones = "" />
     <#assign observacionesShopper = "" />
-    <#assign totalHonorarios = "" />
-    <#assign totalReintegros = "" />
-    <#assign totalOtrosGastos = "" />
-    <#assign ivaHonorarios = "" />
-    <#assign totalHonorariosConIva = "" />
-    <#assign total = "" />
+    <#assign totalHonorarios = 0 />
+    <#assign totalReintegros = 0 />
+    <#assign totalOtrosGastos = 0 />
+    <#assign ivaHonorarios = 0 />
+    <#assign totalHonorariosConIva = 0 />
+    <#assign total = 0 />
     <#if model["ordenPago"]??>
       <#assign numero = "${model['ordenPago'].numero?c}" />
       <#assign tipoFactura = "${model['ordenPago'].tipoFactura}" />
@@ -83,402 +83,6 @@
 
       App.widget = App.widget || {};
 
-App.widget.ShopperSelector = function (container) {
-
-  var selector = container.find(".js-shopper");
-
-  var currentShopper = null;
-
-  var initEventListeners = function () {
-    var filter = selector.autocomplete({
-      source: "/services/shoppers/suggest",
-      minLength: 2,
-      select: function(event, ui) {
-        currentShopper = ui.item;
-        selector.val(ui.item.name);
-        container.find(".js-shopper-id").val(ui.item.id);
-        container.find(".js-shopper-dni").val(ui.item.dni);
-        return false;
-      }
-    });
-    filter.data( "ui-autocomplete" )._renderItem = function(ul, item) {
-      return $("<li>")
-        .append("<a>" + item.name + "</a>")
-        .appendTo(ul);
-    };
-  };
-
-  return {
-    render: function () {
-      initEventListeners();
-    },
-    getCurrentShopper: function () {
-      return currentShopper;
-    },
-    reset: function () {
-      currentShopper = null;
-      selector.val('');
-      container.find(".js-shopper-id").val('');
-      container.find(".js-shopper-dni").val('');
-    }
-  };
-};
-
-App.widget.ItemsSelector = function (container, numeroOrden, callback) {
-
-  var itemDialog = container.dialog({
-    autoOpen: false,
-    width: 900,
-    close: callback
-  });
-
-  var shopperSelector = new App.widget.ShopperSelector(container.find(".js-shopper-selector"));
-
-  var rows = $p("#" + container.prop("id") + " .js-mcd-items .items");
-
-  var rowsTemplate = null;
-
-  var visitas = [];
-
-  var rowsAdicionales = $p("#" + container.prop("id") + " .js-items-adicionales .items");
-
-  var rowsAdicionalesTemplate = null;
-
-  var adicionales = [];
-
-  var formVisita;
-
-  var dialogVisita = $("#ammount-confirmation").dialog({
-    autoOpen: false,
-    width: 350,
-    modal: true,
-    callback: function () {},
-    buttons: {
-      "Ok": function() {
-        var importe = formVisita.find(".js-importe").val();
-        var index = parseInt(formVisita.find(".js-index").val());
-        dialogVisita.callback(index, importe);
-      },
-      Cancel: function() {
-        dialogVisita.dialog("close");
-      }
-    },
-    close: function() {
-      formVisita.find("js-importe").val();
-      formVisita.find("js-index").val();
-      //allFields.removeClass( "ui-state-error" );
-    }
-  });
-
-  var initialize = function () {
-    itemDialog.find(".js-tabs").tabs();
-    shopperSelector.render();
-    var directives = {
-      'tr': {
-        'itemOrden<-itemsOrden': {
-          '.programa': function (a) {
-            return a.item.programa + ' <a href="#" class="action js-add-visita">agregar</a>';
-          },
-          '.local': 'itemOrden.local',
-          '.mes': 'itemOrden.mes',
-          '.anio': 'itemOrden.anio',
-          '.fecha': 'itemOrden.fecha',
-          '.descripcion': 'itemOrden.descripcion',
-          '.importe': 'itemOrden.importe',
-          '.fechaCobro': 'itemOrden.fechaCobro',
-          '.asignacion': 'itemOrden.asignacion'
-        }
-      }
-    }
-    rowsTemplate = rows.compile(directives);
-
-    directives = {
-      'tr': {
-        'itemOrden<-itemsOrden': {
-          '.pago': 'itemOrden.pago',
-          '.cliente': function (a) {
-            return a.item.cliente + ' <a href="#" class="action js-add-visita">agregar</a>';
-          },
-          '.sucursal': 'itemOrden.sucursal',
-          '.mes': 'itemOrden.mes',
-          '.anio': 'itemOrden.anio',
-          '.fecha': 'itemOrden.fecha',
-          '.observaciones': 'itemOrden.observacion',
-          '.importe': 'itemOrden.importe'
-        }
-      }
-    }
-    rowsAdicionalesTemplate = rowsAdicionales.compile(directives);
-
-    formVisita = dialogVisita.find("form").on("submit", function(event) {
-      event.preventDefault();
-      var importe = formVisita.find(".js-importe").val();
-      var index = parseInt(formVisita.find(".js-index").val());
-      dialogVisita.callback(index, importe);
-    });
-  }
-
-  var initEventListeners = function () {
-    container.find(".js-mcd-items .js-buscar" ).click(function () {
-      var currentShopper = shopperSelector.getCurrentShopper();
-      jQuery.ajax({
-        url: "/item/mdc/" + currentShopper.dni
-      }).done(function (data) {
-        visitas = data;
-        rows = rows.render({'itemsOrden': data}, rowsTemplate);
-        var actions = container.find(".js-mcd-items .js-add-visita").click(function (event) {
-          event.preventDefault();
-          var index = actions.index(this);
-          addVisita(index);
-        })
-      })
-    });
-
-    container.find(".js-items-adicionales .js-buscar" ).click(function () {
-      var currentShopper = shopperSelector.getCurrentShopper();
-      jQuery.ajax({
-        url: "/item/adicionales/" + currentShopper.dni
-      }).done(function (data) {
-        adicionales = data;
-        rowsAdicionales = rowsAdicionales.render({'itemsOrden': data}, rowsAdicionalesTemplate);
-        var actions = container.find(".js-items-adicionales .js-add-visita").click(function (event) {
-          event.preventDefault();
-          var index = actions.index(this);
-          addAdicional(index);
-        })
-      })
-    });
-  };
-
-  var createVisita = function (index, importe) {
-    var visita = visitas[index];
-    visita.importe = importe;
-    var currentShopper = shopperSelector.getCurrentShopper();
-    jQuery.ajax({
-      url: "/item/create",
-      type: 'POST',
-      data: {
-        ordenNro: numeroOrden,
-        tipoPago: visita.tipoPago,
-        asignacion: visita.asignacion,
-        shopperDni: currentShopper.dni,
-        importe: visita.importe,
-        cliente: visita.programa,
-        sucursal: visita.local,
-        mes: visita.mes,
-        anio: visita.anio,
-        fecha: visita.fecha
-      }
-    }).done(function (data) {
-      dialogVisita.dialog("close");
-      visitas.splice(index, 1);
-      rows = rows.render({'itemsOrden': visitas}, rowsTemplate);
-    });
-  };
-
-  var createAdicional = function (index, importe) {
-    var adicional = adicionales[index];
-    adicional.importe = importe;
-    var currentShopper = shopperSelector.getCurrentShopper();
-    jQuery.ajax({
-      url: "/item/createAdicional",
-      type: 'POST',
-      data: {
-        ordenNro: numeroOrden,
-        tipoPago: adicional.tipoPago,
-        asignacion: adicional.id,
-        shopperDni: currentShopper.dni,
-        importe: adicional.importe,
-        cliente: adicional.cliente,
-        sucursal: adicional.sucursal,
-        descripcion: adicional.observacion,
-        mes: adicional.mes,
-        anio: adicional.anio,
-        fecha: adicional.fecha
-      }
-    }).done(function (data) {
-      dialogVisita.dialog("close");
-      adicionales.splice(index, 1);
-      rowsAdicionales = rowsAdicionales.render({'itemsOrden': adicionales}, rowsAdicionalesTemplate);
-    });
-  };
-
-  var addVisita = function (index) {
-    var visita = visitas[index];
-    formVisita.find(".js-index").val(index);
-    formVisita.find(".js-importe").val(visita.importe);
-    dialogVisita.callback = createVisita;
-    dialogVisita.dialog("open");
-  };
-
-  var addAdicional = function (index) {
-    var adicional = adicionales[index];
-    formVisita.find(".js-index").val(index);
-    formVisita.find(".js-importe").val(adicional.importe);
-    dialogVisita.callback = createAdicional;
-    dialogVisita.dialog("open");
-  };
-
-  var reset = function () {
-    shopperSelector.reset();
-    visitas = [];
-    rows = rows.render({'itemsOrden': []}, rowsTemplate);
-  };
-
-  return {
-    render: function () {
-      initialize();
-      initEventListeners();
-    },
-    open: function () {
-      reset();
-      itemDialog.dialog("open");
-    }
-  };
-}
-
-App.widget.OrdenPago = function (container, numeroOrden) {
-
-  var itemSelector;
-
-  var titularSelector;
-
-  /*var itemsTable = $p("#items-table-template");
-
-  var itemsTableTemplate = null;*/
-
-  var refreshOrden = function () {
-    location.href = location.href;
-  }
-
-  var initialize = function () {
-    /*var directives = {
-      'tr': {
-        'itemOrden<-itemsOrden': {
-          '.programa': function (a) {
-            return a.item.programa + ' <a href="#" class="action js-add-visita">agregar</a>';
-          },
-          '.local': 'itemOrden.local',
-          '.mes': 'itemOrden.mes',
-          '.anio': 'itemOrden.anio',
-          '.fecha': 'itemOrden.fecha',
-          '.descripcion': 'itemOrden.descripcion',
-          '.importe': 'itemOrden.importe',
-          '.fechaCobro': 'itemOrden.fechaCobro',
-          '.asignacion': 'itemOrden.asignacion'
-        }
-      }
-    }
-    itemsTableTemplate = itemsTable.compile(directives);*/
-
-    itemSelector = new App.widget.ItemsSelector(jQuery("#item-selector"),
-        numeroOrden, refreshOrden);
-
-    container.find(".js-date" ).datepicker({
-      onSelect: function(dateText, datePicker) {
-        $(this).attr('value', dateText);
-      }
-    });
-    itemSelector.render();
-  }
-
-  var initEventListeners = function () {
-    var medioDefault = container.find(".js-medio-pago-predeterminado");
-    var sinMedioSeleccionado = container.find(".js-sin-medio-pago");
-    var asociarMedio = container.find(".js-asociar-medio");
-
-    container.find(".js-add-item" ).click(function () {
-      itemSelector.open();
-    });
-
-    container.find(".js-medio-pago").change(function (event) {
-      medioDefault.hide();
-      sinMedioSeleccionado.hide();
-      asociarMedio.show();
-    });
-
-    asociarMedio.click(function (event) {
-      event.preventDefault();
-
-      var medioPagoSeleccionado = container.find(".js-medio-pago").val();
-      var titular = titularSelector.getTitularSelected();
-
-      jQuery.ajax({
-        url: "asociarMedioPago",
-        data: {
-          tipoProveedor: titular.tipo,
-          titularId: titular.id,
-          medioPagoId: medioPagoSeleccionado
-        },
-        method: 'POST'
-      }).done(function (data) {
-        asociarMedio.hide();
-        sinMedioSeleccionado.hide();
-        medioDefault.text('Medio de pago predeterminado: ' + data);
-        medioDefault.show();
-      })
-    });
-
-    container.find(".js-delete-item" ).click(function (event) {
-      event.preventDefault();
-      $( "#dialog-confirm" ).dialog({
-        resizable: false,
-        height:140,
-        modal: true,
-        buttons: {
-          "Delete all items": function() {
-            $( this ).dialog( "close" );
-          },
-          Cancel: function() {
-            $( this ).dialog( "close" );
-          }
-        }
-      });
-      var itemId = event.target.id.substr(5);
-      jQuery.ajax({
-        url: numeroOrden + "/item/" + itemId,
-        method: 'DELETE'
-      }).done(function (data) {
-        location.href = location.href;
-      })
-    });
-  };
-
-  var initValidators = function () {
-    var tipoFacturaValidation = new LiveValidation("tipoFactura");
-    tipoFacturaValidation.add(Validate.Exclusion, {
-        within: ["Seleccionar"],
-        failureMessage: "El tipo de factura es obligatorio"
-    });
-    var ivaValidation = new LiveValidation("iva");
-    ivaValidation.add(Validate.Presence, {
-        failureMessage: "El porcentaje de IVA es obligatorio"
-    });
-    var fechaPagoValidation = new LiveValidation("fechaPago");
-    fechaPagoValidation.add(Validate.Presence, {
-        failureMessage: "La fecha de pago es obligatoria"
-    });
-    var medioPagoValidation = new LiveValidation("medioPago");
-    medioPagoValidation.add(Validate.Exclusion, {
-        within: ["Seleccionar"],
-        failureMessage: "El medio de pago es obligatorio"
-    });
-  };
-
-  return {
-    render: function () {
-      titularSelector = new App.widget.TitularSelector(
-          container.find(".js-titular-selector"));
-      titularSelector.render();
-
-      initialize();
-      initEventListeners();
-      initValidators();
-    }
-  };
-}
-
-
       jQuery(document).ready(function() {
 
         var ordenPago = new App.widget.OrdenPago(jQuery(".js-orden-pago"), ${numero});
@@ -487,6 +91,9 @@ App.widget.OrdenPago = function (container, numeroOrden) {
     </script>
 
     <script src="/script/TitularSelector.js"></script>
+    <script src="/script/ShopperSelector.js"></script>
+    <script src="/script/ItemSelector.js"></script>
+    <script src="/script/OrdenPago.js"></script>
 
 <style>
 .LV_validation_message.LV_valid {
@@ -518,6 +125,21 @@ textarea.LV_invalid_field:active {
     <header>
       <div class="header-box">
         <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
+        <nav>
+          <ul class="menu">
+            <li><a href="#"><i class="icon-home"></i>Orden de pago</a>
+              <ul class="sub-menu">
+                <li><a href="#">Nueva</a></li>
+                <li><a href="#">Buscar</a></li>
+              </ul>
+            </li>
+            <li><a href="#"><i class="icon-user"></i>Items de orden de pago</a>
+              <ul class="sub-menu">
+                <li><a href="../item/search">Buscar</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
         <p class="user"> ${user.username} <a href="/logout">Salir</a></p>
       </div>
     </header>
@@ -541,12 +163,12 @@ textarea.LV_invalid_field:active {
                 <p class="mandatory">Titular</p>
                 <ul>
                   <li class="form-shop">
-                    <input type="radio" name="tipoTitular" id="shopper" value="1" class="js-shopper" <#if tipoTitular == 1>checked="checked"</#if>>
-                    <label for="shopper">Shopper</label>
+                    <input type="radio" name="tipoTitular" id="tipoShopper" value="1" class="js-shopper" <#if tipoTitular == 1>checked="checked"</#if>>
+                    <label for="tipoShopper">Shopper</label>
                   </li>
                   <li class="form-shop">
-                    <input type="radio" name="tipoTitular" id="proveedor" value="2" class="js-proveedor" <#if tipoTitular == 2>checked="checked"</#if>>
-                    <label for="proveedor">Proveedor</label>
+                    <input type="radio" name="tipoTitular" id="tipoProveedor" value="2" class="js-proveedor" <#if tipoTitular == 2>checked="checked"</#if>>
+                    <label for="tipoProveedor">Proveedor</label>
                   </li>
                 </ul>
                 <div class="combo-titular">
@@ -768,13 +390,8 @@ textarea.LV_invalid_field:active {
                     <div class="box-green">
                       <div class="form-shop-row-left shopper-widget js-shopper-selector">
                         <label for="shopper">Shooper: </label>
-                        <#assign titularId = "" />
-                        <#assign titularNombre = "" />
-                        <#if model["titular"]??>
-                          <#assign titularId = "${model['titular'].id?c}" />
-                          <#assign titularNombre = "${model['titular'].name}" />
-                        </#if>
                         <input type="text" value="" id="shopper" class="js-shopper" />
+                        <a id="clear-shopper" href="#" class="clear js-clear">limpiar</a>
                         <input type="hidden" name="shopperId" value="" class="js-shopper-id" />
                         <input type="hidden" name="shopperDni" value="" class="js-shopper-dni" />
                       </div>
@@ -788,9 +405,6 @@ textarea.LV_invalid_field:active {
                             <!--li><a href="#your-tab-id-5">Manuales</a></li-->
                         </ul>
                         <div class="content_holder">
-                          <!--div id="your-tab-id-1">
-                           I Plan
-                          </div-->
                           <div id="your-tab-id-2" class="js-mcd-items">
                             <ul class="action-columns">
                                 <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
@@ -826,9 +440,6 @@ textarea.LV_invalid_field:active {
                                 </table>
                             </div>
                           </div>
-                          <!--div id="your-tab-id-3">
-                           Some content tab 3
-                          </div-->
                           <div id="your-tab-id-4" class="js-items-adicionales">
                             <ul class="action-columns">
                                 <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
@@ -862,9 +473,6 @@ textarea.LV_invalid_field:active {
                               </table>
                             </div>
                           </div>
-                          <!--div id="your-tab-id-5">
-                           Some content tab 5
-                          </div-->
                         </div>
                     </div>
 
@@ -881,40 +489,8 @@ textarea.LV_invalid_field:active {
         <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" />
       </form>
     </div>
-    <div id="confirm-delete-item" title="Borrar el item?">
+    <div id="confirm-delete-item" title="Borrar item de la orden de pago">
       <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Esta seguro que desea borrar el item?</p>
     </div>
-    <!--div id="items-table-template" style="display:none">
-         <table summary="Listado de items de la orden de pago" class="table-form ">
-            <thead>
-              <tr>
-                <th scope="col">Shopper</th>
-                <th scope="col">Cliente</th>
-                <th scope="col">Mes</th>
-                <th scope="col">A&ntilde;o</th>
-                <th scope="col">Sucursal</th>
-                <th scope="col">Pago</th>
-                <th scope="col">Importe</th>
-                <th scope="col">DNI</th>
-                <th scope="col">Asignaci&oacute;n</th>
-                <th scope="col">Fecha</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td></td>
-                <td class="js-cliente"></td>
-                <td class="js-mes"></td>
-                <td class="js-anio"></td>
-                <td class="js-sucursal"></td>
-                <td></td>
-                <td class="js-importe"></td>
-                <td class="js-dni"></td>
-                <td class="js-asignacion"></td>
-                <td class="js-fecha"></td>
-              </tr>
-            </tbody>
-        </table>
-    </div-->
   </body>
 </html>

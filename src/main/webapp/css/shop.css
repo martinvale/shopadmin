@@ -68,12 +68,22 @@ h2.subtitulo {
     margin: 0 0 10px 0;
     font-family: 'Trebuchet MS';
 }
+.subt-text{
+        font-family: 'Trebuchet MS';
+         padding-top: 10px;
+        padding-bottom: 0;
+        font-size: 16px;
+}
 /*************** Orden de pago ***************/
 
 /* box verde destacado
 */
 .box-green {
     background-color: #F3F8DB;
+    padding:10px;
+    }   
+.box-gray{
+    background-color: #EEEEEE;
     padding:10px;
     }   
 
@@ -89,6 +99,12 @@ h2.subtitulo {
 .cell-c2 {
     margin-left: 10px;
     }
+
+.cell-c3 {
+    display: table-cell;
+    width: 50%;
+
+}
 
 .form-shop-row-left label,
 .form-shop-options-left p {
@@ -167,16 +183,93 @@ h2.subtitulo {
 
 }
 
+
+
+.columnas-form-3 {
+    margin: 0px 0 20px 0;
+    }
+
+    .columnas-form-3 li {
+        display: inline-block;
+        width: 33%;
+        vertical-align: top;
+        margin-top: 20px;
+        
+    }
+    .columnas-form-3 label{
+        width: 90px;
+        margin: 0;
+        padding:2px 4px 2px 0;
+
+    }
+    .columnas-form-3 select{
+        width: 200px
+    }
+
 /***** actiones principales *****/
 .actions-form {
     padding: 20px 0 0 0;
     text-align: center;
     background-color: #F2F2F2;
     border-top: 1px solid #ccc;
+    margin-top: 10px;
 }
 
 .actions-form .action-columns {
     margin: 0;
     border: none;
 }
+.action-search-buscar  {
+    text-align: center;
+    padding:  20px 0 10px;
+    border-top: 1px dotted #ccc
+}
 
+
+/*items tabs*/
+.table-form-controls, .table-form {
+    margin: 5px 0 0 0
+    
+}
+
+
+/*search*/
+.form-busqueda ul li{
+    padding: 5px 10px; 
+}
+.form-busqueda ul li label {
+    width: 13%
+}
+ .form-busqueda select {
+    width: 30%
+    }
+
+.action-search{
+    padding-left: 17%;
+    padding-top: 20px;
+    }
+.table-search{
+    margin: 30px 0
+}
+
+/**Autorización de adicionales*/
+.box-client {
+    display: inline-block;
+    width: 10%;
+    vertical-align: top;
+    line-height: 50px;
+    padding-left: 20px;
+
+}
+.box-data-client {
+    display: inline-block;
+    widows: 40%;
+}
+.box-sucursal{
+
+    line-height: 50px;
+    padding-left: 20px;
+    }
+    .box-sucursal label {
+        margin-right: 20px;
+    }

@@ -1,5 +1,6 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
 import com.ibiscus.shopnchek.domain.admin.Adicional;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
+import com.ibiscus.shopnchek.domain.admin.ItemOrderRepository;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
@@ -35,6 +37,10 @@ public class ItemOrdenController {
   /** Repository of orders. */
   @Autowired
   private OrderRepository orderRepository;
+
+  /** Repository of items of the orders. */
+  @Autowired
+  private ItemOrderRepository itemOrderRepository;
 
   /** Repository of users. */
   @Autowired
@@ -105,5 +111,32 @@ public class ItemOrdenController {
     orderRepository.saveItem(itemOrden);
     itemsOrdenService.linkAdicional(asignacion, ordenNro);
     return Boolean.TRUE;
+  }
+
+  @RequestMapping(value="/search")
+  public String list(@ModelAttribute("model") final ModelMap model) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+    model.addAttribute("items", new ArrayList<ItemOrden>());
+    return "buscadorItems";
+  }
+
+  @RequestMapping(value="/search", method = RequestMethod.POST)
+  public String search(@ModelAttribute("model") final ModelMap model,
+      String shopperDni, String shopper) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+    model.addAttribute("shopper", shopper);
+    model.addAttribute("shopperDni", shopperDni);
+    List<ItemOrden> items = null;
+    if (shopperDni != null) {
+      items = itemOrderRepository.find(shopperDni);
+    } else {
+      items = new ArrayList<ItemOrden>();
+    }
+    model.addAttribute("items", items);
+    return "buscadorItems";
   }
 }

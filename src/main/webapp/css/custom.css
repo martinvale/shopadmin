@@ -23,14 +23,18 @@ a.action {
 }
 
 .ui-widget-content {
-  background-color: #f3f8db;
+  background-color: #ffffff;
   background-image: none;
-  border: none;
 }
 
 .ui-widget-header {
   background-color: #f3f8db;
   background-image: none;
+  border: 1px solid #9abd1e;
+  color: #9abd1e;
+}
+
+.ui-tabs .ui-widget-header, .ui-tabs.ui-widget-content {
   border: none;
 }
 
@@ -71,4 +75,8 @@ textarea.LV_invalid_field:active {
 .buscador .field label {
   display: inline-block;
   width: 125px;
+}
+
+.clear {
+  margin-right: 5px;
 }

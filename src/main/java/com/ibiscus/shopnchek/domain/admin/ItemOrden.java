@@ -103,6 +103,10 @@ public class ItemOrden {
     return id;
   }
 
+  public OrdenPago getOrdenPago() {
+    return ordenPago;
+  }
+
   /**
    * @return the cliente
    */
