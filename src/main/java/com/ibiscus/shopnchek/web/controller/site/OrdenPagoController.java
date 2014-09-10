@@ -2,7 +2,9 @@ package com.ibiscus.shopnchek.web.controller.site;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -268,4 +270,19 @@ public class OrdenPagoController {
     return "buscadorOrdenPago";
   }
 
+  @RequestMapping(value="/caratula/{orderId}")
+  public String getCaratula(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+    Set<String> clients = new HashSet<String>();
+    OrdenPago ordenPago = orderRepository.get(orderId);
+    for (ItemOrden itemOrden : ordenPago.getItems()) {
+      clients.add(itemOrden.getCliente());
+    }
+    model.addAttribute("ordenPago", ordenPago);
+    model.addAttribute("clients", clients);
+    return "caratula";
+  }
 }

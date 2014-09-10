@@ -69,6 +69,10 @@ App.widget.OrdenPago = function (container, numeroOrden) {
     var sinMedioSeleccionado = container.find(".js-sin-medio-pago");
     var asociarMedio = container.find(".js-asociar-medio");
 
+    container.find(".js-caratula" ).click(function () {
+      window.open('caratula/' + numeroOrden, "", "width=700, height=700");
+    });
+
     container.find(".js-add-item" ).click(function () {
       itemSelector.open();
     });

@@ -125,21 +125,7 @@ textarea.LV_invalid_field:active {
     <header>
       <div class="header-box">
         <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
-        <nav>
-          <ul class="menu">
-            <li><a href="#"><i class="icon-home"></i>Orden de pago</a>
-              <ul class="sub-menu">
-                <li><a href="#">Nueva</a></li>
-                <li><a href="#">Buscar</a></li>
-              </ul>
-            </li>
-            <li><a href="#"><i class="icon-user"></i>Items de orden de pago</a>
-              <ul class="sub-menu">
-                <li><a href="../item/search">Buscar</a></li>
-              </ul>
-            </li>
-          </ul>
-        </nav>
+        <#include "header.ftl" />
         <p class="user"> ${user.username} <a href="/logout">Salir</a></p>
       </div>
     </header>
@@ -278,7 +264,7 @@ textarea.LV_invalid_field:active {
           </p>
           <ul class="action-columns">
             <li> <input type="submit" class="btn-shop-small" value="Guardar" <#if !canEdit>disabled="true"</#if>></li>
-            <li> <input type="button" class="btn-shop-small" value="Car&aacute;tula" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
+            <li> <input type="button" class="btn-shop-small js-caratula" value="Car&aacute;tula" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
           </ul>
           <!-- FIN FILA 2 -->
 
