@@ -70,7 +70,16 @@ App.widget.OrdenPago = function (container, numeroOrden) {
     var asociarMedio = container.find(".js-asociar-medio");
 
     container.find(".js-caratula" ).click(function () {
-      window.open('caratula/' + numeroOrden, "", "width=700, height=700");
+      window.open('caratula/' + numeroOrden, "", "width=700, height=600");
+    });
+    container.find(".js-remito" ).click(function () {
+      window.open('remito/' + numeroOrden, "", "width=700, height=600");
+    });
+    container.find(".js-detail" ).click(function () {
+      window.open('printdetail/' + numeroOrden, "", "width=1000, height=600");
+    });
+    container.find(".js-detail-shopper" ).click(function () {
+      window.open('printshopper/' + numeroOrden, "", "width=1000, height=600");
     });
 
     container.find(".js-add-item" ).click(function () {

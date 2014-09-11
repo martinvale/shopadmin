@@ -85,6 +85,9 @@
         <span class="numero"><span class="name">Nro</span> ${model['ordenPago'].numero?c}</span>
         <span class="fechaPago"><span class="name">Fecha de pago</span> ${model['ordenPago'].fechaPago?string('dd/MM/yyyy')}</span>
       </p>
+      <p class="heading">
+        <span class="name">Titular:</span> ${model['titularNombre']}
+      </p>
       <p class="detail">Clientes</p>
       <hr/>
       <div class="clients">

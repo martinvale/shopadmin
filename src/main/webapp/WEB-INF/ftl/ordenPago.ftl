@@ -300,7 +300,7 @@ textarea.LV_invalid_field:active {
                         <td class="js-anio">${(item.anio?c)!''}</td>
                         <td class="js-sucursal">${item.sucursal!''}</td>
                         <td>${item.tipoPago.description}</td>
-                        <td class="js-importe">${item.importe}</td>
+                        <td class="js-importe">${item.importe?string.currency}</td>
                         <td class="js-dni">${item.shopperDni}</td>
                         <td class="js-asignacion">${(item.asignacion?c)!''}</td>
                         <td class="js-fecha">${item.fecha!''}</td>
@@ -355,9 +355,9 @@ textarea.LV_invalid_field:active {
 
         <div class="actions-form">
           <ul class="action-columns">
-            <li><input type="submit" class="btn-shop" value="Imprimir" disabled="true"></li>
-            <li><input type="submit" class="btn-shop" value="Imprimir Detalle" disabled="true"></li>
-            <li><input type="submit" class="btn-shop-action" value="Eliminar Shopper" disabled="true"></li>
+            <li><input type="button" class="btn-shop js-remito" value="Imprimir" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop js-detail" value="Imprimir Detalle" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop js-detail-shopper" value="Detalle Shopper" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
           </ul>
         </div>
     </form>
