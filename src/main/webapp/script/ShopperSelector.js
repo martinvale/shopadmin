@@ -16,7 +16,7 @@ App.widget.ShopperSelector = function (container) {
 
   var initEventListeners = function () {
     var filter = selector.autocomplete({
-      source: "/services/shoppers/suggest",
+      source: "../services/shoppers/suggest",
       minLength: 2,
       select: function(event, ui) {
         currentShopper = ui.item;

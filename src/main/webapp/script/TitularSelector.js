@@ -7,12 +7,12 @@ App.widget.TitularSelector = function (container, shoppers) {
   var initEventListeners = function () {
     container.find(".js-proveedor").change(function (event) {
       reset();
-      filter = selector.autocomplete('option', 'source', "/services/proveedores/suggest");
+      filter = selector.autocomplete('option', 'source', "../services/proveedores/suggest");
     });
 
     container.find(".js-shopper").change(function (event) {
       reset();
-      filter = selector.autocomplete('option', 'source', "/services/shoppers/suggest");
+      filter = selector.autocomplete('option', 'source', "../services/shoppers/suggest");
     });
   };
 
@@ -24,7 +24,7 @@ App.widget.TitularSelector = function (container, shoppers) {
   return {
     render: function () {
       filter = selector.autocomplete({
-        source: "/services/shoppers/suggest",
+        source: "../services/shoppers/suggest",
         minLength: 2,
         select: function(event, ui) {
           if (ui.item.name) {

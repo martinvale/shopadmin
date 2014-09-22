@@ -1,6 +1,7 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
@@ -68,6 +70,26 @@ public class ItemOrdenController {
     return items;
   }
 
+  @RequestMapping(value="/deuda/{dniShopper}")
+  public @ResponseBody List<Visita> listarDeuda(
+      @ModelAttribute("model") final ModelMap model,
+      @PathVariable String dniShopper,
+      @RequestParam(defaultValue = "false") Boolean includeIplan,
+      @RequestParam(defaultValue = "false") Boolean includeMcd,
+      @RequestParam(defaultValue = "false") Boolean includeGac,
+      @RequestParam(defaultValue = "false") Boolean includeAdicionales,
+      @RequestParam(defaultValue = "false") Boolean includeShopmetrics,
+      Boolean applyDate, Date desde, Date hasta) {
+    if (!applyDate) {
+      desde = null;
+      hasta = null;
+    }
+    List<Visita> items = itemsOrdenService
+        .getDeudaShopper(dniShopper, includeIplan, includeMcd, includeGac,
+            includeAdicionales, includeShopmetrics, desde, hasta);
+    return items;
+  }
+
   @RequestMapping(value="/create", method = RequestMethod.POST)
   public @ResponseBody Boolean create(
       @ModelAttribute("model") final ModelMap model,
@@ -95,7 +117,7 @@ public class ItemOrdenController {
       @ModelAttribute("model") final ModelMap model,
       long ordenNro, int tipoPago, String shopperDni, Integer asignacion,
       double importe, String cliente, String sucursal, int mes, int anio,
-      String fecha, String descripcion) {
+      String fecha) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     com.ibiscus.shopnchek.domain.security.User autorizador;
@@ -103,6 +125,7 @@ public class ItemOrdenController {
     Shopper shopper = shopperRepository.findByDni(shopperDni);
     OrdenPago ordenPago = orderRepository.get(ordenNro);
     TipoPago unTipoPago = orderRepository.getTipoPago(tipoPago);
+    String descripcion = itemsOrdenService.getObservacionAdicional(asignacion);
     Long newId = itemsOrdenService.getItemOrdenId();
     ItemOrden itemOrden = new ItemOrden(newId, ordenPago, autorizador.getId(),
         shopperDni, asignacion, 3, unTipoPago,

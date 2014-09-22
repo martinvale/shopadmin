@@ -218,8 +218,8 @@ public class OrdenPagoController {
 
   @RequestMapping(value="/search")
   public String search(@ModelAttribute("model") final ModelMap model,
-      Long numeroOrden, Long tipoTitular, Integer titularId, String dniShopper,
-      String numeroCheque, Long estadoId) {
+      Long numeroOrden, Integer tipoTitular, Integer titularId,
+      String dniShopper, String numeroCheque, Long estadoId) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);

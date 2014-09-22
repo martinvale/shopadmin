@@ -11,5 +11,10 @@
                 <li><a href="../item/search">Buscar</a></li>
               </ul>
             </li>
+            <li><a href="#"><i class="icon-user"></i>Administraci&oacute;n</a>
+              <ul class="sub-menu">
+                <li><a href="../users/">Usuarios</a></li>
+              </ul>
+            </li>
           </ul>
         </nav>

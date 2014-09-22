@@ -5,16 +5,16 @@
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
 
-    <link rel="stylesheet" href="/css/jquery-ui/jquery-ui.css">
+    <link rel="stylesheet" href="../css/jquery-ui/jquery-ui.css">
 
-    <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/shop.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <link rel="stylesheet" href="../css/custom.css">
 
-    <script src="/script/jquery.js"></script>
-    <script src="/script/jquery-ui.js"></script>
-    <script src="/script/pure.min.js"></script>
-    <script src="/script/livevalidation.js"></script>
+    <script src="../script/jquery.js"></script>
+    <script src="../script/jquery-ui.js"></script>
+    <script src="../script/pure.min.js"></script>
+    <script src="../script/livevalidation.js"></script>
 
     <script type="text/javascript">
 
@@ -46,7 +46,7 @@ App.widget.Buscador = function (container) {
       });
     </script>
 
-    <script src="/script/TitularSelector.js"></script>
+    <script src="../script/TitularSelector.js"></script>
 <style>
 ul.menu {
   display: inline-block;
@@ -67,7 +67,7 @@ ul.menu li {
         <ul class="menu">
           <li>Ordenes de pago</li>
         </ul>
-        <p class="user"> ${user.username} <a href="/logout">Salir</a></p>
+        <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>
       </div>
     </header>
     <div class="container-box-plantilla">

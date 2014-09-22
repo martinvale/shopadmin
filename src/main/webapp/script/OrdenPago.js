@@ -2,6 +2,8 @@ App.widget.OrdenPago = function (container, numeroOrden) {
 
   var itemSelector;
 
+  var deudaShopperSelector;
+
   var titularSelector;
 
   var deleteConfirmDialog = jQuery( "#confirm-delete-item" ).dialog({
@@ -11,7 +13,7 @@ App.widget.OrdenPago = function (container, numeroOrden) {
     modal: true,
     buttons: {
       "Ok": function() {
-        var itemId = event.target.id.substr(5);
+        var itemId = deleteConfirmDialog.currentId;
         jQuery.ajax({
           url: numeroOrden + "/item/" + itemId,
           method: 'DELETE'
@@ -56,12 +58,16 @@ App.widget.OrdenPago = function (container, numeroOrden) {
     itemSelector = new App.widget.ItemsSelector(jQuery("#item-selector"),
         numeroOrden, refreshOrden);
 
+    deudaShopperSelector = new App.widget.DeudaShopperSelector(jQuery("#deuda-shopper"),
+        numeroOrden, refreshOrden);
+
     container.find(".js-date" ).datepicker({
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
       }
     });
     itemSelector.render();
+    deudaShopperSelector.render();
   }
 
   var initEventListeners = function () {
@@ -82,8 +88,12 @@ App.widget.OrdenPago = function (container, numeroOrden) {
       window.open('printshopper/' + numeroOrden, "", "width=1000, height=600");
     });
 
-    container.find(".js-add-item" ).click(function () {
+    container.find(".js-add-item").click(function () {
       itemSelector.open();
+    });
+
+    container.find(".js-buscar-deuda").click(function () {
+      deudaShopperSelector.open();
     });
 
     container.find(".js-medio-pago").change(function (event) {
@@ -116,6 +126,7 @@ App.widget.OrdenPago = function (container, numeroOrden) {
 
     container.find(".js-delete-item" ).click(function (event) {
       event.preventDefault();
+      deleteConfirmDialog.currentId = event.target.id.substr(5);
       deleteConfirmDialog.dialog("open");
     });
   };

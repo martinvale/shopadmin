@@ -96,7 +96,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback) {
     container.find(".js-mcd-items .js-buscar" ).click(function () {
       var currentShopper = shopperSelector.getCurrentShopper();
       jQuery.ajax({
-        url: "/item/mdc/" + currentShopper.dni
+        url: "../item/mdc/" + currentShopper.dni
       }).done(function (data) {
         visitas = data;
         rows = rows.render({'itemsOrden': data}, rowsTemplate);
@@ -111,7 +111,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback) {
     container.find(".js-items-adicionales .js-buscar" ).click(function () {
       var currentShopper = shopperSelector.getCurrentShopper();
       jQuery.ajax({
-        url: "/item/adicionales/" + currentShopper.dni
+        url: "../item/adicionales/" + currentShopper.dni
       }).done(function (data) {
         adicionales = data;
         rowsAdicionales = rowsAdicionales.render({'itemsOrden': data}, rowsAdicionalesTemplate);
@@ -129,7 +129,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback) {
     visita.importe = importe;
     var currentShopper = shopperSelector.getCurrentShopper();
     jQuery.ajax({
-      url: "/item/create",
+      url: "../item/create",
       type: 'POST',
       data: {
         ordenNro: numeroOrden,
@@ -155,7 +155,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback) {
     adicional.importe = importe;
     var currentShopper = shopperSelector.getCurrentShopper();
     jQuery.ajax({
-      url: "/item/createAdicional",
+      url: "../item/createAdicional",
       type: 'POST',
       data: {
         ordenNro: numeroOrden,

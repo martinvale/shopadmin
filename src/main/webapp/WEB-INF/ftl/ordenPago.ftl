@@ -5,16 +5,16 @@
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
 
-    <link rel="stylesheet" href="/css/jquery-ui/jquery-ui.css">
+    <link rel="stylesheet" href="../css/jquery-ui/jquery-ui.css">
 
-    <link rel="stylesheet" href="/css/base.css">
-    <link rel="stylesheet" href="/css/shop.css">
-    <link rel="stylesheet" href="/css/custom.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <link rel="stylesheet" href="../css/custom.css">
 
-    <script src="/script/jquery.js"></script>
-    <script src="/script/jquery-ui.js"></script>
-    <script src="/script/pure.min.js"></script>
-    <script src="/script/livevalidation.js"></script>
+    <script src="../script/jquery.js"></script>
+    <script src="../script/jquery-ui.js"></script>
+    <script src="../script/pure.min.js"></script>
+    <script src="../script/livevalidation.js"></script>
 
     <#assign user = model["user"] />
     <#assign canEdit = false />
@@ -24,7 +24,6 @@
     <#assign ordenAbierta = true />
     <#assign estadoOrden = "ABIERTA" />
 
-    <#assign numero = "" />
     <#assign tipoFactura = "" />
     <#assign fechaPago = "" />
     <#assign medioPagoId = "" />
@@ -85,15 +84,16 @@
 
       jQuery(document).ready(function() {
 
-        var ordenPago = new App.widget.OrdenPago(jQuery(".js-orden-pago"), ${numero});
+        var ordenPago = new App.widget.OrdenPago(jQuery(".js-orden-pago"), ${numero!"null"});
         ordenPago.render();
       });
     </script>
 
-    <script src="/script/TitularSelector.js"></script>
-    <script src="/script/ShopperSelector.js"></script>
-    <script src="/script/ItemSelector.js"></script>
-    <script src="/script/OrdenPago.js"></script>
+    <script src="../script/TitularSelector.js"></script>
+    <script src="../script/ShopperSelector.js"></script>
+    <script src="../script/ItemSelector.js"></script>
+    <script src="../script/DeudaShopperSelector.js"></script>
+    <script src="../script/OrdenPago.js"></script>
 
 <style>
 .LV_validation_message.LV_valid {
@@ -126,7 +126,7 @@ textarea.LV_invalid_field:active {
       <div class="header-box">
         <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
         <#include "header.ftl" />
-        <p class="user"> ${user.username} <a href="/logout">Salir</a></p>
+        <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>
       </div>
     </header>
     <div class="container-box-plantilla">
@@ -141,7 +141,7 @@ textarea.LV_invalid_field:active {
             <div class="box-green cell-c1">
               <div class="form-shop-row-left">
                 <label for="number">N&uacute;mero</label>
-                <input type="text" name="numeroOrden" readOnly=true id="number" value="${numero}"/>
+                <input type="text" name="numeroOrden" readOnly=true id="number" value="${numero!''}"/>
               </div>
             </div>
             <div class="box-green cell-c2">
@@ -313,7 +313,7 @@ textarea.LV_invalid_field:active {
         </div>
         <ul class="action-columns">
             <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
-            <li><input type="submit" class="btn-shop-small" value="Deuda Shopper" disabled="true"></li>
+            <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
         </ul>
 
   <!-- FIN FILA 3 -->
@@ -467,6 +467,7 @@ textarea.LV_invalid_field:active {
         </div>
 
     </div>
+    <#include "buscadorDeudaShopper.ftl" />
     <div id="ammount-confirmation" title="Importe">
       <form>
         <label for="importe-asignacion">Ingrese el importe de la asignaci&oacute;n seleccionada</label>

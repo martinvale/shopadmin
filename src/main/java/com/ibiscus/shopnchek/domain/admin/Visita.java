@@ -5,6 +5,8 @@ public class Visita {
 
   private String shopperDni;
 
+  private String empresa;
+
   private String programa;
 
   private String local;
@@ -29,13 +31,18 @@ public class Visita {
 
   private int tipoPago;
 
-  public Visita(final String unShopperDni,
+  private String usuario;
+
+  private String observacion;
+
+  public Visita(final String unShopperDni, final String unaEmpresa,
       final String unPrograma, final String unLocal, final String unNombre,
       final Integer unaAsignacion, final int unMes, final int unAnio,
       final String unaFecha,
       final String unaDescripcion, final String unaFechaCobro,
       final double unImporte, final Integer unTipoItem, final int unTipoPago) {
     shopperDni = unShopperDni;
+    empresa = unaEmpresa;
     programa = unPrograma;
     local = unLocal;
     nombre = unNombre;
@@ -50,11 +57,23 @@ public class Visita {
     tipoItem = unTipoItem;
   }
 
+  public void updateObservacion(final String unUsuario, final String unaObservacion) {
+    usuario = unUsuario;
+    observacion = unaObservacion;
+  }
+
   /**
    * @return the shopperDni
    */
   public String getShopperDni() {
     return shopperDni;
+  }
+
+  /**
+   * @return the programa
+   */
+  public String getEmpresa() {
+    return empresa;
   }
 
   /**
@@ -136,5 +155,13 @@ public class Visita {
    */
   public int getTipoPago() {
     return tipoPago;
+  }
+
+  public String getUsuario() {
+    return usuario;
+  }
+
+  public String getObservacion() {
+    return observacion;
   }
 }

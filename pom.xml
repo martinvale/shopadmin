@@ -179,6 +179,17 @@
         <artifactId>jetty-maven-plugin</artifactId>
         <version>${jetty.version}</version>
       </plugin>
+
+      <plugin>  
+        <groupId>org.apache.tomcat.maven</groupId>  
+        <artifactId>tomcat7-maven-plugin</artifactId>  
+        <version>2.1</version>  
+        <configuration>  
+          <url>http://localhost:8080/shopadmin</url>  
+          <server>my-tomcat</server>  
+          <!--path>/telcomanager</path-->  
+       </configuration>  
+      </plugin>  
     </plugins>
   </build>
 

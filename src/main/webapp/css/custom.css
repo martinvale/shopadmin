@@ -3,7 +3,7 @@
   font-weight: bold;
 }
 
-.titular-widget .nombre-titular {
+.titular-widget .nombre-titular, .shopper-name {
   width: 300px;
 }
 
@@ -79,4 +79,43 @@ textarea.LV_invalid_field:active {
 
 .clear {
   margin-right: 5px;
+}
+
+ul.options {
+  height: 30px;
+  margin-top: 10px;
+}
+
+ul.options li {
+  float: left;
+  width: 150px;
+}
+
+ul.date {
+  height: 40px;
+}
+
+ul.date li {
+  float: left;
+  width: 250px;
+}
+
+ul.date li.check {
+  padding-top: 10px;
+}
+
+.field {
+  height: 40px;
+}
+
+.field label.field-name {
+  font-weight: bold;
+}
+
+.field input[type=text] {
+  width: 200px;
+}
+
+.field input[type=radio] {
+  margin-top: 10px;
 }

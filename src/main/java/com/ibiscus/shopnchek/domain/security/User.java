@@ -2,7 +2,6 @@ package com.ibiscus.shopnchek.domain.security;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -12,7 +11,6 @@ public class User {
 
   @Id
   @Column(name="ID")
-  @GeneratedValue
   private long id;
 
   @Column(name="DESCRIPCION")
@@ -28,6 +26,25 @@ public class User {
   private int perfil;
 
   User() {
+  }
+
+  public User(final String theUsername, final String theName,
+      final int theProfile) {
+    username = theUsername;
+    name = theName;
+    password = theUsername;
+    perfil = theProfile;
+  }
+
+  public void update(final String theUsername, final String theName,
+      final int theProfile) {
+    username = theUsername;
+    name = theName;
+    perfil = theProfile;
+  }
+
+  public void updateId(final long theId) {
+    id = theId;
   }
 
   public long getId() {

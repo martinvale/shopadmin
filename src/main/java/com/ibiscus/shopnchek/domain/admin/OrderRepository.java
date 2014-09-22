@@ -85,7 +85,7 @@ public class OrderRepository extends HibernateDaoSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public List<OrdenPago> findOrdenes(Long tipoTitular, Integer titularId,
+  public List<OrdenPago> findOrdenes(Integer tipoTitular, Integer titularId,
       String dniShopper, String numeroCheque, OrderState estado) {
     Criteria criteria = getSession().createCriteria(OrdenPago.class);
     if (tipoTitular != null && titularId != null) {
