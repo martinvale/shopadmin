@@ -47,29 +47,11 @@ App.widget.Buscador = function (container) {
     </script>
 
     <script src="../script/TitularSelector.js"></script>
-<style>
-ul.menu {
-  display: inline-block;
-}
 
-ul.menu li {
-  float: left;
-  padding: 0 10px;
-}
-
-</style>
   </head>
   <body>
-    <#assign user = model["user"] />
-    <header>
-      <div class="header-box">
-        <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
-        <ul class="menu">
-          <li>Ordenes de pago</li>
-        </ul>
-        <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>
-      </div>
-    </header>
+    <#include "header.ftl" />
+
     <div class="container-box-plantilla">
       <h2 class="container-tit">Buscar Orden de pago</h2>
       <form action="search" method="POST" class="form-shop form-shop-big js-search">

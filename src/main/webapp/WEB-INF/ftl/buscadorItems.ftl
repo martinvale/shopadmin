@@ -33,28 +33,8 @@
 
   </head>
   <body>
-    <#assign user = model["user"] />
-    <header>
-      <div class="header-box">
-        <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
-        <nav>
-          <ul class="menu">
-            <li><a href="#"><i class="icon-home"></i>Orden de pago</a>
-              <ul class="sub-menu">
-                <li><a href="#">Nueva</a></li>
-                <li><a href="#">Buscar</a></li>
-              </ul>
-            </li>
-            <li><a href="#"><i class="icon-user"></i>Items de orden de pago</a>
-              <ul class="sub-menu">
-                <li><a href="#">Buscar</a></li>
-              </ul>
-            </li>
-          </ul>
-        </nav>
-        <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>
-      </div>
-    </header>
+    <#include "header.ftl" />
+
     <div class="container-box-plantilla">
       <h2 class="container-tit">B&uacute;squeda de ordenes de items</h2>
       <form class="form-shop form-shop-big" method="POST">

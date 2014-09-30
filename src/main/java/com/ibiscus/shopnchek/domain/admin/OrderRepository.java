@@ -3,6 +3,7 @@ package com.ibiscus.shopnchek.domain.admin;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -13,21 +14,34 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderRepository extends HibernateDaoSupport {
 
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+  public Integer getOrdenNumero() {
+    Query query = getSession().createSQLQuery("SELECT orden_nro FROM parametros");
+    Integer newId = (Integer) query.uniqueResult();
+    newId++;
+
+    query = getSession().createSQLQuery("UPDATE parametros SET orden_nro = orden_nro + 1");
+    query.executeUpdate();
+
+    return newId;
+  }
+
+  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public long save(final OrdenPago ordenPago) {
-    long numeroOrden = (Long) getSession().save(ordenPago);
-    getSession().flush();
+    int numeroOrden = getOrdenNumero();
+    ordenPago.updateNumero(numeroOrden);
+    getSession().save(ordenPago);
     return numeroOrden;
+  }
+
+  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+  public void update(final OrdenPago ordenPago) {
+    getSession().update(ordenPago);
   }
 
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public long saveItem(final ItemOrden itemOrden) {
     long numeroItem = (Long) getSession().save(itemOrden);
     return numeroItem;
-  }
-
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-  public void update(final OrdenPago ordenPago) {
-    getSession().update(ordenPago);
   }
 
   public OrdenPago get(final long id) {

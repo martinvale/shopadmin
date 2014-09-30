@@ -25,6 +25,9 @@ public class User {
   @Column(name="PERFIL")
   private int perfil;
 
+  @Column(name="PERFIL_AUTORIZACION_ADICIONALES")
+  private int autorizarAdicionales;
+
   User() {
   }
 
@@ -65,5 +68,9 @@ public class User {
 
   public int getPerfil() {
     return perfil;
+  }
+
+  public boolean isAditionalEnabled() {
+    return autorizarAdicionales == 2;
   }
 }

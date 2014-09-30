@@ -1,5 +1,7 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -128,7 +130,8 @@ public class OrdenPagoController {
   public String createOrden(@ModelAttribute("model") final ModelMap model,
       int tipoTitular, int titularId, String tipoFactura, Date fechaPago,
       long estadoId, long medioPagoId, double iva, String facturaNumero,
-      Date fechaCheque, String chequeraNumero, String chequeNumero,
+      String fechaCheque, String chequeraNumero,
+      String chequeNumero,
       String transferId, String localidad, String observaciones,
       String observacionesShopper) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
@@ -141,8 +144,18 @@ public class OrdenPagoController {
     MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
     OrdenPago ordenPago = new OrdenPago(tipoTitular, titularId,
         tipoFactura, fechaPago, state, medioPago, iva);
+    Date fechaChequeValue = null;
+    if (fechaCheque != null && !fechaCheque.isEmpty()) {
+      SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+      try {
+        fechaChequeValue = dateFormat.parse(fechaCheque);
+      } catch (ParseException e) {
+        throw new RuntimeException("Cannot parse the following date: "
+            + fechaCheque, e);
+      }
+    }
     ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago, state,
-        medioPago, iva, facturaNumero, fechaCheque, chequeraNumero,
+        medioPago, iva, facturaNumero, fechaChequeValue, chequeraNumero,
         chequeNumero, transferId, localidad, observaciones,
         observacionesShopper);
 
@@ -158,9 +171,9 @@ public class OrdenPagoController {
   public String update(@ModelAttribute("model") final ModelMap model,
       int numeroOrden, int tipoTitular, int titularId, String tipoFactura,
       Date fechaPago, long estadoId, long medioPagoId, double iva,
-      String numeroFactura, Date fechaCheque, String numeroChequera,
-      String numeroCheque, String transferId, String localidad,
-      String observaciones, String observacionesShopper) {
+      String numeroFactura, String fechaCheque,
+      String numeroChequera, String numeroCheque, String transferId,
+      String localidad, String observaciones, String observacionesShopper) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
@@ -171,8 +184,18 @@ public class OrdenPagoController {
     MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
 
     OrdenPago ordenPago = orderRepository.get(numeroOrden);
+    Date fechaChequeValue = null;
+    if (fechaCheque != null && !fechaCheque.isEmpty()) {
+      SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+      try {
+        fechaChequeValue = dateFormat.parse(fechaCheque);
+      } catch (ParseException e) {
+        throw new RuntimeException("Cannot parse the following date: "
+            + fechaCheque, e);
+      }
+    }
     ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago,
-        state, medioPago, iva, numeroFactura, fechaCheque, numeroChequera,
+        state, medioPago, iva, numeroFactura, fechaChequeValue, numeroChequera,
         numeroCheque, transferId, localidad, observaciones,
         observacionesShopper);
     orderRepository.update(ordenPago);

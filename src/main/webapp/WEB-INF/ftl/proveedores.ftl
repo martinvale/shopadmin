@@ -22,9 +22,9 @@
 
       App.widget = App.widget || {};
 
-App.widget.Users = function (container, users) {
+App.widget.Proveedores = function (container, proveedores) {
 
-  var deleteConfirmDialog = jQuery("#confirm-delete-user").dialog({
+  var deleteConfirmDialog = jQuery("#confirm-delete-proveedor").dialog({
     resizable: false,
     autoOpen: false,
     height: 140,
@@ -32,12 +32,12 @@ App.widget.Users = function (container, users) {
     modal: true,
     buttons: {
       "Ok": function() {
-        var userId = deleteConfirmDialog.userId;
+        var proveedorId = deleteConfirmDialog.proveedorId;
         jQuery.ajax({
-          url: "user/" + userId,
+          url: "proveedor/" + proveedorId,
           method: 'DELETE'
         }).done(function (data) {
-          container.find("#user-" + userId).remove();
+          container.find("#proveedor-" + proveedorId).remove();
           deleteConfirmDialog.dialog("close");
         })
       },
@@ -48,10 +48,10 @@ App.widget.Users = function (container, users) {
   });
 
   var initEventListeners = function () {
-    jQuery.each(users, function(index, user) {
-      container.find(".js-delete-" + user.id).click(function (event) {
+    jQuery.each(proveedores, function(index, proveedor) {
+      container.find(".js-delete-" + proveedor.id).click(function (event) {
         event.preventDefault();
-        deleteConfirmDialog.userId = user.id;
+        deleteConfirmDialog.proveedorId = proveedor.id;
         deleteConfirmDialog.dialog("open");
       });
     })
@@ -65,17 +65,17 @@ App.widget.Users = function (container, users) {
 };
 
       jQuery(document).ready(function() {
-        var users = [
-        <#list model["users"].data as user>
+        var proveedores = [
+        <#list model["proveedores"].data as proveedor>
           {
-            id: ${user.id?c},
-            name: '${user.name!''}',
+            id: ${proveedor.id?c},
+            name: '${proveedor.name!''}',
           }
-        <#if user_has_next>,</#if></#list>
+        <#if proveedor_has_next>,</#if></#list>
         ];
 
-        var users = new App.widget.Users(jQuery(".js-users"), users);
-        users.render();
+        var proveedores = new App.widget.Proveedores(jQuery(".js-proveedores"), proveedores);
+        proveedores.render();
       });
 
     </script>
@@ -87,7 +87,7 @@ App.widget.Users = function (container, users) {
     <#include "header.ftl" />
 
     <div class="container-box-plantilla">
-      <h2 class="container-tit">Usuarios</h2>
+      <h2 class="container-tit">Proveedores</h2>
       <form class="form-shop form-shop-big" action="search" method="GET">
           <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
                   <div class="ch-popover-content">
@@ -105,48 +105,46 @@ App.widget.Users = function (container, users) {
         </div>
         <ul class="action-columns">
           <li><input type="submit" value="Buscar" class="btn-shop-small"></li>
-          <li><a href="new" class="btn-shop-small">Nuevo usuario</a></li>
+          <li><a href="new" class="btn-shop-small">Nuevo proveedor</a></li>
         </ul>
       </form>
-      <table summary="Lista de items" class="table-form js-users">
+      <table summary="Lista de items" class="table-form js-proveedores">
         <thead>
           <tr>
-            <th scope="col">Usuario</th>
             <th scope="col">Nombre</th>
           </tr>
         </thead>
         <tbody>
-          <#list model["users"].data as user>
-          <tr id="user-${user.id?c}">
-            <td><a href="${user.id?c}">${user.username}</a> <a class="js-delete-${user.id?c}" href="#">borrar</a></td>
-            <td>${user.name!''}</td>
+          <#list model["proveedores"].data as proveedor>
+          <tr id="proveedor-${proveedor.id?c}">
+            <td><a href="${proveedor.id?c}">${proveedor.description}</a> <a class="js-delete-${proveedor.id?c}" href="#">borrar</a></td>
           </tr>
           </#list>
         </tbody>
       </table>
       <div class="paginator">
         <a href="search?page=1&name=${model["name"]!''}">&lt;&lt;</a>
-        <#list 1..model["users"].size as i>
+        <#list 1..model["proveedores"].size as i>
           <#assign page = (i - 1) / model["pageSize"] />
           <#if (i - 1) % model["pageSize"] == 0>
             <a href="search?page=${page + 1}&name=${model["name"]!''}">${page + 1}</a>
           </#if>
         </#list>
-        <#assign lastPage = (model["users"].size / model["pageSize"])?int />
-        <#if model["users"].size % model["pageSize"] &gt; 0>
+        <#assign lastPage = (model["proveedores"].size / model["pageSize"])?int />
+        <#if model["proveedores"].size % model["pageSize"] &gt; 0>
           <#assign lastPage = lastPage + 1 />
         </#if>
         <a href="search?page=${lastPage}&name=${model["name"]!''}">&gt;&gt;</a>
 
         <#assign maxIndex = model["page"] * model["pageSize"] />
-        <#if maxIndex &gt; model["users"].size>
-          <#assign maxIndex = model["users"].size />
+        <#if maxIndex &gt; model["proveedores"].size>
+          <#assign maxIndex = model["proveedores"].size />
         </#if>
-        <span class="resultset">Usuarios de ${model["start"]?c} a ${maxIndex} de ${model["users"].size}</span>
+        <span class="resultset">Usuarios de ${model["start"]?c} a ${maxIndex} de ${model["proveedores"].size}</span>
       </div>
     </div>
-    <div id="confirm-delete-user" title="Borrar usuario">
-      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Esta seguro que desea borrar el usuario seleccionado?</p>
+    <div id="confirm-delete-proveedor" title="Borrar proveedor">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Esta seguro que desea borrar el proveedor seleccionado?</p>
     </div>
   </body>
 </html>

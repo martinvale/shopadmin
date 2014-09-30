@@ -16,9 +16,8 @@
     <script src="../script/pure.min.js"></script>
     <script src="../script/livevalidation.js"></script>
 
-    <#assign user = model["user"] />
     <#assign canEdit = false />
-    <#list user.authorities as role>
+    <#list model["user"].authorities as role>
       <#assign canEdit = (role.authority == 'ADMIN') />
     </#list>
     <#assign ordenAbierta = true />
@@ -122,13 +121,8 @@ textarea.LV_invalid_field:active {
 </style>
   </head>
   <body>
-    <header>
-      <div class="header-box">
-        <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
-        <#include "header.ftl" />
-        <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>
-      </div>
-    </header>
+    <#include "header.ftl" />
+
     <div class="container-box-plantilla">
         <h2 class="container-tit">Orden de pago</h2>
         <#assign action = "create" />
