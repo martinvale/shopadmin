@@ -1,4 +1,4 @@
-App.widget.ShopperSelector = function (container) {
+App.widget.ShopperSelector = function (container, skipValidation) {
 
   var selector = container.find(".js-shopper");
 
@@ -7,11 +7,13 @@ App.widget.ShopperSelector = function (container) {
   var currentShopper = null;
 
   var initValidators = function () {
-    var shopperValidation = new LiveValidation("shopper",
-        {onlyOnSubmit: true, insertAfterWhatNode: 'clear-shopper'});
-    shopperValidation.add(Validate.Presence, {
-      failureMessage: "Debe seleccionar un shopper"
-    });
+    if (!skipValidation) {
+      var shopperValidation = new LiveValidation("shopper",
+          {onlyOnSubmit: true, insertAfterWhatNode: 'clear-shopper'});
+      shopperValidation.add(Validate.Presence, {
+        failureMessage: "Debe seleccionar un shopper"
+      });
+    }
   };
 
   var initEventListeners = function () {

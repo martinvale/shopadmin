@@ -30,6 +30,13 @@ public class UserRepository extends HibernateDaoSupport {
     return criteria.list();
   }
 
+  @SuppressWarnings("unchecked")
+  public List<User> find() {
+    Criteria criteria = getSession().createCriteria(User.class);
+    criteria.addOrder(Order.asc("name"));
+    return criteria.list();
+  }
+
   public int getUsersCount(final String name) {
     Criteria criteria = getSession().createCriteria(User.class);
     if (name != null && !name.isEmpty()) {

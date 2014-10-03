@@ -1,5 +1,6 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -26,10 +27,15 @@ import com.ibiscus.shopnchek.domain.admin.SucursalMCDRepository;
 import com.ibiscus.shopnchek.domain.admin.SucursalShopmetrics;
 import com.ibiscus.shopnchek.domain.admin.SucursalShopmetricsRepository;
 import com.ibiscus.shopnchek.domain.admin.TipoPago;
+import com.ibiscus.shopnchek.domain.security.UserRepository;
+import com.ibiscus.shopnchek.domain.util.ResultSet;
 
 @Controller
 @RequestMapping("/adicional")
 public class AdicionalController {
+
+  /** The maximum users to retrieve per page. */
+  private final static int PAGE_SIZE = 20;
 
   /** Repository of orders. */
   @Autowired
@@ -54,6 +60,10 @@ public class AdicionalController {
   /** Repository of item order. */
   @Autowired
   private ItemOrderRepository itemOrdenRepository;
+
+  /** Repository of users. */
+  @Autowired
+  private UserRepository userRepository;
 
   @RequestMapping(value="/autorizacion")
   public String index(@ModelAttribute("model") final ModelMap model,
@@ -83,7 +93,7 @@ public class AdicionalController {
 
     if (groupId != null) {
       List<AutorizacionAdicional> adicionales = itemOrdenRepository
-          .findAdicionales(groupId);
+          .findAdicionalesByGroup(groupId);
       model.addAttribute("adicionales", adicionales);
       if (itemId != null) {
         for (AutorizacionAdicional adicional : adicionales) {
@@ -165,5 +175,59 @@ public class AdicionalController {
 
     itemOrdenRepository.deleteAdicionalAutorizado(itemId);
     return "redirect:autorizacion?groupId=" + groupId;
+  }
+
+  @RequestMapping(value="/search")
+  public String search(@ModelAttribute("model") final ModelMap model,
+      @RequestParam(required = false, defaultValue = "1") Integer page,
+      String shopperDni, @RequestParam(required = false) Integer mes,
+      @RequestParam(required = false) Integer anio,
+      @RequestParam(required = false) Long usuarioId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    List<com.ibiscus.shopnchek.domain.security.User> users;
+    users = userRepository.find();
+    model.addAttribute("users", users);
+
+    if (shopperDni != null && !shopperDni.isEmpty()) {
+      model.addAttribute("shopperDni", shopperDni);
+      Shopper shopper = shopperRepository.findByDni(shopperDni);
+      model.addAttribute("shopper", shopper);
+    }
+    if (mes != null) {
+      model.addAttribute("mesVisita", mes);
+    }
+    if (anio != null) {
+      model.addAttribute("anioVisita", anio);
+    }
+    com.ibiscus.shopnchek.domain.security.User autorizador = null;
+    if (usuarioId != null) {
+      model.addAttribute("usuarioId", usuarioId);
+      autorizador = userRepository.get(usuarioId);
+    }
+    List<AutorizacionAdicional> adicionales;
+    int size = 0;
+    if (shopperDni != null || mes != null || anio != null || usuarioId != null) {
+      int start = ((page - 1) * PAGE_SIZE) + 1;
+      adicionales = itemOrdenRepository.findAdicionales(start, PAGE_SIZE,
+          shopperDni, mes, anio, autorizador);
+      for (AutorizacionAdicional adicional : adicionales) {
+        Shopper shopper = shopperRepository.findByDni(adicional.getShopperDni());
+        adicional.updateShopper(shopper);
+      }
+      size = itemOrdenRepository.findAdicionalesCount(shopperDni, mes, anio,
+          autorizador);
+    } else {
+      adicionales = new ArrayList<AutorizacionAdicional>();
+    }
+    model.addAttribute("items",
+        new ResultSet<AutorizacionAdicional>(adicionales, size));
+    model.addAttribute("start", 1);
+    model.addAttribute("page", 1);
+    model.addAttribute("pageSize", PAGE_SIZE);
+
+    return "buscadorAdicionales";
   }
 }

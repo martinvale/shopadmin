@@ -19,6 +19,7 @@
                 </#list>
                 <#if puedeAutorizarAdicional>
                   <li><a href="../adicional/autorizacion">Autorizar adicional</a></li>
+                  <li><a href="../adicional/search">Buscar adicional</a></li>
                 </#if>
               </ul>
             </li>

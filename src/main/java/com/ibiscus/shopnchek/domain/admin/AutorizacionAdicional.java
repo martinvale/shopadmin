@@ -8,6 +8,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name="items_adicionales_autorizados")
@@ -54,7 +55,7 @@ public class AutorizacionAdicional {
   private double importe;
 
   @Column(name="estado")
-  private int estado = 1;
+  private Integer estado = 1;
 
   @ManyToOne
   @JoinColumn(name = "tipo_pago")
@@ -63,8 +64,14 @@ public class AutorizacionAdicional {
   @Column(name="tipo_item")
   private int tipoItem;
 
+  @Column(name="opnro")
+  private Integer nroOperacion;
+
   @Column(name="usuario_autorizacion")
   private String username;
+
+  @Transient
+  private Shopper shopper;
 
   public AutorizacionAdicional() {
   }
@@ -109,6 +116,10 @@ public class AutorizacionAdicional {
 
   public void updateGroup(final int unGrupo) {
     group = unGrupo;
+  }
+
+  public void updateShopper(final Shopper unShopper) {
+    shopper = unShopper;
   }
 
   public int getId() {
@@ -186,7 +197,15 @@ public class AutorizacionAdicional {
     return tipoItem;
   }
 
+  public Integer getNroOperacion() {
+    return nroOperacion;
+  }
+
   public String getUsername() {
     return username;
+  }
+
+  public Shopper getShopper() {
+    return shopper;
   }
 }

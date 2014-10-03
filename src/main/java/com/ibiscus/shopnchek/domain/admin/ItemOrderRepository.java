@@ -10,6 +10,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ibiscus.shopnchek.domain.security.User;
+
 @Transactional(readOnly = true)
 public class ItemOrderRepository extends HibernateDaoSupport {
 
@@ -78,9 +80,38 @@ public class ItemOrderRepository extends HibernateDaoSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public List<AutorizacionAdicional> findAdicionales(final int group) {
+  public List<AutorizacionAdicional> findAdicionalesByGroup(final int group) {
     Criteria criteria = getSession().createCriteria(AutorizacionAdicional.class);
     criteria.add(Expression.eq("group", group));
     return criteria.list();
+  }
+
+  @SuppressWarnings("unchecked")
+  public List<AutorizacionAdicional> findAdicionales(final int start,
+      final int size, final String shopperDni, final Integer mes,
+      final Integer anio, final User user) {
+    Criteria criteria = getSession().createCriteria(AutorizacionAdicional.class);
+    if (shopperDni != null && !shopperDni.isEmpty()) {
+      criteria.add(Expression.eq("shopperDni", shopperDni));
+    }
+    if (mes != null) {
+      criteria.add(Expression.eq("mes", mes));
+    }
+    if (anio != null) {
+      criteria.add(Expression.eq("anio", anio));
+    }
+    if (user != null) {
+      criteria.add(Expression.eq("username", user.getUsername()));
+    }
+    criteria.setFirstResult(start - 1);
+    if (size > -1) {
+      criteria.setMaxResults(size);
+    }
+    return criteria.list();
+  }
+
+  public int findAdicionalesCount(final String shopperDni, final Integer mes,
+      final Integer anio, final User user) {
+    return findAdicionales(1, -1, shopperDni, mes, anio, user).size();
   }
 }
