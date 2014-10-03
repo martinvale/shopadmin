@@ -11,9 +11,10 @@ public class ShopperRepository extends HibernateDaoSupport {
 
   @SuppressWarnings("unchecked")
   public List<Shopper> find(final String pattern) {
-    Validate.notNull(pattern, "The pattern cannot be null");
     Criteria criteria = getSession().createCriteria(Shopper.class);
-    criteria.add(Expression.like("name", pattern + "%"));
+    if (pattern != null && !pattern.isEmpty()) {
+      criteria.add(Expression.like("name", pattern + "%"));
+    }
     return (List<Shopper>) criteria.list();
   }
 

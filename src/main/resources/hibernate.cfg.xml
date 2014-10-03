@@ -15,5 +15,11 @@
     <mapping class="com.ibiscus.shopnchek.domain.admin.MedioPago"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.TipoPago"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.AsociacionMedioPago"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.admin.Programa"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.admin.ClienteShopmetrics"></mapping>
+
+    <mapping class="com.ibiscus.shopnchek.domain.admin.AutorizacionAdicional"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.admin.SucursalMCD"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.admin.SucursalShopmetrics"></mapping>
   </session-factory>
 </hibernate-configuration>

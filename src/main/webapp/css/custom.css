@@ -53,7 +53,8 @@ a.action {
 }
 
 .LV_invalid {
-  color:#CC0000;
+  color: #CC0000;
+  margin-left: 5px;
 }
 
 .LV_valid_field,
@@ -118,4 +119,21 @@ ul.date li.check {
 
 .field input[type=radio] {
   margin-top: 10px;
+}
+
+.sucursal select {
+  width: 600px;
+}
+
+.date-selector div {
+  float: left;
+  width: 250px;
+}
+
+.date-selector div.full {
+  width: 400px;
+}
+
+textarea.observacion {
+  width: 500px;
 }
