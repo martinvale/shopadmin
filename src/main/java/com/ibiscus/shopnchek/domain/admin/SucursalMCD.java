@@ -11,7 +11,7 @@ public class SucursalMCD {
 
   @Id
   @Column(name="site_number")
-  private long id;
+  private String id;
 
   @Column(name="city")
   private String city;
@@ -25,7 +25,7 @@ public class SucursalMCD {
   SucursalMCD() {
   }
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 

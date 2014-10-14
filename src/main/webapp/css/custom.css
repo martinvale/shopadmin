@@ -73,11 +73,6 @@ textarea.LV_invalid_field:active {
   border: 1px solid #CC0000;
 }
 
-.buscador .field label {
-  display: inline-block;
-  width: 125px;
-}
-
 .clear {
   margin-right: 5px;
 }
@@ -107,6 +102,11 @@ ul.date li.check {
 
 .field {
   height: 40px;
+}
+
+.field label {
+  display: inline-block;
+  width: 125px;
 }
 
 .field label.field-name {

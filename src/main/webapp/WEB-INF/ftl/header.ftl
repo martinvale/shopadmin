@@ -23,6 +23,11 @@
                 </#if>
               </ul>
             </li>
+            <li><a href="#"><i class="icon-home"></i>Reportes</a>
+              <ul class="sub-menu">
+                <li><a href="../report/summary">Resumen de deuda</a></li>
+              </ul>
+            </li>
             <li><a href="#"><i class="icon-user"></i>Administraci&oacute;n</a>
               <ul class="sub-menu">
                 <li><a href="../users/">Usuarios</a></li>
