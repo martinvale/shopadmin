@@ -6,6 +6,11 @@ App.widget.ShopperSelector = function (container, skipValidation) {
 
   var currentShopper = null;
 
+  var highlight = function (value, term) {
+    var matcher = new RegExp("(" + $.ui.autocomplete.escapeRegex(term) + ")", "ig");
+    return value.replace(matcher, "<strong>$1</strong>");
+  };
+
   var initValidators = function () {
     if (!skipValidation) {
       var shopperValidation = new LiveValidation("shopper",
@@ -29,8 +34,10 @@ App.widget.ShopperSelector = function (container, skipValidation) {
       }
     });
     filter.data( "ui-autocomplete" )._renderItem = function(ul, item) {
+      var display = item.name;
+      display = highlight(display, selector.val());
       return $("<li>")
-        .append("<a>" + item.name + "</a>")
+        .append("<a>" + display + "</a>")
         .appendTo(ul);
     };
     clearButton.click(function (event) {

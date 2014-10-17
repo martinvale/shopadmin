@@ -1,8 +1,10 @@
-App.widget.ItemsSelector = function (container, numeroOrden, callback) {
+App.widget.ItemsSelector = function (container, numeroOrden, callback,
+    dialogWidth) {
 
   var itemDialog = container.dialog({
     autoOpen: false,
-    width: 900,
+    width: dialogWidth,
+    modal: true,
     close: callback
   });
 
@@ -24,7 +26,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback) {
 
   var dialogVisita = $("#ammount-confirmation").dialog({
     autoOpen: false,
-    width: 350,
+    width: dialogWidth,
     modal: true,
     callback: function () {},
     buttons: {
@@ -54,13 +56,12 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback) {
             return a.item.programa + ' <a href="#" class="action js-add-visita">agregar</a>';
           },
           '.local': 'itemOrden.local',
-          '.mes': 'itemOrden.mes',
-          '.anio': 'itemOrden.anio',
           '.fecha': 'itemOrden.fecha',
           '.descripcion': 'itemOrden.descripcion',
-          '.importe': 'itemOrden.importe',
+          '.importe': function (a) {
+            return '$ ' + a.item.importe;
+          },
           '.fechaCobro': 'itemOrden.fechaCobro',
-          '.asignacion': 'itemOrden.asignacion'
         }
       }
     }
@@ -74,11 +75,11 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback) {
             return a.item.cliente + ' <a href="#" class="action js-add-visita">agregar</a>';
           },
           '.sucursal': 'itemOrden.sucursal',
-          '.mes': 'itemOrden.mes',
-          '.anio': 'itemOrden.anio',
           '.fecha': 'itemOrden.fecha',
           '.observaciones': 'itemOrden.observacion',
-          '.importe': 'itemOrden.importe'
+          '.importe': function (a) {
+            return '$ ' + a.item.importe;
+          }
         }
       }
     }

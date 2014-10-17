@@ -1,9 +1,10 @@
-App.widget.DeudaShopperSelector = function (container, numeroOrden, callback) {
+App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
+    dialogWidth) {
 
   var itemDialog = container.dialog({
     autoOpen: false,
     title: 'Búsqueda de items adeudados a un shopper',
-    width: 900,
+    width: dialogWidth,
     modal: true,
     buttons: {
       'Agregar': function() {
@@ -73,12 +74,12 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback) {
             return content;
           },
           '.local': 'itemOrden.local',
-          '.mes': 'itemOrden.mes',
-          '.anio': 'itemOrden.anio',
           '.fecha': 'itemOrden.fecha',
-          '.subcuestionario': 'itemOrden.subcuestionario',
+          '.subcuestionario': 'itemOrden.programa',
           '.pago': 'itemOrden.descripcion',
-          '.importe': 'itemOrden.importe'
+          '.importe': function (a) {
+            return '$ ' + a.item.importe;
+          }
         }
       }
     }

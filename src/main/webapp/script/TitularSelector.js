@@ -7,7 +7,7 @@ App.widget.TitularSelector = function (container, shoppers) {
   var initEventListeners = function () {
     container.find(".js-proveedor").change(function (event) {
       reset();
-      filter = selector.autocomplete('option', 'source', "../services/proveedores/suggest");
+      filter = selector.autocomplete('option', 'source', "../proveedores/suggest");
     });
 
     container.find(".js-shopper").change(function (event) {
@@ -19,6 +19,11 @@ App.widget.TitularSelector = function (container, shoppers) {
   var reset = function () {
     selector.val('');
     container.find(".js-titular-id").val('');
+  };
+
+  var highlight = function (value, term) {
+    var matcher = new RegExp("(" + $.ui.autocomplete.escapeRegex(term) + ")", "ig");
+    return value.replace(matcher, "<strong>$1</strong>");
   };
 
   return {
@@ -37,8 +42,10 @@ App.widget.TitularSelector = function (container, shoppers) {
         }
       });
       filter.data( "ui-autocomplete" )._renderItem = function(ul, item) {
+        var display = ((item.name) ? item.name : item.description);
+        display = highlight(display, selector.val());
         return $("<li>")
-          .append("<a>" + ((item.name) ? item.name : item.description) + "</a>")
+          .append("<a>" + display + "</a>")
           .appendTo(ul);
       };
 

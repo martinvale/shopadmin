@@ -139,7 +139,7 @@
         <#if maxIndex &gt; model["items"].size>
           <#assign maxIndex = model["items"].size />
         </#if>
-        <span class="resultset">Usuarios de ${start?c} a ${maxIndex} de ${model["items"].size}</span>
+        <span class="resultset">Adicionales de ${start?c} a ${maxIndex} de ${model["items"].size}</span>
       </div>
 
     </div>

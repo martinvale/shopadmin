@@ -17,7 +17,7 @@ public class ProveedorRepository extends HibernateDaoSupport {
       final String pattern) {
     Criteria criteria = getSession().createCriteria(Proveedor.class);
     if (pattern != null && !pattern.isEmpty()) {
-      criteria.add(Expression.like("description", pattern + "%"));
+      criteria.add(Expression.like("description", "%" + pattern + "%"));
     }
     criteria.addOrder(Order.asc("description"));
     criteria.setFirstResult(start - 1);

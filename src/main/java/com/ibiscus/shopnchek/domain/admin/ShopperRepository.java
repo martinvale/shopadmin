@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.commons.lang.Validate;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ShopperRepository extends HibernateDaoSupport {
@@ -13,8 +14,9 @@ public class ShopperRepository extends HibernateDaoSupport {
   public List<Shopper> find(final String pattern) {
     Criteria criteria = getSession().createCriteria(Shopper.class);
     if (pattern != null && !pattern.isEmpty()) {
-      criteria.add(Expression.like("name", pattern + "%"));
+      criteria.add(Expression.like("name", "%" + pattern + "%"));
     }
+    criteria.addOrder(Order.asc("name"));
     return (List<Shopper>) criteria.list();
   }
 

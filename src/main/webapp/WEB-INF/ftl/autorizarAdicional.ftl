@@ -432,7 +432,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
                     <option value="Seleccionar">Seleccione una sucursal</option>
                   <#if tipoCliente == 2>
                     <#list model["sucursalesMCD"] as sucursal>
-                      <option value="${sucursal.id}" <#if tipoSucursal == "lista" && sucursal.id?c == sucursalId>selected="true"</#if>>${sucursal.description}</option>
+                      <option value="${sucursal.id}" <#if tipoSucursal == "lista" && sucursal.id == sucursalId>selected="true"</#if>>${sucursal.description}</option>
                     </#list>
                   </#if>
                   <#if tipoCliente == 5>

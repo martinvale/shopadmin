@@ -262,53 +262,45 @@ textarea.LV_invalid_field:active {
           </ul>
           <!-- FIN FILA 2 -->
 
-         <!-- FILA 3 -->
-         <h2 class="subtitulo">Items</h2>
-         <div class="scroll-table">
-             <table summary="Listado de items de la orden de pago" class="table-form ">
-                <thead>
-                    <tr>
-                        <th scope="col">Shopper</th>
-                        <th scope="col">Cliente</th>
-                        <th scope="col">Mes</th>
-                        <th scope="col">A&ntilde;o</th>
-                        <th scope="col">Sucursal</th>
-                        <th scope="col">Pago</th>
-                        <th scope="col">Importe</th>
-                        <th scope="col">DNI</th>
-                        <th scope="col">Asignaci&oacute;n</th>
-                        <th scope="col">Fecha</th>
-                        <th scope="col">Tipo de Item</th>
-                    </tr>
-                </thead>
-                <tbody>
-                  <#if model["ordenPago"]??>
-                    <#list model["ordenPago"].items as item>
-                    <tr>
-                        <#if item.shopper??>
-                          <#assign shopperDescription = "${item.shopper.name} (${item.shopper.username})">
-                        </#if>
-                        <td>${shopperDescription!'No encontrado'} <#if canEdit && ordenAbierta><a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></#if></td>
-                        <td class="js-cliente">${item.cliente!''}</td>
-                        <td class="js-mes">${item.mes!''}</td>
-                        <td class="js-anio">${(item.anio?c)!''}</td>
-                        <td class="js-sucursal">${item.sucursal!''}</td>
-                        <td>${item.tipoPago.description}</td>
-                        <td class="js-importe">${item.importe?string.currency}</td>
-                        <td class="js-dni">${item.shopperDni}</td>
-                        <td class="js-asignacion">${(item.asignacion?c)!''}</td>
-                        <td class="js-fecha">${item.fecha!''}</td>
-                        <td class="js-tipo-item">${item.tipoItem?c}</td>
-                    </tr>
-                    </#list>
-                  </#if>
-                </tbody>
-            </table>
-        </div>
-        <ul class="action-columns">
+          <!-- FILA 3 -->
+          <h2 class="subtitulo">Items</h2>
+          <table summary="Listado de items de la orden de pago" class="table-form ">
+            <thead>
+              <tr>
+                  <th scope="col" style="width:28%">Shopper</th>
+                  <th scope="col" style="width:20%">Cliente</th>
+                  <th scope="col" style="width:10%">Sucursal</th>
+                  <th scope="col" style="width:10%">Pago</th>
+                  <th scope="col" style="width:8%">Importe</th>
+                  <th scope="col" style="width:8%">DNI</th>
+                  <th scope="col" style="width:8%">Asignaci&oacute;n</th>
+                  <th scope="col" style="width:8%">Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              <#if model["ordenPago"]??>
+                <#list model["ordenPago"].items as item>
+                <tr>
+                    <#if item.shopper??>
+                      <#assign shopperDescription = "${item.shopper.name} (${item.shopper.username})">
+                    </#if>
+                    <td>${shopperDescription!'No encontrado'} <#if canEdit && ordenAbierta><a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></#if></td>
+                    <td class="js-cliente">${item.cliente!''}</td>
+                    <td class="js-sucursal">${item.sucursal!''}</td>
+                    <td>${item.tipoPago.description}</td>
+                    <td class="js-importe" style="text-align: right;">${item.importe?string.currency}</td>
+                    <td class="js-dni">${item.shopperDni}</td>
+                    <td class="js-asignacion">${(item.asignacion?c)!''}</td>
+                    <td class="js-fecha">${item.fecha!''}</td>
+                </tr>
+                </#list>
+              </#if>
+            </tbody>
+          </table>
+          <ul class="action-columns">
             <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
             <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
-        </ul>
+          </ul>
 
   <!-- FIN FILA 3 -->
   <!-- FILA 4 -->
@@ -389,69 +381,55 @@ textarea.LV_invalid_field:active {
                             <ul class="action-columns">
                                 <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
                             </ul>
-                            <div class="scroll-table">
-                                 <table summary="Lista de items" class="table-form ">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Programa</th>
-                                            <th scope="col">Local</th>
-                                            <th scope="col">A&ntilde;o</th>
-                                            <th scope="col">Mes</th>
-                                            <th scope="col">Fecha</th>
-                                            <th scope="col">Pago</th>
-                                            <th scope="col">Importe</th>
-                                            <th scope="col">Fecha Cobro</th>
-                                            <th scope="col">Asignaci&oacute;n</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="items">
-                                       <tr>
-                                          <td class="programa"></td>
-                                          <td class="local"></td>
-                                          <td class="anio"></td>
-                                          <td class="mes"></td>
-                                          <td class="fecha"></td>
-                                          <td class="descripcion"></td>
-                                          <td class="importe"></td>
-                                          <td class="fechaCobro"></td>
-                                          <td class="asignacion"></td>
-                                      </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <table summary="Lista de items" class="table-form ">
+                              <thead>
+                                <tr>
+                                  <th scope="col">Programa</th>
+                                  <th scope="col">Local</th>
+                                  <th scope="col">Fecha</th>
+                                  <th scope="col">Pago</th>
+                                  <th scope="col">Importe</th>
+                                  <th scope="col">Fecha Cobro</th>
+                                </tr>
+                              </thead>
+                              <tbody class="items">
+                                <tr>
+                                  <td class="programa"></td>
+                                  <td class="local"></td>
+                                  <td class="fecha"></td>
+                                  <td class="descripcion"></td>
+                                  <td class="importe"></td>
+                                  <td class="fechaCobro"></td>
+                                </tr>
+                              </tbody>
+                            </table>
                           </div>
                           <div id="your-tab-id-4" class="js-items-adicionales">
                             <ul class="action-columns">
-                                <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
+                              <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
                             </ul>
-                            <div class="scroll-table">
-                               <table summary="Lista de items" class="table-form ">
-                                  <thead>
-                                      <tr>
-                                          <th scope="col">Pago</th>
-                                          <th scope="col">Cliente</th>
-                                          <th scope="col">Sucursal</th>
-                                          <th scope="col">Mes</th>
-                                          <th scope="col">A&ntilde;o</th>
-                                          <th scope="col">Importe</th>
-                                          <th scope="col">Fecha</th>
-                                          <th scope="col">Observaciones</th>
-                                      </tr>
-                                  </thead>
-                                  <tbody class="items">
-                                     <tr>
-                                        <td class="pago"></td>
-                                        <td class="cliente"></td>
-                                        <td class="sucursal"></td>
-                                        <td class="mes"></td>
-                                        <td class="anio"></td>
-                                        <td class="importe"></td>
-                                        <td class="fecha"></td>
-                                        <td class="observaciones"></td>
-                                    </tr>
-                                  </tbody>
-                              </table>
-                            </div>
+                            <table summary="Lista de items" class="table-form ">
+                              <thead>
+                                <tr>
+                                  <th scope="col">Pago</th>
+                                  <th scope="col">Cliente</th>
+                                  <th scope="col">Sucursal</th>
+                                  <th scope="col">Importe</th>
+                                  <th scope="col">Fecha</th>
+                                  <th scope="col">Observaciones</th>
+                                </tr>
+                              </thead>
+                              <tbody class="items">
+                                <tr>
+                                  <td class="pago"></td>
+                                  <td class="cliente"></td>
+                                  <td class="sucursal"></td>
+                                  <td class="importe"></td>
+                                  <td class="fecha"></td>
+                                  <td class="observaciones"></td>
+                                </tr>
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                     </div>

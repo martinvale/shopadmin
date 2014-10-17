@@ -56,12 +56,13 @@ App.widget.OrdenPago = function (container, numeroOrden) {
     itemsTableTemplate = itemsTable.compile(directives);*/
 
     itemSelector = new App.widget.ItemsSelector(jQuery("#item-selector"),
-        numeroOrden, refreshOrden);
+        numeroOrden, refreshOrden, container.width());
 
     deudaShopperSelector = new App.widget.DeudaShopperSelector(jQuery("#deuda-shopper"),
-        numeroOrden, refreshOrden);
+        numeroOrden, refreshOrden, container.width());
 
     container.find(".js-date" ).datepicker({
+      minDate: new Date(),
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
       }

@@ -12,10 +12,6 @@
             </div>
             <ul class="options">
               <li>
-                <input type="checkbox" name="iplan" id="iplan" value="1" disabled="true">
-                <label for="iplan">IPLAN</label>
-              </li>
-              <li>
                 <input type="checkbox" name="gac" id="gac" value="1" disabled="true">
                 <label for="gac">GAC</label>
               </li>
@@ -50,34 +46,28 @@
           <ul class="action-columns">
             <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
           </ul>
-          <div class="scroll-table">
-            <table summary="Lista de items" class="table-form ">
-              <thead>
-                <tr>
-                  <th scope="col">Empresa</th>
-                  <th scope="col">Subcuestionario</th>
-                  <th scope="col">Local</th>
-                  <th scope="col">Mes</th>
-                  <th scope="col">A&ntilde;o</th>
-                  <th scope="col">Importe</th>
-                  <th scope="col">Fecha</th>
-                  <th scope="col">Pago</th>
-                </tr>
-              </thead>
-              <tbody class="items">
-                <tr>
-                  <td class="empresa"></td>
-                  <td class="subcuestionario"></td>
-                  <td class="local"></td>
-                  <td class="mes"></td>
-                  <td class="anio"></td>
-                  <td class="importe"></td>
-                  <td class="fecha"></td>
-                  <td class="pago"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table summary="Lista de items" class="table-form ">
+            <thead>
+              <tr>
+                <th scope="col">Empresa</th>
+                <th scope="col">Subcuestionario</th>
+                <th scope="col">Local</th>
+                <th scope="col">Importe</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Pago</th>
+              </tr>
+            </thead>
+            <tbody class="items">
+              <tr>
+                <td class="empresa"></td>
+                <td class="subcuestionario"></td>
+                <td class="local"></td>
+                <td class="importe"></td>
+                <td class="fecha"></td>
+                <td class="pago"></td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </form>
     </div>
