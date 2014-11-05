@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
 
     <link rel="stylesheet" href="../css/jquery-ui/jquery-ui.css">
 
@@ -282,7 +283,7 @@ textarea.LV_invalid_field:active {
                 <#list model["ordenPago"].items as item>
                 <tr>
                     <#if item.shopper??>
-                      <#assign shopperDescription = "${item.shopper.name} (${item.shopper.username})">
+                      <#assign shopperDescription = "${item.shopper.name}">
                     </#if>
                     <td>${shopperDescription!'No encontrado'} <#if canEdit && ordenAbierta><a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></#if></td>
                     <td class="js-cliente">${item.cliente!''}</td>

@@ -36,8 +36,8 @@
     <p id="print-button"><button onclick="window.print()">Imprimir</button></p>
 
     <div class="container-box-plantilla">
-      <h2 class="container-tit">Reporte de deuda</h2>
-      <table summary="Reporte de deuda" class="table-form">
+      <h2 class="container-tit">${model["title"]}</h2>
+      <table summary="${model["title"]}" class="table-form">
         <thead>
           <tr>
             <th scope="col">A&ntilde;o</th>
@@ -53,7 +53,9 @@
           <#assign honorariosAnio = 0 />
           <#assign reintegrosAnio = 0 />
           <#assign otrosAnio = 0 />
+          <#assign imprimirResto = false />
           <#list model["rows"] as row>
+            <#assign imprimirResto = true />
             <tr>
               <td>
                 <#if row.getValue("year") != anioAnt>
@@ -73,6 +75,7 @@
               <td>${(row.getValue("honorarios") + row.getValue("reintegros") + row.getValue("otros"))?string.currency}</td>
             </tr>
             <#if row.getValue("month") == 12>
+              <#assign imprimirResto = false />
 
             <tr>
               <td class="total">Total ${row.getValue("year")?c}</td>
@@ -88,7 +91,7 @@
 
             </#if>
           </#list>
-          <#if model["rows"]?size &gt; 0>
+          <#if model["rows"]?size &gt; 0 && imprimirResto>
             <tr>
               <td class="total">Total ${anioAnt?c}</td>
               <td>&nbsp;</td>

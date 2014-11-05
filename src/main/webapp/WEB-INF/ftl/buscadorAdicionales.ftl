@@ -74,7 +74,7 @@
           <div class="field">
             <label for="usuarioId">Usuario: </label>
             <select id="usuarioId" name="usuarioId">
-              <option value="Seleccionar"></option>
+              <option value=""></option>
             <#list model["users"] as usuario>
               <option value="${usuario.id?c}" <#if usuario.id == model["usuarioId"]!-1>selected="true"</#if>>${usuario.name!''}</option>
             </#list>

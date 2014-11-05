@@ -28,7 +28,7 @@
           var anioDesde = jQuery("select[name='anioDesde']");
           var mesHasta = jQuery("select[name='mesHasta']");
           var anioHasta = jQuery("select[name='anioHasta']");
-          var url = "printSummary?mesDesde=" + mesDesde.val() + '&anioDesde='
+          var url = "printPaySummary?mesDesde=" + mesDesde.val() + '&anioDesde='
               + anioDesde.val() + '&mesHasta=' + mesHasta.val() + '&anioHasta='
               + anioHasta.val();
           console.log(url);
@@ -55,8 +55,8 @@
     <#include "header.ftl" />
 
     <div class="container-box-plantilla">
-      <h2 class="container-tit">Reporte de deuda</h2>
-      <form class="form-shop form-shop-big" action="summary" method="GET">
+      <h2 class="container-tit">Resumen de pagos</h2>
+      <form class="form-shop form-shop-big" action="paySummary" method="GET">
           <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
                   <div class="ch-popover-content">
                       Revisa los datos. Debes completar campos "Número" y "Factura".
@@ -91,7 +91,7 @@
               <label for="anioHasta">A&ntilde;o hasta: </label>
               <select id="anioHasta" name="anioHasta">
               <#assign anioHasta = model["anioHasta"]!2015 />
-              <#list 2006..2015 as anio>
+              <#list 2006..2020 as anio>
                 <option value="${anio?c}" <#if anio == anioHasta>selected="true"</#if>>${anio?c}</option>
               </#list>
               </select>
@@ -118,7 +118,9 @@
           <#assign honorariosAnio = 0 />
           <#assign reintegrosAnio = 0 />
           <#assign otrosAnio = 0 />
+          <#assign imprimirResto = false />
           <#list model["rows"] as row>
+            <#assign imprimirResto = true />
             <tr>
               <td>
                 <#if row.getValue("year") != anioAnt>
@@ -138,6 +140,7 @@
               <td>${(row.getValue("honorarios") + row.getValue("reintegros") + row.getValue("otros"))?string.currency}</td>
             </tr>
             <#if row.getValue("month") == 12>
+              <#assign imprimirResto = false />
 
             <tr>
               <td class="total">Total ${row.getValue("year")?c}</td>
@@ -153,7 +156,7 @@
 
             </#if>
           </#list>
-          <#if model["rows"]?size &gt; 0>
+          <#if model["rows"]?size &gt; 0 && imprimirResto>
             <tr>
               <td class="total">Total ${anioAnt?c}</td>
               <td>&nbsp;</td>
