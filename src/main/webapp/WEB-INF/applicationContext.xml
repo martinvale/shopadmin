@@ -99,6 +99,10 @@
     <constructor-arg index="0" ref="dataSource" />
   </bean>
 
+  <bean id="importerService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportService">
+    <constructor-arg index="0" ref="dataSource" />
+  </bean>
+
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="/WEB-INF/shopnchek.properties" />
   </bean>

@@ -137,3 +137,12 @@ ul.date li.check {
 textarea.observacion {
   width: 500px;
 }
+
+.form-success-txt {
+  border: 1px solid #5DA200;
+  padding: 5px 10px;
+  background-color: #5DA200;
+  border-radius: 5px;
+  color: #FFF9F7;
+  margin-bottom: 15px;
+}
