@@ -12,7 +12,7 @@
             </div>
             <ul class="options">
               <li>
-                <input type="checkbox" name="gac" id="gac" value="1" disabled="true">
+                <input type="checkbox" name="gac" id="gac" value="1" checked="checked">
                 <label for="gac">GAC</label>
               </li>
               <li>

@@ -323,7 +323,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
         var sucursalesMCD = [
         <#list model["sucursalesMCD"] as sucursal>
           {
-            id: ${sucursal.id},
+            id: "${sucursal.id}",
             description: "${sucursal.description}"
           }
         <#if sucursal_has_next>,</#if></#list>
@@ -537,36 +537,34 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
             <li><input type="submit" class="btn-shop-small js-autorizar" value="${buttonName}" disabled="true" /></li>
           </ul>
         </fieldset>
-        <div class="scroll-table">
-          <table summary="Lista de items" class="table-form ">
-            <thead>
-              <tr>
-                <th scope="col">Cliente</th>
-                <th scope="col">Sucursal</th>
-                <th scope="col">Pago</th>
-                <th scope="col">Importe</th>
-                <th scope="col">Fecha visita</th>
-                <th scope="col">Fecha cobro</th>
-                <th scope="col">Usuario Aut.</th>
-              </tr>
-            </thead>
-            <tbody>
-            <#if model["adicionales"]??>
-              <#list model["adicionales"] as adicional>
-              <tr>
-                <td>${adicional.clienteNombre!''} <a href="autorizacion?groupId=${groupId}&itemId=${adicional.id?c}">editar</a> <a href="delete?groupId=${groupId}&itemId=${adicional.id?c}">borrar</a></td>
-                <td>${adicional.sucursalNombre!''}</td>
-                <td>${adicional.tipoPago.description}</td>
-                <td>${adicional.importe?string.currency}</td>
-                <td>${adicional.fecha?string('dd/MM/yyyy')}</td>
-                <td>${adicional.fechaCobro?string('dd/MM/yyyy')}</td>
-                <td>${adicional.username}</td>
-              </tr>
-              </#list>
-            </#if>
-            </tbody>
-          </table>
-        </div>
+        <table summary="Lista de items" class="table-form ">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 20%">Cliente</th>
+              <th scope="col" style="width: 25%">Sucursal</th>
+              <th scope="col" style="width: 15%">Pago</th>
+              <th scope="col" style="width: 10%">Importe</th>
+              <th scope="col" style="width: 10%">Fecha visita</th>
+              <th scope="col" style="width: 10%">Fecha cobro</th>
+              <th scope="col" style="width: 10%">Usuario Aut.</th>
+            </tr>
+          </thead>
+          <tbody>
+          <#if model["adicionales"]??>
+            <#list model["adicionales"] as adicional>
+            <tr>
+              <td>${adicional.clienteNombre!''} <a href="autorizacion?groupId=${groupId}&itemId=${adicional.id?c}">editar</a> <a href="delete?groupId=${groupId}&itemId=${adicional.id?c}">borrar</a></td>
+              <td>${adicional.sucursalNombre!''}</td>
+              <td>${adicional.tipoPago.description}</td>
+              <td>${adicional.importe?string.currency}</td>
+              <td>${adicional.fecha?string('dd/MM/yyyy')}</td>
+              <td>${adicional.fechaCobro?string('dd/MM/yyyy')}</td>
+              <td>${adicional.username}</td>
+            </tr>
+            </#list>
+          </#if>
+          </tbody>
+        </table>
         <!-- FIN FILA 2 -->
  
 

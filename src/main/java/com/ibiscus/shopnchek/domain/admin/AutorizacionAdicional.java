@@ -19,7 +19,7 @@ public class AutorizacionAdicional {
   private int id;
 
   @Column(name="grupo")
-  private int group;
+  private Integer group;
 
   @Column(name="cliente")
   private int clienteId;

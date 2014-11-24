@@ -145,7 +145,7 @@ public class AdicionalController {
     if (tipoItem == 2) {
       Programa programa = programRepository.get(clienteId);
       clienteNombre = programa.getNombre();
-      SucursalMCD sucursal = sucursalMCDRepository.get(new Long(sucursalId));
+      SucursalMCD sucursal = sucursalMCDRepository.get(sucursalId);
       sucursalNombre = sucursal.getDescription();
     } else if (tipoItem == 5) {
       ClienteShopmetrics client = itemOrdenRepository.getCliente(clienteId);

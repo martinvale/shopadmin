@@ -3,7 +3,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var itemDialog = container.dialog({
     autoOpen: false,
-    title: 'Búsqueda de items adeudados a un shopper',
+    title: 'Busqueda de items adeudados a un shopper',
     width: dialogWidth,
     modal: true,
     buttons: {
@@ -96,7 +96,6 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
   var initEventListeners = function () {
     container.find(".js-buscar").click(function () {
       var currentShopper = shopperSelector.getCurrentShopper();
-      var includeIplan = container.find("input[name='iplan']");
       var includeGac = container.find("input[name='gac']");
       var includeMcd = container.find("input[name='mcd']");
       var includeAdicionales = container.find("input[name='adicionales']");
@@ -109,7 +108,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
         url: "../item/deuda/" + currentShopper.dni,
         data: {
           'includeIplan': false,
-          'includeGac': false,
+          'includeGac': includeGac.is(':checked'),
           'includeMcd': includeMcd.is(':checked'),
           'includeAdicionales': includeAdicionales.is(':checked'),
           'includeShopmetrics': includeShopmetrics.is(':checked'),

@@ -11,6 +11,10 @@ a.action {
   font-size: 10px;
 }
 
+a.btn-shop {
+  color: #ffffff;
+}
+
 .observacion label {
   float: left;
   margin-right: 15px;

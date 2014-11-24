@@ -176,7 +176,12 @@ public class ImportService {
 
   private void addRow(final Map<Integer, Integer> headers, final Row row) {
     Cell cell = row.getCell(headers.get(ColSurveyID));
-    Double surveyIdValue = cell.getNumericCellValue();
+    Double surveyIdValue = null;
+    try {
+      surveyIdValue = cell.getNumericCellValue();
+    } catch (IllegalStateException e) {
+      surveyIdValue = null;
+    }
     if (surveyIdValue != null) {
       Long surveyId = surveyIdValue.longValue();
 
@@ -213,13 +218,13 @@ public class ImportService {
         String honorariosValue = row.getCell(headers.get(ColHonorarios))
             .getStringCellValue();
         Double honorarios = null;
-        if (honorariosValue != null) {
+        if (honorariosValue != null && !honorariosValue.isEmpty()) {
           honorarios = new Double(honorariosValue);
         }
         String reintegrosValue = row.getCell(headers.get(ColReintegros))
             .getStringCellValue();
         Double reintegros = null;
-        if (reintegrosValue != null) {
+        if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
           reintegros = new Double(reintegrosValue);
         }
         String okPayValue = row.getCell(headers.get(ColOK_Pay))

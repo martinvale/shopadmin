@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class SucursalMCDRepository extends HibernateDaoSupport {
 
-  public SucursalMCD get(final long id) {
+  public SucursalMCD get(final String id) {
     return (SucursalMCD) getSession().get(SucursalMCD.class, id);
   }
 

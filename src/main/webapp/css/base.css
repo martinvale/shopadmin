@@ -353,8 +353,8 @@ button:focus {
 /* Default h: ~30px*/
 .btn-shop,
 .btn-shop:focus {
-    line-height: 1.12em; /* ~20px */
-    padding: 5px 10px;
+  line-height: 1.12em; /* ~20px */
+  padding: 5px 10px;
 }
 
 
