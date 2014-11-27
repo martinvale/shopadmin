@@ -150,3 +150,16 @@ textarea.observacion {
   color: #FFF9F7;
   margin-bottom: 15px;
 }
+
+/** Overlay for modals. */
+div.loading-overlay {
+  background: #ffffff;
+  bottom: 0;
+  filter: alpha(opacity = 50);
+  left: 0;
+  position: absolute;
+  opacity: 0.5;
+  right: 0;
+  top: 0;
+  z-index: 9999;
+}

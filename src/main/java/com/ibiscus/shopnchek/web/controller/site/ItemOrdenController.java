@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.orden.VisitaDto;
+import com.ibiscus.shopnchek.application.orden.VisitasDto;
 import com.ibiscus.shopnchek.domain.admin.Adicional;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.ItemOrderRepository;
@@ -90,12 +92,36 @@ public class ItemOrdenController {
     return items;
   }
 
+  /*@RequestMapping(value="/create", method = RequestMethod.POST)
+  public @ResponseBody Boolean create(
+      @ModelAttribute("model") final ModelMap model, final long ordenNro,
+      @ModelAttribute("visitas") VisitasDto visitas) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    com.ibiscus.shopnchek.domain.security.User autorizador;
+    autorizador = userRepository.findByUsername(user.getUsername());
+    OrdenPago ordenPago = orderRepository.get(ordenNro);
+    for (VisitaDto visita : visitas.getVisitas()) {
+      Shopper shopper = shopperRepository.findByDni(visita.getShopperDni());
+      TipoPago unTipoPago = orderRepository.getTipoPago(visita.getTipoPago());
+      Long newId = itemsOrdenService.getItemOrdenId();
+      ItemOrden itemOrden = new ItemOrden(newId, ordenPago, autorizador.getId(),
+          visita.getShopperDni(), visita.getAsignacion(), visita.getTipoItem(),
+          unTipoPago, visita.getCliente(), visita.getSucursal(),
+          visita.getMes(), visita.getAnio(), visita.getFecha(),
+          visita.getImporte(), null, 1);
+      itemOrden.updateShopper(shopper);
+      orderRepository.saveItem(itemOrden);
+    }
+    return Boolean.TRUE;
+  }*/
+
   @RequestMapping(value="/create", method = RequestMethod.POST)
   public @ResponseBody Boolean create(
       @ModelAttribute("model") final ModelMap model,
       long ordenNro, int tipoPago, String shopperDni, Integer asignacion,
       double importe, String cliente, String sucursal, int mes, int anio,
-      String fecha) {
+      String fecha, int tipoItem) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     com.ibiscus.shopnchek.domain.security.User autorizador;
@@ -105,7 +131,7 @@ public class ItemOrdenController {
     TipoPago unTipoPago = orderRepository.getTipoPago(tipoPago);
     Long newId = itemsOrdenService.getItemOrdenId();
     ItemOrden itemOrden = new ItemOrden(newId, ordenPago, autorizador.getId(),
-        shopperDni, asignacion, 2, unTipoPago,
+        shopperDni, asignacion, tipoItem, unTipoPago,
         cliente, sucursal, mes, anio, fecha, importe, null, 1);
     itemOrden.updateShopper(shopper);
     orderRepository.saveItem(itemOrden);

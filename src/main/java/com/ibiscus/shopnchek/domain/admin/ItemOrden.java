@@ -74,7 +74,7 @@ public class ItemOrden {
 
   public ItemOrden(final long theId, final OrdenPago unaOrden,
       final long usuario, final String theShopperDni, final Integer unaAsignacion,
-      final Integer unTipoItem, final TipoPago unTipoPago, final String unCliente,
+      final int unTipoItem, final TipoPago unTipoPago, final String unCliente,
       final String unaSucursal, final int unMes, final int unAnio,
       final String unaFecha, final double unImporte, final String unaDescripcion,
       final int unEstado) {

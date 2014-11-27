@@ -14,6 +14,10 @@
 
     <script src="../script/jquery.js"></script>
     <script src="../script/jquery-ui.js"></script>
+
+    <script src="../script/spin.js"></script>
+    <script src="../script/jquery.spin.js"></script>
+
     <script src="../script/pure.min.js"></script>
     <script src="../script/livevalidation.js"></script>
 
@@ -94,6 +98,7 @@
     <script src="../script/ItemSelector.js"></script>
     <script src="../script/DeudaShopperSelector.js"></script>
     <script src="../script/OrdenPago.js"></script>
+    <script src="../script/LoadingIndicator.js"></script>
 
 <style>
 .LV_validation_message.LV_valid {

@@ -34,6 +34,8 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var formVisita;
 
+  var loadingIndicator = new App.widget.LoadingIndicator(container);
+
   var dialogVisita = container.find(".js-confirmation").dialog({
     autoOpen: false,
     width: 350,
@@ -104,42 +106,48 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
       var desdeField = container.find("input[name='desde']");
       var hastaField = container.find("input[name='hasta']");
 
-      jQuery.ajax({
-        url: "../item/deuda/" + currentShopper.dni,
-        data: {
-          'includeIplan': false,
-          'includeGac': includeGac.is(':checked'),
-          'includeMcd': includeMcd.is(':checked'),
-          'includeAdicionales': includeAdicionales.is(':checked'),
-          'includeShopmetrics': includeShopmetrics.is(':checked'),
-          'applyDate': applyDate.is(':checked'),
-          'desde': desdeField.val(),
-          'hasta': hastaField.val()
-        }
-      }).done(function (data) {
-        visitas = data;
-        rows = rows.render({'itemsOrden': data}, rowsTemplate);
-        var actions = container.find(".js-add-visita").click(function (event) {
-          event.preventDefault();
-          var index = actions.index(this);
-          addVisita(index);
+      if (currentShopper) {
+        loadingIndicator.start();
+        container.spin();
+
+        jQuery.ajax({
+          url: "../item/deuda/" + currentShopper.dni,
+          data: {
+            'includeIplan': false,
+            'includeGac': includeGac.is(':checked'),
+            'includeMcd': includeMcd.is(':checked'),
+            'includeAdicionales': includeAdicionales.is(':checked'),
+            'includeShopmetrics': includeShopmetrics.is(':checked'),
+            'applyDate': applyDate.is(':checked'),
+            'desde': desdeField.val(),
+            'hasta': hastaField.val()
+          }
+        }).done(function (data) {
+          visitas = data;
+          rows = rows.render({'itemsOrden': data}, rowsTemplate);
+          var actions = container.find(".js-add-visita").click(function (event) {
+            event.preventDefault();
+            var index = actions.index(this);
+            addVisita(index);
+          })
+          var actionsRemove = container.find(".js-add-visita").click(function (event) {
+            event.preventDefault();
+            var index = actionsRemove.index(this);
+            removeVisita(index);
+          })
+          var actionsObservation = container.find(".js-view-observation").click(function (event) {
+            event.preventDefault();
+            var index = actionsObservation.index(this);
+            showObservation(index);
+          })
+          var actionsUser = container.find(".js-view-user").click(function (event) {
+            event.preventDefault();
+            var index = actionsUser.index(this);
+            showUser(index);
+          })
+          loadingIndicator.stop();
         })
-        var actionsRemove = container.find(".js-add-visita").click(function (event) {
-          event.preventDefault();
-          var index = actionsRemove.index(this);
-          removeVisita(index);
-        })
-        var actionsObservation = container.find(".js-view-observation").click(function (event) {
-          event.preventDefault();
-          var index = actionsObservation.index(this);
-          showObservation(index);
-        })
-        var actionsUser = container.find(".js-view-user").click(function (event) {
-          event.preventDefault();
-          var index = actionsUser.index(this);
-          showUser(index);
-        })
-      })
+      }
     });
 
     container.find(".js-date" ).datepicker({
@@ -151,31 +159,43 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var createItems = function() {
     var currentShopper = shopperSelector.getCurrentShopper();
+    var itemsCreated = 0;
+    var checkItems = function () {
+      if (itemsCreated === 0) {
+        visitas = [];
+        rows = rows.render({'itemsOrden': visitas}, rowsTemplate);
+        callback();
+        itemDialog.dialog("close");
+      } else {
+        setTimeout(checkItems, 500);
+      }
+    };
     if (currentShopper) {
       jQuery.each(visitas, function(index, visita) {
         if (visita.agregar) {
+          itemsCreated++;
           jQuery.ajax({
             url: "../item/" + createEndpoints[visita.tipoItem],
             type: 'POST',
             data: {
               ordenNro: numeroOrden,
+              tipoItem: visita.tipoItem,
               tipoPago: visita.tipoPago,
               asignacion: visita.asignacion,
               shopperDni: currentShopper.dni,
               importe: visita.importe,
-              cliente: visita.programa,
+              cliente: visita.empresa,
               sucursal: visita.local,
               mes: visita.mes,
               anio: visita.anio,
               fecha: visita.fecha
             }
+          }).done(function () {
+            itemsCreated = itemsCreated - 1;
           });
         }
       });
-      visitas = [];
-      rows = rows.render({'itemsOrden': visitas}, rowsTemplate);
-      callback();
-      itemDialog.dialog("close");
+      setTimeout(checkItems, 2000);
     }
   };
 

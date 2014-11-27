@@ -110,9 +110,9 @@ h2.subtitulo {
 .form-shop-options-left p {
     font-weight: bold;
     }
-    .form-shop-row-left input {
-        width: 130px;
-    }
+.form-shop-row-left input {
+  width: 300px;
+}
     .form-shop-options-left .form-shop {
         margin: 2px 0 5px 10px;
         }
