@@ -16,6 +16,9 @@
     <script src="../script/pure.min.js"></script>
     <script src="../script/livevalidation.js"></script>
 
+    <script src="../script/spin.js"></script>
+    <script src="../script/jquery.spin.js"></script>
+
     <script type="text/javascript">
 
       window.App = window.App || {};
@@ -31,13 +34,19 @@
           var url = "printPaySummary?mesDesde=" + mesDesde.val() + '&anioDesde='
               + anioDesde.val() + '&mesHasta=' + mesHasta.val() + '&anioHasta='
               + anioHasta.val();
-          console.log(url);
           window.open(url, "", "width=1000, height=600");
+        });
+
+        var form = jQuery(".form-shop");
+        var loadingIndicator = new App.widget.LoadingIndicator(form);
+        form.find("input[type=submit]").click(function () {
+          loadingIndicator.start();
         });
       });
 
     </script>
 
+    <script src="../script/LoadingIndicator.js"></script>
 <style>
 
 .table-form td {
@@ -107,6 +116,9 @@
           <tr>
             <th scope="col">A&ntilde;o</th>
             <th scope="col">Mes</th>
+
+            <th scope="col">Dia</th>
+
             <th scope="col">Honorarios</th>
             <th scope="col">Reintegros</th>
             <th scope="col">Otros gastos</th>
@@ -131,6 +143,9 @@
                 </#if>
               </td>
               <td>${row.getValue("month")?c}</td>
+
+              <td>${row.getValue("day")?c}</td>
+
               <td>${row.getValue("honorarios")?string.currency}</td>
               <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />
               <td>${row.getValue("reintegros")?string.currency}</td>

@@ -163,3 +163,22 @@ div.loading-overlay {
   top: 0;
   z-index: 9999;
 }
+
+.summary {
+  margin-top: 20px;
+}
+
+.summary label {
+  margin-left: 15px;
+}
+
+/** Selected row */
+.selected {
+  background-color: #f3f8db;
+}
+
+/** table of debt items */
+.items-container {
+  max-height: 390px;
+  overflow-y: auto;
+}

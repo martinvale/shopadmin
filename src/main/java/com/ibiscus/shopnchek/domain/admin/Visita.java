@@ -1,6 +1,5 @@
 package com.ibiscus.shopnchek.domain.admin;
 
-
 public class Visita {
 
   private String shopperDni;
@@ -25,7 +24,7 @@ public class Visita {
 
   private String fechaCobro;
 
-  private double importe;
+  private String importe;
 
   private int tipoItem;
 
@@ -40,7 +39,7 @@ public class Visita {
       final Integer unaAsignacion, final int unMes, final int unAnio,
       final String unaFecha,
       final String unaDescripcion, final String unaFechaCobro,
-      final double unImporte, final Integer unTipoItem, final int unTipoPago) {
+      final String unImporte, final Integer unTipoItem, final int unTipoPago) {
     shopperDni = unShopperDni;
     empresa = unaEmpresa;
     programa = unPrograma;
@@ -139,7 +138,7 @@ public class Visita {
   /**
    * @return the importe
    */
-  public double getImporte() {
+  public String getImporte() {
     return importe;
   }
 

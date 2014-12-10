@@ -14,7 +14,7 @@ public class ShopperRepository extends HibernateDaoSupport {
   public List<Shopper> find(final String pattern) {
     Criteria criteria = getSession().createCriteria(Shopper.class);
     if (pattern != null && !pattern.isEmpty()) {
-      criteria.add(Expression.like("name", "%" + pattern + "%"));
+      criteria.add(Expression.like("name", pattern + "%"));
     }
     criteria.addOrder(Order.asc("name"));
     return (List<Shopper>) criteria.list();

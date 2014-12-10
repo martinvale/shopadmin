@@ -965,6 +965,7 @@ table {
     height: 30px;
     padding: 0 10px;
     vertical-align: middle;
+    font-size: 11px;
 }
 .bkg-modal {
     background-color: rgba(0, 0, 0, 0.5);

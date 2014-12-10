@@ -46,28 +46,38 @@
           <ul class="action-columns">
             <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
           </ul>
-          <table summary="Lista de items" class="table-form ">
-            <thead>
-              <tr>
-                <th scope="col">Empresa</th>
-                <th scope="col">Subcuestionario</th>
-                <th scope="col">Local</th>
-                <th scope="col">Importe</th>
-                <th scope="col">Fecha</th>
-                <th scope="col">Pago</th>
-              </tr>
-            </thead>
-            <tbody class="items">
-              <tr>
-                <td class="empresa"></td>
-                <td class="subcuestionario"></td>
-                <td class="local"></td>
-                <td class="importe"></td>
-                <td class="fecha"></td>
-                <td class="pago"></td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="items-container">
+            <table summary="Lista de items" class="table-form js-items">
+              <thead>
+                <tr>
+                  <th scope="col">Empresa</th>
+                  <th scope="col">Subcuestionario</th>
+                  <th scope="col">Local</th>
+                  <th scope="col">Importe</th>
+                  <th scope="col">Fecha</th>
+                  <th scope="col">Pago</th>
+                </tr>
+              </thead>
+              <tbody class="items">
+                <tr>
+                  <td class="empresa"></td>
+                  <td class="subcuestionario"></td>
+                  <td class="local"></td>
+                  <td class="importe"></td>
+                  <td class="fecha"></td>
+                  <td class="pago"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="summary">
+            <label>Reintegros</label>
+            <input type="text" class="js-reintegros" />
+            <label>Honorarios</label>
+            <input type="text" class="js-honorarios" />
+            <label>Otros gastos</label>
+            <input type="text" class="js-otros-gastos" />
+          </div>
         </div>
       </form>
     </div>

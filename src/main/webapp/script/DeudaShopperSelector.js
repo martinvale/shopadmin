@@ -130,7 +130,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
             var index = actions.index(this);
             addVisita(index);
           })
-          var actionsRemove = container.find(".js-add-visita").click(function (event) {
+          var actionsRemove = container.find(".js-remove-visita").click(function (event) {
             event.preventDefault();
             var index = actionsRemove.index(this);
             removeVisita(index);
@@ -174,6 +174,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
       jQuery.each(visitas, function(index, visita) {
         if (visita.agregar) {
           itemsCreated++;
+          var importe = visita.importe.replace(",", ".");
           jQuery.ajax({
             url: "../item/" + createEndpoints[visita.tipoItem],
             type: 'POST',
@@ -183,7 +184,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
               tipoPago: visita.tipoPago,
               asignacion: visita.asignacion,
               shopperDni: currentShopper.dni,
-              importe: visita.importe,
+              importe: importe,
               cliente: visita.empresa,
               sucursal: visita.local,
               mes: visita.mes,
@@ -215,7 +216,31 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     visita.agregar = true;
     jQuery('#add-visita-' + index).hide();
     jQuery('#remove-visita-' + index).show();
+    container.find(".js-items tr:eq(" + (index + 1) + ")").addClass("selected");
     dialogVisita.dialog("close");
+    refreshSummary();
+  };
+
+  var refreshSummary = function () {
+    var totalReintegros = 0;
+    var totalHonorarios = 0;
+    var totalOtrosGastos = 0;
+    jQuery.each(visitas, function(index, visita) {
+      var importe;
+      if (visita.agregar) {
+        importe = parseFloat(visita.importe);
+        if (visita.tipoPago === 1) {
+          totalHonorarios += importe;
+        } else if (visita.tipoPago === 2) {
+          totalReintegros += importe;
+        } else {
+          totalOtrosGastos += importe;
+        }
+      }
+    });
+    container.find(".js-honorarios").val(totalHonorarios);
+    container.find(".js-reintegros").val(totalReintegros);
+    container.find(".js-otros-gastos").val(totalOtrosGastos);
   };
 
   var addVisita = function (index) {
@@ -231,12 +256,17 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     visita.agregar = false;
     jQuery('#add-visita-' + index).show();
     jQuery('#remove-visita-' + index).hide();
+    container.find(".js-items tr:eq(" + (index + 1) + ")").removeClass("selected");
+    refreshSummary();
   };
 
   var reset = function () {
     shopperSelector.reset();
     visitas = [];
     rows = rows.render({'itemsOrden': []}, rowsTemplate);
+    container.find(".js-honorarios").val(0);
+    container.find(".js-reintegros").val(0);
+    container.find(".js-otros-gastos").val(0);
   };
 
   return {

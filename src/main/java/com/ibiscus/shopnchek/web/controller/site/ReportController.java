@@ -198,8 +198,7 @@ public class ReportController {
         mesHasta = 1;
         anioHasta++;
       }
-      rows = reportsService.getPaySummaryReport(mesDesde, anioDesde, mesHasta,
-          anioHasta, true, true, true, true);
+      rows = reportsService.getPaySummaryReport(desde, hasta);
     }
 
     model.addAttribute("rows", rows);
@@ -233,8 +232,8 @@ public class ReportController {
       mesHasta = 1;
       anioHasta++;
     }
-    model.addAttribute("rows", reportsService.getPaySummaryReport(mesDesde,
-        anioDesde, mesHasta, anioHasta, true, true, true, true));
+    model.addAttribute("rows", reportsService.getPaySummaryReport(desde,
+        hasta));
     model.addAttribute("title", "Resumen de Pagos");
     return "printSummary";
   }

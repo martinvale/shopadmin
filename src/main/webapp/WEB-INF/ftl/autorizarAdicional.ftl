@@ -35,7 +35,7 @@
     <#assign fecha = "" />
     <#if model["adicionales"]??>
       <#assign adicional = model["adicionales"][0] />
-      <#assign tipoCliente = adicional.tipoItem />
+      <#assign tipoCliente = adicional.clienteId />
       <#assign groupId = "${adicional.group?c}" />
       <#assign clienteId = "${adicional.clienteId?c}" />
       <#assign clienteNombre = "${adicional.clienteNombre}" />
@@ -54,13 +54,12 @@
     <#assign fechaCobro = "" />
     <#assign tipoPago = "" />
     <#assign importe = "" />
-    <#assign observacion = "" />
     <#if model["adicional"]??>
       <#assign item = model["adicional"] />
       <#assign itemId = "${item.id?c}" />
       <#assign fechaCobro = "${item.fechaCobro?string('dd/MM/yyyy')}" />
       <#assign tipoPago = "${item.tipoPago.id?c}" />
-      <#assign importe = "${item.importe?c}" />
+      <#assign importe = '${item.importe?string["0.##"]}' />
       <#assign observacion = "${item.observacion!''}" />
     </#if>
 
@@ -385,7 +384,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
                   <label for="metrics">Shopmetrics</label>
                 </li>
                 <li class="form-shop">
-                  <input type="radio" value="3" id="other" name="tipoCliente" <#if tipoCliente == 3>checked="checked"</#if>>
+                  <input type="radio" value="3" id="other" name="tipoCliente" <#if tipoCliente == -1>checked="checked"</#if>>
                   <label for="other">Otro</label>
                 </li>
               </ul>
@@ -417,7 +416,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
                 </div>
                 <div class="form-shop-row">
                   <label for="otherClient">Cliente:</label>
-                  <input type="text" id="otherClient" name="otherClient" />
+                  <input type="text" id="otherClient" name="otherClient" value="<#if tipoCliente == -1>${clienteNombre!''}</#if>"/>
                 </div>
               </div>
             </fieldset>
@@ -527,7 +526,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
           </div>
           <div class="form-shop-row">
             <label for="observaciones">Observaciones:</label>
-            <textarea id="observaciones" name="observacion" class="observacion js-item-field" disabled="true">${observacion}</textarea>
+            <textarea id="observaciones" name="observacion" class="observacion js-item-field" disabled="true">${observacion!""}</textarea>
           </div>
           <ul class="action-columns">
             <#assign buttonName = "Autorizar" />
@@ -553,7 +552,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
           <#if model["adicionales"]??>
             <#list model["adicionales"] as adicional>
             <tr>
-              <td>${adicional.clienteNombre!''} <a href="autorizacion?groupId=${groupId}&itemId=${adicional.id?c}">editar</a> <a href="delete?groupId=${groupId}&itemId=${adicional.id?c}">borrar</a></td>
+              <td>${adicional.clienteNombre!''} <#if adicional.observacion??><span class="tooltip" title="${adicional.observacion}">(obs.)</span></#if> <a href="autorizacion?groupId=${groupId}&itemId=${adicional.id?c}">editar</a> <a href="delete?groupId=${groupId}&itemId=${adicional.id?c}">borrar</a></td>
               <td>${adicional.sucursalNombre!''}</td>
               <td>${adicional.tipoPago.description}</td>
               <td>${adicional.importe?string.currency}</td>

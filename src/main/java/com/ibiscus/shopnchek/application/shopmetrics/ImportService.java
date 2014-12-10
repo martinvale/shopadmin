@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -90,9 +91,10 @@ public class ImportService {
     theCellStyle.setDataFormat(creationHelper.createDataFormat()
         .getFormat("yyyy-mm-dd"));
 
-    while (rowIterator.hasNext()) {
+    boolean salir = false;
+    while (rowIterator.hasNext() && !salir) {
       row = (Row) rowIterator.next();
-      addRow(headers, row);
+      salir = addRow(headers, row);
     }
 
     try {
@@ -174,13 +176,15 @@ public class ImportService {
     }
   }
 
-  private void addRow(final Map<Integer, Integer> headers, final Row row) {
+  private boolean addRow(final Map<Integer, Integer> headers, final Row row) {
+    boolean end = false;
     Cell cell = row.getCell(headers.get(ColSurveyID));
     Double surveyIdValue = null;
-    try {
+    if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
       surveyIdValue = cell.getNumericCellValue();
-    } catch (IllegalStateException e) {
-      surveyIdValue = null;
+    } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+      String cellTotal = cell.getStringCellValue();
+      end = cellTotal.equals("Total");
     }
     if (surveyIdValue != null) {
       Long surveyId = surveyIdValue.longValue();
@@ -277,8 +281,16 @@ public class ImportService {
           stmt.setString(9, nombreSucursal);
           stmt.setString(10, direccionSucursal);
           stmt.setString(11, ciudadSucursal);
-          stmt.setDouble(12, honorarios);
-          stmt.setDouble(13, reintegros);
+          if (honorarios != null) {
+            stmt.setDouble(12, honorarios);
+          } else {
+            stmt.setNull(12, Types.DOUBLE);
+          }
+          if (reintegros != null) {
+            stmt.setDouble(13, reintegros);
+          } else {
+            stmt.setNull(13, Types.DOUBLE);
+          }
           stmt.setBoolean(14, okPayValue.equalsIgnoreCase("OK"));
 
           stmt.execute();
@@ -295,6 +307,7 @@ public class ImportService {
         }
       }
     }
+    return end;
   }
 
   private Map<Integer, Integer> getCellHeaders(final Row row) {

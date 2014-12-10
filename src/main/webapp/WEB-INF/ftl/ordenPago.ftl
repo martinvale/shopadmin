@@ -270,9 +270,10 @@ textarea.LV_invalid_field:active {
 
           <!-- FILA 3 -->
           <h2 class="subtitulo">Items</h2>
-          <table summary="Listado de items de la orden de pago" class="table-form ">
-            <thead>
-              <tr>
+          <div class="items-container">
+            <table summary="Listado de items de la orden de pago" class="table-form ">
+              <thead>
+                <tr>
                   <th scope="col" style="width:28%">Shopper</th>
                   <th scope="col" style="width:20%">Cliente</th>
                   <th scope="col" style="width:10%">Sucursal</th>
@@ -281,12 +282,12 @@ textarea.LV_invalid_field:active {
                   <th scope="col" style="width:8%">DNI</th>
                   <th scope="col" style="width:8%">Asignaci&oacute;n</th>
                   <th scope="col" style="width:8%">Fecha</th>
-              </tr>
-            </thead>
-            <tbody>
-              <#if model["ordenPago"]??>
-                <#list model["ordenPago"].items as item>
-                <tr>
+                </tr>
+              </thead>
+              <tbody>
+                <#if model["ordenPago"]??>
+                  <#list model["ordenPago"].items as item>
+                  <tr>
                     <#if item.shopper??>
                       <#assign shopperDescription = "${item.shopper.name}">
                     </#if>
@@ -298,11 +299,12 @@ textarea.LV_invalid_field:active {
                     <td class="js-dni">${item.shopperDni}</td>
                     <td class="js-asignacion">${(item.asignacion?c)!''}</td>
                     <td class="js-fecha">${item.fecha!''}</td>
-                </tr>
-                </#list>
-              </#if>
-            </tbody>
-          </table>
+                  </tr>
+                  </#list>
+                </#if>
+              </tbody>
+            </table>
+          </div>
           <ul class="action-columns">
             <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
             <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>

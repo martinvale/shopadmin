@@ -13,6 +13,9 @@
     <script src="../script/jquery-ui.js"></script>
     <script src="../script/livevalidation.js"></script>
 
+    <script src="../script/spin.js"></script>
+    <script src="../script/jquery.spin.js"></script>
+
     <script type="text/javascript">
 
       window.App = window.App || {};
@@ -20,9 +23,16 @@
       App.widget = App.widget || {};
 
       jQuery(document).ready(function() {
+        var form = jQuery(".form-shop");
+        var loadingIndicator = new App.widget.LoadingIndicator(form);
+        form.find("input[type=submit]").click(function () {
+          loadingIndicator.start();
+        });
       });
 
     </script>
+
+    <script src="../script/LoadingIndicator.js"></script>
 
   </head>
   <body>
