@@ -16,6 +16,9 @@
     <script src="../script/pure.min.js"></script>
     <script src="../script/livevalidation.js"></script>
 
+    <script src="../script/spin.js"></script>
+    <script src="../script/jquery.spin.js"></script>
+
     <script type="text/javascript">
 
       window.App = window.App || {};
@@ -29,6 +32,10 @@ App.widget.Buscador = function (container) {
   var titularSelector;
 
   var initEventListeners = function () {
+    var loadingIndicator = new App.widget.LoadingIndicator(container);
+    container.find("input[type=submit]").click(function () {
+      loadingIndicator.start();
+    });
   };
 
   return {
@@ -36,6 +43,7 @@ App.widget.Buscador = function (container) {
       titularSelector = new App.widget.TitularSelector(
           container.find(".js-titular-selector"));
       titularSelector.render();
+      initEventListeners();
     }
   }
 }
@@ -47,6 +55,7 @@ App.widget.Buscador = function (container) {
     </script>
 
     <script src="../script/TitularSelector.js"></script>
+    <script src="../script/LoadingIndicator.js"></script>
 
   </head>
   <body>

@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="../css/shop.css">
     <link rel="stylesheet" href="../css/custom.css">
 
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+
     <script src="../script/jquery.js"></script>
     <script src="../script/jquery-ui.js"></script>
 
@@ -88,7 +90,28 @@
 
       jQuery(document).ready(function() {
 
-        var ordenPago = new App.widget.OrdenPago(jQuery(".js-orden-pago"), ${numero!"null"});
+        var items = [
+          <#if model["ordenPago"]??>
+            <#list model["ordenPago"].items as item>
+            {
+              id: ${item.id?c},
+              <#if item.shopper??>
+                <#assign shopperDescription = "${item.shopper.name}">
+              </#if>
+              shopper: "${(shopperDescription?json_string)!'No encontrado'}",
+              cliente: "${(item.cliente?json_string)!''}",
+              sucursal: "${(item.sucursal?json_string)!''}",
+              tipoPago: "${item.tipoPago.description?substring(0, 1)}",
+              importe: ${item.importe},
+              fecha: "${item.fecha!''}"
+            }<#if item_has_next>,</#if>
+            </#list>
+          </#if>
+        ];
+
+        var canEdit = <#if canEdit && ordenAbierta>true<#else>false</#if>;
+        var ordenPago = new App.widget.OrdenPago(jQuery(".js-orden-pago"),
+            ${numero!"null"}, canEdit, items);
         ordenPago.render();
       });
     </script>
@@ -271,17 +294,15 @@ textarea.LV_invalid_field:active {
           <!-- FILA 3 -->
           <h2 class="subtitulo">Items</h2>
           <div class="items-container">
-            <table summary="Listado de items de la orden de pago" class="table-form ">
+            <table summary="Listado de items de la orden de pago" class="table-form js-table-items">
               <thead>
                 <tr>
-                  <th scope="col" style="width:28%">Shopper</th>
-                  <th scope="col" style="width:20%">Cliente</th>
-                  <th scope="col" style="width:10%">Sucursal</th>
-                  <th scope="col" style="width:10%">Pago</th>
-                  <th scope="col" style="width:8%">Importe</th>
-                  <th scope="col" style="width:8%">DNI</th>
-                  <th scope="col" style="width:8%">Asignaci&oacute;n</th>
-                  <th scope="col" style="width:8%">Fecha</th>
+                  <th scope="col" style="width:21%">Shopper <a id="order-shopper" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:25%">Cliente <a id="order-cliente" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:30%">Sucursal <a id="order-sucursal" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:8%">Pago <a id="order-tipoPago" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:8%">Importe <a id="order-importe" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:8%">Fecha <a id="order-fecha" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
                 </tr>
               </thead>
               <tbody>
@@ -294,10 +315,8 @@ textarea.LV_invalid_field:active {
                     <td>${shopperDescription!'No encontrado'} <#if canEdit && ordenAbierta><a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></#if></td>
                     <td class="js-cliente">${item.cliente!''}</td>
                     <td class="js-sucursal">${item.sucursal!''}</td>
-                    <td>${item.tipoPago.description}</td>
+                    <td>${item.tipoPago.description?substring(0, 1)}</td>
                     <td class="js-importe" style="text-align: right;">${item.importe?string.currency}</td>
-                    <td class="js-dni">${item.shopperDni}</td>
-                    <td class="js-asignacion">${(item.asignacion?c)!''}</td>
                     <td class="js-fecha">${item.fecha!''}</td>
                   </tr>
                   </#list>
@@ -459,5 +478,15 @@ textarea.LV_invalid_field:active {
     <div id="confirm-delete-item" title="Borrar item de la orden de pago">
       <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Esta seguro que desea borrar el item?</p>
     </div>
+    <table id="items-table-template" style="display:none">
+      <tr>
+        <td class="js-shopper"></td>
+        <td class="js-cliente"></td>
+        <td class="js-sucursal"></td>
+        <td class="js-tipo-pago"></td>
+        <td class="js-importe" style="text-align: right;"></td>
+        <td class="js-fecha"></td>
+      </tr>
+    </table>
   </body>
 </html>
