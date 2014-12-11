@@ -24,7 +24,7 @@ public class Visita {
 
   private String fechaCobro;
 
-  private String importe;
+  private Float importe;
 
   private int tipoItem;
 
@@ -39,7 +39,7 @@ public class Visita {
       final Integer unaAsignacion, final int unMes, final int unAnio,
       final String unaFecha,
       final String unaDescripcion, final String unaFechaCobro,
-      final String unImporte, final Integer unTipoItem, final int unTipoPago) {
+      final Float unImporte, final Integer unTipoItem, final int unTipoPago) {
     shopperDni = unShopperDni;
     empresa = unaEmpresa;
     programa = unPrograma;
@@ -138,7 +138,7 @@ public class Visita {
   /**
    * @return the importe
    */
-  public String getImporte() {
+  public Float getImporte() {
     return importe;
   }
 

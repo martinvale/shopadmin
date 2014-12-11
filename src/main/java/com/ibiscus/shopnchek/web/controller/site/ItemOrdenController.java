@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
-import com.ibiscus.shopnchek.application.orden.VisitaDto;
-import com.ibiscus.shopnchek.application.orden.VisitasDto;
 import com.ibiscus.shopnchek.domain.admin.Adicional;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.ItemOrderRepository;
@@ -90,6 +88,34 @@ public class ItemOrdenController {
         .getDeudaShopper(dniShopper, includeIplan, includeMcd, includeGac,
             includeAdicionales, includeShopmetrics, desde, hasta);
     return items;
+  }
+
+  @RequestMapping(value="/debtSearch")
+  public String listDebt(@ModelAttribute("model") final ModelMap model) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+    return "buscadorDeuda";
+  }
+
+  @RequestMapping(value="/printDebt")
+  public String printDebt(
+      @ModelAttribute("model") final ModelMap model,
+      String dniShopper,
+      Boolean includeMcd,
+      Boolean includeGac,
+      Boolean includeAdicionales,
+      Boolean includeShopmetrics,
+      Boolean applyDate, Date desde, Date hasta) {
+    if (!applyDate) {
+      desde = null;
+      hasta = null;
+    }
+    List<Visita> items = itemsOrdenService
+        .getDeudaShopper(dniShopper, false, includeMcd, includeGac,
+            includeAdicionales, includeShopmetrics, desde, hasta);
+    model.addAttribute("items", items);
+    return "printDebt";
   }
 
   /*@RequestMapping(value="/create", method = RequestMethod.POST)

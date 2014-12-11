@@ -61,7 +61,7 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
           '.js-sucursal': 'itemOrden.sucursal',
           '.js-tipo-pago': 'itemOrden.tipoPago',
           '.js-importe': function (a) {
-            return '$' + a.item.importe;
+            return '$' + a.item.importe.toFixed(2).replace('.', ',');
           },
           '.js-fecha': 'itemOrden.fecha'
         },

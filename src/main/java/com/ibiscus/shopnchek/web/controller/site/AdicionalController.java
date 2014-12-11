@@ -1,6 +1,7 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -114,7 +115,7 @@ public class AdicionalController {
       @RequestParam(required = false, defaultValue = "-1") Integer clienteId,
       String clienteNombre,
       @RequestParam(required = false, defaultValue = "-1") String sucursalId,
-      String sucursalNombre, String shopperDni, int mes, int anio, Date fecha,
+      String sucursalNombre, String shopperDni, Date fecha,
       Date fechaCobro, String observacion, double importe, int tipoPagoId,
       int tipoItem) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
@@ -156,6 +157,10 @@ public class AdicionalController {
     TipoPago tipoPago = orderRepository.getTipoPago(tipoPagoId);
     AutorizacionAdicional adicional;
     if (itemId == null) {
+      Calendar calendar = Calendar.getInstance();
+      calendar.setTime(fecha);
+      int mes = calendar.get(Calendar.MONTH);
+      int anio = calendar.get(Calendar.YEAR);
       adicional = new AutorizacionAdicional(groupId, clienteId, clienteNombre,
           sucursalId, sucursalNombre, shopperDni, mes, anio, fecha,
           fechaCobro, observacion, importe, tipoPago, tipoItem,

@@ -80,7 +80,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
           '.subcuestionario': 'itemOrden.programa',
           '.pago': 'itemOrden.descripcion',
           '.importe': function (a) {
-            return '$ ' + a.item.importe;
+            return '$ ' + a.item.importe.toFixed(2).replace('.', ',');
           }
         }
       }
@@ -174,7 +174,6 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
       jQuery.each(visitas, function(index, visita) {
         if (visita.agregar) {
           itemsCreated++;
-          var importe = visita.importe.replace(",", ".");
           jQuery.ajax({
             url: "../item/" + createEndpoints[visita.tipoItem],
             type: 'POST',
@@ -184,7 +183,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
               tipoPago: visita.tipoPago,
               asignacion: visita.asignacion,
               shopperDni: currentShopper.dni,
-              importe: importe,
+              importe: visita.importe,
               cliente: visita.empresa,
               sucursal: visita.local,
               mes: visita.mes,
@@ -212,7 +211,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var createVisita = function (index, importe) {
     var visita = visitas[index];
-    visita.importe = importe;
+    visita.importe = importe.replace(',', '.');
     visita.agregar = true;
     jQuery('#add-visita-' + index).hide();
     jQuery('#remove-visita-' + index).show();
@@ -238,15 +237,15 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
         }
       }
     });
-    container.find(".js-honorarios").val(totalHonorarios);
-    container.find(".js-reintegros").val(totalReintegros);
-    container.find(".js-otros-gastos").val(totalOtrosGastos);
+    container.find(".js-honorarios").val(totalHonorarios.toFixed(2).replace('.', ','));
+    container.find(".js-reintegros").val(totalReintegros.toFixed(2).replace('.', ','));
+    container.find(".js-otros-gastos").val(totalOtrosGastos.toFixed(2).replace('.', ','));
   };
 
   var addVisita = function (index) {
     var visita = visitas[index];
     formVisita.find(".js-index").val(index);
-    formVisita.find(".js-importe").val(visita.importe);
+    formVisita.find(".js-importe").val(visita.importe.toFixed(2).replace('.', ','));
     dialogVisita.callback = createVisita;
     dialogVisita.dialog("open");
   };

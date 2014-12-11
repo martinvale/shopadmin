@@ -1,5 +1,6 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -7,6 +8,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.shopmetrics.ImportService;
 import com.ibiscus.shopnchek.domain.admin.AsociacionMedioPago;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.MedioPago;
@@ -50,6 +54,10 @@ public class OrdenPagoController {
   /** Repository of items. */
   @Autowired
   private ItemsOrdenService itemsOrdenService;
+
+  /** Service to import external data. */
+  @Autowired
+  private ImportService importService;
 
   @RequestMapping(value="/")
   public String index(@ModelAttribute("model") final ModelMap model) {
@@ -375,5 +383,30 @@ public class OrdenPagoController {
     model.addAttribute("ordenPago", ordenPago);
 
     return "printShopper";
+  }
+
+  @RequestMapping(value="/export")
+  public String export(@ModelAttribute("model") final ModelMap model) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+    return "exportOrden";
+  }
+
+  @RequestMapping(value="/download")
+  public void download(HttpServletResponse response, Date desde, Date hasta) {
+    String fileName = "ordenesDePago.xls";
+    response.setContentType("application/vnd.openxmlformats-officedocument."
+        + "spreadsheetml.sheet");
+    String headerKey = "Content-Disposition";
+    String headerValue = String.format("attachment; filename=\"%s\"",
+            fileName);
+    response.setHeader(headerKey, headerValue);
+
+    try {
+      importService.exportOrdenes(response.getOutputStream(), desde, hasta);
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot write the XLS file", e);
+    }
   }
 }

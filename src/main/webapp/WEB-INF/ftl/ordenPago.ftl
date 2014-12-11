@@ -102,7 +102,7 @@
               cliente: "${(item.cliente?json_string)!''}",
               sucursal: "${(item.sucursal?json_string)!''}",
               tipoPago: "${item.tipoPago.description?substring(0, 1)}",
-              importe: ${item.importe},
+              importe: ${item.importe?c},
               fecha: "${item.fecha!''}"
             }<#if item_has_next>,</#if>
             </#list>

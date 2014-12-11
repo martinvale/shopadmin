@@ -109,7 +109,7 @@ public class ItemsOrdenService {
             rs.getInt("ASIGNACION"),
             rs.getInt("MES"), rs.getInt("AÑO"), format.format(rs.getDate("FECHA")),
             rs.getString("PAGO"), format.format(rs.getDate("Fecha_Cobro")),
-            importe, rs.getInt("TIPO_ITEM"),
+            rs.getFloat("IMPORTE"), rs.getInt("TIPO_ITEM"),
             rs.getInt("ID_Tipo_Pago"));
         items.add(visita);
       }
@@ -220,7 +220,7 @@ public class ItemsOrdenService {
             rs.getInt("ASIGNACION"),
             rs.getInt("MES"), rs.getInt("AÑO"), format.format(rs.getDate("FECHA")),
             rs.getString("PAGO"), format.format(rs.getDate("Fecha_Cobro")),
-            importe, rs.getInt("TIPO_ITEM"),
+            rs.getFloat("IMPORTE"), rs.getInt("TIPO_ITEM"),
             rs.getInt("ID_Tipo_Pago"));
 
         if (visita.getAsignacion() != null) {

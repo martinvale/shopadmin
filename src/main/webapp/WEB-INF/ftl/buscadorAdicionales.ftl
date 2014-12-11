@@ -16,6 +16,9 @@
     <script src="../script/pure.min.js"></script>
     <script src="../script/livevalidation.js"></script>
 
+    <script src="../script/spin.js"></script>
+    <script src="../script/jquery.spin.js"></script>
+
     <script type="text/javascript">
 
       window.App = window.App || {};
@@ -25,11 +28,18 @@
       jQuery(document).ready(function() {
         var shopperSelector = new App.widget.ShopperSelector(jQuery(".js-shopper-selector"), true);
         shopperSelector.render();
+
+        var form = jQuery(".js-search-form");
+        var loadingIndicator = new App.widget.LoadingIndicator(form);
+        form.find("input[type=submit]").click(function () {
+          loadingIndicator.start();
+        });
       });
 
     </script>
 
     <script src="../script/ShopperSelector.js"></script>
+    <script src="../script/LoadingIndicator.js"></script>
 
   </head>
   <body>
@@ -37,7 +47,7 @@
 
     <div class="container-box-plantilla">
       <h2 class="container-tit">B&uacute;squeda de adicionales</h2>
-      <form action="search" class="form-shop form-shop-big" method="GET">
+      <form action="search" class="form-shop form-shop-big js-search-form" method="GET">
           <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
                   <div class="ch-popover-content">
                       Revisa los datos. Debes completar campos "Número" y "Factura".

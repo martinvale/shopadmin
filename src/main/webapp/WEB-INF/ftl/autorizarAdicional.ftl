@@ -30,8 +30,6 @@
     <#assign sucursalId = "" />
     <#assign sucursalNombre = "" />
     <#assign shopperDni = "" />
-    <#assign mesVisita = "" />
-    <#assign anioVisita = "" />
     <#assign fecha = "" />
     <#if model["adicionales"]??>
       <#assign adicional = model["adicionales"][0] />
@@ -45,8 +43,6 @@
       <#assign sucursalId = "${adicional.sucursalId}" />
       <#assign sucursalNombre = "${adicional.sucursalNombre}" />
       <#assign shopperDni = "${adicional.shopperDni}" />
-      <#assign mesVisita = "${adicional.mes}" />
-      <#assign anioVisita = "${adicional.anio?c}" />
       <#assign fecha = "${adicional.fecha?string('dd/MM/yyyy')}" />
     </#if>
 
@@ -461,24 +457,6 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
                   </select>
                 </li>
                 <li class="form-shop date-selector">
-                  <div>
-                    <label for="mes">Mes Trab.</label>
-                    <select id="mes" name="mesValue">
-                      <option value="Seleccionar">Mes</option>
-                    <#list 1..12 as mes>
-                      <option value="${mes}" <#if mes?c == mesVisita>selected="true"</#if>>${mes}</option>
-                    </#list>
-                    </select>
-                  </div>
-                  <div>
-                    <label for="anio">A&ntilde;o Trab.</label>
-                    <select id="anio" name="anioValue">
-                      <option value="Seleccionar">A&ntilde;o</option>
-                    <#list 2006..2015 as anio>
-                      <option value="${anio?c}" <#if anio?c == anioVisita>selected="true"</#if>>${anio?c}</option>
-                    </#list>
-                    </select>
-                  </div>
                   <div class="full">
                     <label for="fecha">Fecha</label>
                     <input type="text" id="fecha" name="fechaValue" class="js-date" value="${fecha}" />

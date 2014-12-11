@@ -2,8 +2,12 @@ package com.ibiscus.shopnchek.application.shopmetrics;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -16,6 +20,7 @@ import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
+import org.apache.commons.lang.Validate;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -24,6 +29,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 public class ImportService {
 
@@ -367,5 +373,163 @@ public class ImportService {
       currentPos++;
     }
     return headers;
+  }
+
+  public void exportOrdenes(final OutputStream outputStream,
+      final Date desde, final Date hasta) {
+    Map<Class<?>, CellStyle> styles = new HashMap<Class<?>, CellStyle>();
+
+    Workbook workbook = new SXSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Ordenes");
+
+    CallableStatement cstmt = null;
+    ResultSet rs = null;
+    try {
+      int currentRow = 1;
+      int columnCount = 0;
+      cstmt = dataSource.getConnection().prepareCall(
+          "{call dbo.SProc_LISTADO_ORDENES_ENTRE_FECHAS(?, ?)}");
+
+      cstmt.setDate(1, new java.sql.Date(desde.getTime()));
+      cstmt.setDate(2, new java.sql.Date(hasta.getTime()));
+      rs = cstmt.executeQuery();
+
+      columnCount = rs.getMetaData().getColumnCount();
+      Row row = sheet.createRow(0);
+      createCell(workbook, styles, row, 0, "NUMERO");
+      createCell(workbook, styles, row, 1, "TITULAR");
+      createCell(workbook, styles, row, 2, "CHEQUERA");
+      createCell(workbook, styles, row, 3, "CHEQUE");
+      createCell(workbook, styles, row, 4, "ID TRANSF.");
+      createCell(workbook, styles, row, 5, "ESTADO");
+      createCell(workbook, styles, row, 6, "FACTURA");
+      createCell(workbook, styles, row, 7, "FAC. NRO.");
+      createCell(workbook, styles, row, 8, "IVA HONORARIOS");
+      createCell(workbook, styles, row, 9, "CUIT");
+      createCell(workbook, styles, row, 10, "FECHA PAGO");
+      createCell(workbook, styles, row, 11, "REINTEGROS");
+      createCell(workbook, styles, row, 12, "OTROS GASTOS");
+      createCell(workbook, styles, row, 13, "HONORARIOS");
+      createCell(workbook, styles, row, 14, "IMPORTE IVA");
+      createCell(workbook, styles, row, 15, "TOTAL");
+
+      while (rs.next()) {
+        row = sheet.createRow(currentRow++);
+        int skipped = 0;
+        for (int i = 0; i < columnCount; i++) {
+          if (i != 4) {
+            Object value = rs.getObject(i + 1);
+            createCell(workbook, styles, row, i - skipped, value);
+          } else {
+            skipped++;
+          }
+        }
+      }
+
+      workbook.write(outputStream);
+    } catch (Exception ex) {
+      logger.log(Level.SEVERE, null, ex);
+    } finally {
+      if (rs != null) {
+        try {
+          rs.close();
+        } catch (SQLException ex) {
+          logger.log(Level.WARNING, null, ex);
+        }
+      }
+      if (cstmt != null) {
+        try {
+          cstmt.close();
+        } catch (SQLException ex) {
+          logger.log(Level.WARNING, null, ex);
+        }
+      }
+    }
+  }
+
+  /** Creates a cell and writes into it the value received. It applies the style
+  * needed, in order to write the data with the correct format.
+  *
+  * @param theRow the row where the data will be written. It cannot be null.
+  * @param theColumnIndex the column of the row where the data will be written.
+  * @param theValue the value to be written. It can be null.
+  * @return the cell containing the value in the correct format.
+  */
+  private Cell createCell(final Workbook workbook,
+      final Map<Class<?>, CellStyle> styles, final Row theRow,
+      final int theColumnIndex, final Object theValue) {
+
+    Cell cell = theRow.createCell(theColumnIndex);
+
+    if (theValue != null) {
+      if (theValue.getClass() == Integer.class
+          || theValue.getClass() == Long.class) {
+        cell.setCellValue(((Number) theValue).intValue());
+      } else if (theValue.getClass() == Float.class
+          || theValue.getClass() == Double.class) {
+        cell.setCellValue(((Number) theValue).doubleValue());
+      } else if (theValue.getClass() == Timestamp.class
+          || theValue.getClass() == java.sql.Date.class) {
+        cell.setCellValue((Timestamp) theValue);
+      } else if(theValue.getClass() == Boolean.class) {
+        cell.setCellValue(((Boolean) theValue).booleanValue());
+      } else {
+        String cellValue = theValue.toString();
+
+        cell.setCellValue(cellValue);
+      }
+      CellStyle cellStyle = getCellStyle(workbook, styles, theValue.getClass());
+      if (cellStyle != null) {
+        cell.setCellStyle(cellStyle);
+      }
+    }
+    return cell;
+  }
+
+  /** Search for the cell style appropriate for this cell according the data
+   * type, returns null if there is no cell style for this data type.
+   *
+   * @param theDataType the data type whose cell style we want to retrieve,
+   *  cannot be null.
+   *
+   * @return the cell style or null.
+   */
+  private CellStyle getCellStyle(final Workbook workbook,
+      final Map<Class<?>, CellStyle> styles, final Class<?> theDataType) {
+    Validate.notNull(theDataType, "the data type cannot be null");
+
+    CellStyle theCellStyle = styles.get(theDataType);
+
+    if (theCellStyle == null) {
+      CreationHelper creationHelper = workbook.getCreationHelper();
+      // If, in mysql query, the DATE() function is called, then theDataType is
+      // a java.sql.Date object. If the TIME() function is called, then
+      // theDataType is a java.sql.Time object.
+      if (theDataType == Integer.class
+          || theDataType == Long.class) {
+        theCellStyle = workbook.createCellStyle();
+        theCellStyle.setDataFormat(creationHelper.createDataFormat().
+            getFormat("#,##0"));
+      } else if (theDataType == Float.class
+          || theDataType == Double.class) {
+        theCellStyle = workbook.createCellStyle();
+        theCellStyle.setDataFormat(creationHelper.createDataFormat().
+            getFormat("$ #,##0.00"));
+      } else if (theDataType == java.sql.Date.class
+          || theDataType == java.sql.Timestamp.class) {
+        theCellStyle = workbook.createCellStyle();
+        theCellStyle.setDataFormat(creationHelper.createDataFormat().
+            getFormat("dd/mm/yyyy"));
+      } else if (theDataType == java.sql.Time.class) {
+        theCellStyle = workbook.createCellStyle();
+        theCellStyle.setDataFormat(creationHelper.createDataFormat().
+            getFormat("h:mm:ss AM/PM"));
+      }
+      if (theCellStyle != null) {
+        styles.put(theDataType, theCellStyle);
+      }
+    }
+
+    return theCellStyle;
   }
 }

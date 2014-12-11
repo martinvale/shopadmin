@@ -8,6 +8,8 @@
               <ul class="sub-menu">
                 <li><a href="../orden/">Nueva</a></li>
                 <li><a href="../orden/search">Buscar</a></li>
+                <li><a href="../item/debtSearch">Deuda por shopper</a></li>
+                <li><a href="../orden/export">Exportar &oacute;rdenes de pago</a></li>
               </ul>
             </li>
             <li><a href="#"><i class="icon-user"></i>Items de orden de pago</a>
