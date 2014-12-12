@@ -116,6 +116,25 @@ App.widget.BuscadorDeudaShopper = function (container) {
       }
     });
 
+    container.find(".js-download").click(function () {
+      var currentShopper = shopperSelector.getCurrentShopper();
+      var includeGac = container.find("input[name='gac']");
+      var includeMcd = container.find("input[name='mcd']");
+      var includeAdicionales = container.find("input[name='adicionales']");
+      var includeShopmetrics = container.find("input[name='shopmetrics']");
+      var applyDate = container.find("input[name='applyDate']");
+      var desdeField = container.find("input[name='desde']");
+      var hastaField = container.find("input[name='hasta']");
+
+      if (currentShopper) {
+        location.href = "exportDeuda?dniShopper=" + currentShopper.dni + '&includeMcd='
+            + includeMcd.is(':checked') + '&includeGac=' + includeGac.is(':checked') + '&includeAdicionales='
+            + includeAdicionales.is(':checked') + '&includeShopmetrics=' + includeShopmetrics.is(':checked')
+            + '&applyDate=' + applyDate.is(':checked') + '&desde=' + desdeField.val()
+            + '&hasta=' + hastaField.val();
+      }
+    });
+
     container.find(".js-buscar").click(function () {
       var currentShopper = shopperSelector.getCurrentShopper();
       var includeGac = container.find("input[name='gac']");

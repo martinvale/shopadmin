@@ -447,6 +447,84 @@ public class ImportService {
     }
   }
 
+  public void exportDeuda(final OutputStream outputStream,
+      final String dniShopper,
+      final boolean includeMcd,
+      final boolean includeGac, final boolean includeAdicionales,
+      final boolean includeShopmetrics, final Date desde, final Date hasta) {
+    Map<Class<?>, CellStyle> styles = new HashMap<Class<?>, CellStyle>();
+
+    Workbook workbook = new SXSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Items Adeudados");
+
+    CallableStatement cstmt = null;
+    ResultSet rs = null;
+    try {
+      int currentRow = 1;
+      cstmt = dataSource.getConnection().prepareCall(
+          "{call dbo.SProc_Items_Deuda_Shopper(?,?,?,?,?,?,?,?)}");
+
+      cstmt.setString(1, dniShopper);
+      cstmt.setBoolean(2, false);
+      cstmt.setBoolean(3, includeMcd);
+      cstmt.setBoolean(4, includeGac);
+      cstmt.setBoolean(5, includeAdicionales);
+      cstmt.setBoolean(6, includeShopmetrics);
+      cstmt.setDate(7, new java.sql.Date(desde.getTime()));
+      cstmt.setDate(8, new java.sql.Date(hasta.getTime()));
+      rs = cstmt.executeQuery();
+
+      Row row = sheet.createRow(0);
+      createCell(workbook, styles, row, 0, "EMPRESA");
+      createCell(workbook, styles, row, 1, "SUBCUESTIONARIO");
+      createCell(workbook, styles, row, 2, "LOCAL");
+      createCell(workbook, styles, row, 3, "MES");
+      createCell(workbook, styles, row, 4, "AÑO");
+      createCell(workbook, styles, row, 5, "IMPORTE");
+      createCell(workbook, styles, row, 6, "FECHA");
+      createCell(workbook, styles, row, 7, "PAGO");
+
+      while (rs.next()) {
+        row = sheet.createRow(currentRow++);
+        Object value = rs.getString("EMPRESA");
+        createCell(workbook, styles, row, 0, value);
+        value = rs.getString("SUBCUESTIONARIO");
+        createCell(workbook, styles, row, 1, value);
+        value = rs.getString("LOCAL");
+        createCell(workbook, styles, row, 2, value);
+        value = rs.getInt("MES");
+        createCell(workbook, styles, row, 3, value);
+        value = rs.getInt("AÑO");
+        createCell(workbook, styles, row, 4, value);
+        value = rs.getFloat("IMPORTE");
+        createCell(workbook, styles, row, 5, value);
+        value = rs.getTimestamp("FECHA");
+        createCell(workbook, styles, row, 6, value);
+        value = rs.getString("PAGO");
+        createCell(workbook, styles, row, 7, value);
+      }
+
+      workbook.write(outputStream);
+    } catch (Exception ex) {
+      logger.log(Level.SEVERE, null, ex);
+    } finally {
+      if (rs != null) {
+        try {
+          rs.close();
+        } catch (SQLException ex) {
+          logger.log(Level.WARNING, null, ex);
+        }
+      }
+      if (cstmt != null) {
+        try {
+          cstmt.close();
+        } catch (SQLException ex) {
+          logger.log(Level.WARNING, null, ex);
+        }
+      }
+    }
+  }
+
   /** Creates a cell and writes into it the value received. It applies the style
   * needed, in order to write the data with the correct format.
   *

@@ -91,6 +91,7 @@
         <ul class="action-columns">
           <li><input type="button" value="Buscar" class="btn-shop-small js-buscar" /></li>
           <li><input type="button" value="Imprimir" class="btn-shop-small js-print" /></li>
+          <li><input type="button" value="Descargar" class="btn-shop-small js-download" /></li>
         </ul>
 
         <div class="items-container">

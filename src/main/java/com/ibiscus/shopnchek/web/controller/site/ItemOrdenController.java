@@ -1,8 +1,11 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.shopmetrics.ImportService;
 import com.ibiscus.shopnchek.domain.admin.Adicional;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.ItemOrderRepository;
@@ -51,6 +55,10 @@ public class ItemOrdenController {
   /** Repository of shoppers. */
   @Autowired
   private ShopperRepository shopperRepository;
+
+  /** Service to import external data. */
+  @Autowired
+  private ImportService importService;
 
   @RequestMapping(value="/mdc/{dniShopper}")
   public @ResponseBody List<Visita> index(
@@ -88,6 +96,31 @@ public class ItemOrdenController {
         .getDeudaShopper(dniShopper, includeIplan, includeMcd, includeGac,
             includeAdicionales, includeShopmetrics, desde, hasta);
     return items;
+  }
+
+  @RequestMapping(value="/exportDeuda")
+  public void exportDeuda(HttpServletResponse response,
+      String dniShopper,
+      @RequestParam(defaultValue = "false") Boolean includeMcd,
+      @RequestParam(defaultValue = "false") Boolean includeGac,
+      @RequestParam(defaultValue = "false") Boolean includeAdicionales,
+      @RequestParam(defaultValue = "false") Boolean includeShopmetrics,
+      Boolean applyDate, Date desde, Date hasta) {
+    String fileName = "deudaShopper.xls";
+    response.setContentType("application/vnd.openxmlformats-officedocument."
+        + "spreadsheetml.sheet");
+    String headerKey = "Content-Disposition";
+    String headerValue = String.format("attachment; filename=\"%s\"",
+            fileName);
+    response.setHeader(headerKey, headerValue);
+
+    try {
+      importService.exportDeuda(response.getOutputStream(), dniShopper,
+          includeMcd, includeGac, includeAdicionales, includeShopmetrics, desde,
+          hasta);
+    } catch (IOException e) {
+      throw new RuntimeException("Cannot write the XLS file", e);
+    }
   }
 
   @RequestMapping(value="/debtSearch")
