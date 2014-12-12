@@ -36,6 +36,35 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var loadingIndicator = new App.widget.LoadingIndicator(container);
 
+  var currentItemFieldSort;
+
+  var fieldSort = {
+    'empresa': {
+      order: 'desc',
+      type: 'string'
+    },
+    'programa': {
+      order: 'desc',
+      type: 'string'
+    },
+    'local': {
+      order: 'desc',
+      type: 'string'
+    },
+    'importe': {
+      order: 'desc',
+      type: 'number'
+    },
+    'fecha': {
+      order: 'desc',
+      type: 'date'
+    },
+    'descripcion': {
+      order: 'desc',
+      type: 'string'
+    }
+  };
+
   var dialogVisita = container.find(".js-confirmation").dialog({
     autoOpen: false,
     width: 350,
@@ -63,6 +92,13 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     var directives = {
       'tr': {
         'itemOrden<-itemsOrden': {
+          '.@class': function (a) {
+            if (a.item.agregar) {
+              return 'selected';
+            } else {
+              return '';
+            }
+          },
           '.empresa': function (a) {
             content = a.item.empresa;
             content += ' <a id="add-visita-' + a.pos + '" href="#" class="action js-add-visita">agregar</a>';
@@ -78,7 +114,9 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
           '.local': 'itemOrden.local',
           '.fecha': 'itemOrden.fecha',
           '.subcuestionario': 'itemOrden.programa',
-          '.pago': 'itemOrden.descripcion',
+          '.pago': function (a) {
+            return a.item.descripcion.substring(0, 1);
+          },
           '.importe': function (a) {
             return '$ ' + a.item.importe.toFixed(2).replace('.', ',');
           }
@@ -150,6 +188,71 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
       }
     });
 
+    container.find(".js-order").click(function (event) {
+      event.preventDefault();
+      var header = jQuery(event.target);
+      var arrow = header.find(".fa");
+      var field = event.currentTarget.id.substring(6);
+      container.find(".js-order").removeClass("selected");
+      header.addClass("selected");
+      currentItemFieldSort = field;
+      if (fieldSort[currentItemFieldSort].order === 'asc') {
+        fieldSort[currentItemFieldSort].order = 'desc';
+        arrow.removeClass("fa-angle-up");
+        arrow.addClass("fa-angle-down");
+      } else {
+        fieldSort[currentItemFieldSort].order = 'asc'
+        arrow.removeClass("fa-angle-down");
+        arrow.addClass("fa-angle-up");
+      }
+      //container.find(".js-table-items tbody").html(itemsTableTemplate({'items': items}));
+      visitas.sort(function (a, b) {
+        var cmp = function (x, y){
+          return x > y ? 1 : x < y ? -1 : 0;
+        };
+        if (!currentItemFieldSort) {
+          return 0;
+        } 
+        var first = a[currentItemFieldSort];
+        var second = b[currentItemFieldSort];
+        if (fieldSort[currentItemFieldSort].type === 'string') {
+          first = first.toLowerCase();
+          second = second.toLowerCase();
+        } else if (fieldSort[currentItemFieldSort].type === 'date') {
+          first = new Date(new Date(first.substring(6, 10),
+            new Number(first.substring(3, 5)) - 1, first.substring(0, 2)));
+          second = new Date(new Date(second.substring(6, 10),
+            new Number(second.substring(3, 5)) - 1, second.substring(0, 2)));
+        }
+        if (fieldSort[currentItemFieldSort].order === 'asc') {
+          return cmp(first, second);
+        } else {
+          return cmp(second, first);
+        }
+      })
+      rows = rows.render({'itemsOrden': visitas}, rowsTemplate);
+      var actions = container.find(".js-add-visita").click(function (event) {
+        event.preventDefault();
+        var index = actions.index(this);
+        addVisita(index);
+      })
+      var actionsRemove = container.find(".js-remove-visita").click(function (event) {
+        event.preventDefault();
+        var index = actionsRemove.index(this);
+        removeVisita(index);
+      })
+      var actionsObservation = container.find(".js-view-observation").click(function (event) {
+        event.preventDefault();
+        var index = actionsObservation.index(this);
+        showObservation(index);
+      })
+      var actionsUser = container.find(".js-view-user").click(function (event) {
+        event.preventDefault();
+        var index = actionsUser.index(this);
+        showUser(index);
+      })
+    });
+
     container.find(".js-date" ).datepicker({
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
@@ -211,7 +314,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var createVisita = function (index, importe) {
     var visita = visitas[index];
-    visita.importe = importe.replace(',', '.');
+    visita.importe = new Number(importe.replace(',', '.'));
     visita.agregar = true;
     jQuery('#add-visita-' + index).hide();
     jQuery('#remove-visita-' + index).show();

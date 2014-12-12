@@ -50,12 +50,12 @@
             <table summary="Lista de items" class="table-form js-items">
               <thead>
                 <tr>
-                  <th scope="col">Empresa</th>
-                  <th scope="col">Subcuestionario</th>
-                  <th scope="col">Local</th>
-                  <th scope="col">Importe</th>
-                  <th scope="col">Fecha</th>
-                  <th scope="col">Pago</th>
+                  <th scope="col"><a id="order-empresa" href="#" class="js-order">Empresa <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col"><a id="order-programa" href="#" class="js-order">Subcuestionario <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col"><a id="order-local" href="#" class="js-order">Local <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col"><a id="order-importe" href="#" class="js-order">Importe <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col"><a id="order-fecha" href="#" class="js-order">Fecha <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col"><a id="order-descripcion" href="#" class="js-order">Pago <i class="fa fa-angle-down"></i></a></th>
                 </tr>
               </thead>
               <tbody class="items">

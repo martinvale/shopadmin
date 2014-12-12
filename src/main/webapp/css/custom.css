@@ -183,8 +183,15 @@ div.loading-overlay {
   overflow-y: auto;
 }
 
-/** Column order selector */
-table thead a {
+/** Column order indicator */
+table thead a .fa {
+  display: none;
   margin-left: 5px;
   font-size: 12px;
+  text-decoration: none;
+}
+
+/** Column order selected header */
+table thead a.selected .fa {
+  display: inline;
 }

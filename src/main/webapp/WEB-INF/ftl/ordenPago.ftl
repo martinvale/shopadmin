@@ -297,22 +297,26 @@ textarea.LV_invalid_field:active {
             <table summary="Listado de items de la orden de pago" class="table-form js-table-items">
               <thead>
                 <tr>
-                  <th scope="col" style="width:21%">Shopper <a id="order-shopper" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
-                  <th scope="col" style="width:25%">Cliente <a id="order-cliente" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
-                  <th scope="col" style="width:30%">Sucursal <a id="order-sucursal" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
-                  <th scope="col" style="width:8%">Pago <a id="order-tipoPago" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
-                  <th scope="col" style="width:8%">Importe <a id="order-importe" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
-                  <th scope="col" style="width:8%">Fecha <a id="order-fecha" href="#" class="js-order"><i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:21%"><a id="order-shopper" href="#" class="js-order">Shopper <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:25%"><a id="order-cliente" href="#" class="js-order">Cliente <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:30%"><a id="order-sucursal" href="#" class="js-order">Sucursal <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:8%"><a id="order-tipoPago" href="#" class="js-order">Pago <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:8%"><a id="order-importe" href="#" class="js-order">Importe <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:8%"><a id="order-fecha" href="#" class="js-order">Fecha <i class="fa fa-angle-down"></i></a></th>
                 </tr>
               </thead>
               <tbody>
                 <#if model["ordenPago"]??>
                   <#list model["ordenPago"].items as item>
                   <tr>
+                    <#assign shopperDescription = "" />
                     <#if item.shopper??>
                       <#assign shopperDescription = "${item.shopper.name}">
                     </#if>
-                    <td>${shopperDescription!'No encontrado'} <#if canEdit && ordenAbierta><a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></#if></td>
+                    <#if shopperDescription?length &gt; 20>
+                      <#assign shopperDescription = "${shopperDescription?substring(0, 20)}...">
+                    </#if>
+                    <td>${shopperDescription} <#if canEdit && ordenAbierta><a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></#if></td>
                     <td class="js-cliente">${item.cliente!''}</td>
                     <td class="js-sucursal">${item.sucursal!''}</td>
                     <td>${item.tipoPago.description?substring(0, 1)}</td>
@@ -325,7 +329,6 @@ textarea.LV_invalid_field:active {
             </table>
           </div>
           <ul class="action-columns">
-            <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
             <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
           </ul>
 

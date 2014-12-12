@@ -55,7 +55,7 @@
       <#assign itemId = "${item.id?c}" />
       <#assign fechaCobro = "${item.fechaCobro?string('dd/MM/yyyy')}" />
       <#assign tipoPago = "${item.tipoPago.id?c}" />
-      <#assign importe = '${item.importe?string["0.##"]}' />
+      <#assign importe = '${item.importe?string["0.##"]?replace(",", ".")}' />
       <#assign observacion = "${item.observacion!''}" />
     </#if>
 
@@ -79,10 +79,6 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
   var otraSucursalValidation;
 
   var shopperValidation;
-
-  var mesValidation;
-
-  var anioValidation;
 
   var fechaValidation;
 
@@ -139,18 +135,6 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
     shopperValidation.add(Validate.Exclusion, {
       within: ["Seleccionar"],
       failureMessage: "Seleccione un shopper"
-    });
-
-    mesValidation = new LiveValidation("mes");
-    mesValidation.add(Validate.Exclusion, {
-      within: ["Seleccionar"],
-      failureMessage: "Obligatorio"
-    });
-
-    anioValidation = new LiveValidation("anio");
-    anioValidation.add(Validate.Exclusion, {
-      within: ["Seleccionar"],
-      failureMessage: "Obligatorio"
     });
 
     fechaValidation = new LiveValidation("fecha");
@@ -210,6 +194,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
     });
 
     container.find(".js-date" ).datepicker({
+      minDate: new Date(),
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
       }
@@ -247,8 +232,6 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
     }
 
     validations.push(shopperValidation);
-    validations.push(mesValidation);
-    validations.push(anioValidation);
     validations.push(fechaValidation);
     return validations;
   };
@@ -530,7 +513,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
           <#if model["adicionales"]??>
             <#list model["adicionales"] as adicional>
             <tr>
-              <td>${adicional.clienteNombre!''} <#if adicional.observacion??><span class="tooltip" title="${adicional.observacion}">(obs.)</span></#if> <a href="autorizacion?groupId=${groupId}&itemId=${adicional.id?c}">editar</a> <a href="delete?groupId=${groupId}&itemId=${adicional.id?c}">borrar</a></td>
+              <td>${adicional.clienteNombre!''} <#if adicional.observacion?has_content><span class="tooltip" title="${adicional.observacion}">(obs.)</span></#if> <a href="autorizacion?groupId=${groupId}&itemId=${adicional.id?c}">editar</a> <a href="delete?groupId=${groupId}&itemId=${adicional.id?c}">borrar</a></td>
               <td>${adicional.sucursalNombre!''}</td>
               <td>${adicional.tipoPago.description}</td>
               <td>${adicional.importe?string.currency}</td>

@@ -9,12 +9,30 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
   var currentItemFieldSort;
 
   var fieldSort = {
-    'shopper': 'desc',
-    'cliente': 'desc',
-    'sucursal': 'desc',
-    'tipoPago': 'desc',
-    'importe': 'desc',
-    'fecha': 'desc'
+    'shopper': {
+      order: 'desc',
+      type: 'string'
+    },
+    'cliente': {
+      order: 'desc',
+      type: 'string'
+    },
+    'sucursal': {
+      order: 'desc',
+      type: 'string'
+    },
+    'tipoPago': {
+      order: 'desc',
+      type: 'string'
+    },
+    'importe': {
+      order: 'desc',
+      type: 'number'
+    },
+    'fecha': {
+      order: 'desc',
+      type: 'date'
+    }
   };
 
   var deleteConfirmDialog = jQuery( "#confirm-delete-item" ).dialog({
@@ -69,10 +87,21 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
           var cmp = function (x, y){
             return x > y ? 1 : x < y ? -1 : 0;
           };
-          if (fieldSort[currentItemFieldSort] === 'asc') {
-            return cmp(a[currentItemFieldSort], b[currentItemFieldSort]);
+          var first = a[currentItemFieldSort];
+          var second = b[currentItemFieldSort];
+          if (fieldSort[currentItemFieldSort].type === 'string') {
+            first = first.toLowerCase();
+            second = second.toLowerCase();
+          } else if (fieldSort[currentItemFieldSort].type === 'date') {
+            first = new Date(new Date(first.substring(6, 10),
+              new Number(first.substring(3, 5)) - 1, first.substring(0, 2)));
+            second = new Date(new Date(second.substring(6, 10),
+              new Number(second.substring(3, 5)) - 1, second.substring(0, 2)));
+          }
+          if (fieldSort[currentItemFieldSort].order === 'asc') {
+            return cmp(first, second);
           } else {
-            return cmp(b[currentItemFieldSort], a[currentItemFieldSort]);
+            return cmp(second, first);
           }
         }
       }
@@ -157,17 +186,20 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
 
     container.find(".js-order").click(function (event) {
       event.preventDefault();
-      var arrow = jQuery(event.target);
+      var header = jQuery(event.target);
+      var arrow = header.find(".fa");
       var field = event.currentTarget.id.substring(6);
+      container.find(".js-order").removeClass("selected");
+      header.addClass("selected");
       currentItemFieldSort = field;
-      if (fieldSort[currentItemFieldSort] === 'asc') {
-        fieldSort[currentItemFieldSort] = 'desc';
-        arrow.removeClass("fa-angle-down");
-        arrow.addClass("fa-angle-up");
-      } else {
-        fieldSort[currentItemFieldSort] = 'asc'
+      if (fieldSort[currentItemFieldSort].order === 'asc') {
+        fieldSort[currentItemFieldSort].order = 'desc';
         arrow.removeClass("fa-angle-up");
         arrow.addClass("fa-angle-down");
+      } else {
+        fieldSort[currentItemFieldSort].order = 'asc'
+        arrow.removeClass("fa-angle-down");
+        arrow.addClass("fa-angle-up");
       }
       container.find(".js-table-items tbody").html(itemsTableTemplate({'items': items}));
       container.find(".js-delete-item").click(function (event) {
