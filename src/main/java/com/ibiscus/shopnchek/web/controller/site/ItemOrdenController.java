@@ -8,6 +8,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -87,7 +88,8 @@ public class ItemOrdenController {
       @RequestParam(defaultValue = "false") Boolean includeGac,
       @RequestParam(defaultValue = "false") Boolean includeAdicionales,
       @RequestParam(defaultValue = "false") Boolean includeShopmetrics,
-      Boolean applyDate, Date desde, Date hasta) {
+      Boolean applyDate, @DateTimeFormat(pattern="dd/MM/yyyy") Date desde,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date hasta) {
     if (!applyDate) {
       desde = null;
       hasta = null;

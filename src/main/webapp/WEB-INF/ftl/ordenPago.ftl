@@ -31,7 +31,6 @@
     <#assign estadoOrden = "ABIERTA" />
 
     <#assign tipoFactura = "" />
-    <#assign fechaPago = "" />
     <#assign medioPagoId = "" />
     <#assign state = "" />
     <#assign iva = "" />
@@ -61,7 +60,7 @@
       <#assign state = "${model['ordenPago'].estado.id?c}" />
       <#assign ordenAbierta = model['ordenPago'].estado.description == 'Abierta' />
       <#assign estadoOrden = "${model['ordenPago'].estado.description}" />
-      <#assign iva = "${model['ordenPago'].iva?c}" />
+      <#assign iva = "${model['ordenPago'].iva?string['0.##']}" />
       <#assign tipoTitular = model['ordenPago'].tipoProveedor />
       <#assign titularId = "${model['ordenPago'].proveedor}" />
       <#assign facturaNumero = "${model['ordenPago'].numeroFactura!''}" />
@@ -204,7 +203,7 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="fechaPago" class="mandatory">Fecha pago</label>
-                <input type="text" id="fechaPago" name="fechaPago" class="js-date" value="${fechaPago}" <#if !canEdit>disabled="true"</#if>/>
+                <input type="text" id="fechaPago" name="fechaPago" class="js-date" value="${fechaPago!''}" <#if !canEdit>disabled="true"</#if>/>
               </div>
               <div class="form-shop-row">
                 <label for="medioPago" class="mandatory">M. de pago</label>
@@ -297,9 +296,9 @@ textarea.LV_invalid_field:active {
             <table summary="Listado de items de la orden de pago" class="table-form js-table-items">
               <thead>
                 <tr>
-                  <th scope="col" style="width:21%"><a id="order-shopper" href="#" class="js-order">Shopper <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:25%"><a id="order-shopper" href="#" class="js-order">Shopper <i class="fa fa-angle-down"></i></a></th>
                   <th scope="col" style="width:25%"><a id="order-cliente" href="#" class="js-order">Cliente <i class="fa fa-angle-down"></i></a></th>
-                  <th scope="col" style="width:30%"><a id="order-sucursal" href="#" class="js-order">Sucursal <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:26%"><a id="order-sucursal" href="#" class="js-order">Sucursal <i class="fa fa-angle-down"></i></a></th>
                   <th scope="col" style="width:8%"><a id="order-tipoPago" href="#" class="js-order">Pago <i class="fa fa-angle-down"></i></a></th>
                   <th scope="col" style="width:8%"><a id="order-importe" href="#" class="js-order">Importe <i class="fa fa-angle-down"></i></a></th>
                   <th scope="col" style="width:8%"><a id="order-fecha" href="#" class="js-order">Fecha <i class="fa fa-angle-down"></i></a></th>
@@ -313,8 +312,8 @@ textarea.LV_invalid_field:active {
                     <#if item.shopper??>
                       <#assign shopperDescription = "${item.shopper.name}">
                     </#if>
-                    <#if shopperDescription?length &gt; 20>
-                      <#assign shopperDescription = "${shopperDescription?substring(0, 20)}...">
+                    <#if shopperDescription?length &gt; 25>
+                      <#assign shopperDescription = "${shopperDescription?substring(0, 25)}...">
                     </#if>
                     <td>${shopperDescription} <#if canEdit && ordenAbierta><a id="item-${item.id?c}" href="#" class="js-delete-item">borrar</a></#if></td>
                     <td class="js-cliente">${item.cliente!''}</td>

@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -178,7 +179,8 @@ public class OrdenPagoController {
   @RequestMapping(value="save", method=RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
       int numeroOrden, int tipoTitular, int titularId, String tipoFactura,
-      Date fechaPago, long estadoId, long medioPagoId, double iva,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago, long estadoId,
+      long medioPagoId, double iva,
       String numeroFactura, String fechaCheque,
       String numeroChequera, String numeroCheque, String transferId,
       String localidad, String observaciones, String observacionesShopper) {

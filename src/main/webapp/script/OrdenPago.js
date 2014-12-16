@@ -116,6 +116,7 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
 
     container.find(".js-date" ).datepicker({
       minDate: new Date(),
+      dateFormat: 'dd/mm/yy',
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
       }

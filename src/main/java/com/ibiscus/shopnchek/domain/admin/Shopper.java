@@ -24,6 +24,9 @@ public class Shopper {
   @Column(name="nombre")
   private String usuario;
 
+  @Column(name="pais")
+  private Integer pais;
+
   Shopper() {
   }
 
@@ -41,5 +44,9 @@ public class Shopper {
 
   public String getUsername() {
     return usuario;
+  }
+
+  public Integer getPais() {
+    return pais;
   }
 }

@@ -13,6 +13,7 @@ public class ShopperRepository extends HibernateDaoSupport {
   @SuppressWarnings("unchecked")
   public List<Shopper> find(final String pattern) {
     Criteria criteria = getSession().createCriteria(Shopper.class);
+    criteria.add(Expression.eq("pais", 1));
     if (pattern != null && !pattern.isEmpty()) {
       criteria.add(Expression.like("name", pattern + "%"));
     }
