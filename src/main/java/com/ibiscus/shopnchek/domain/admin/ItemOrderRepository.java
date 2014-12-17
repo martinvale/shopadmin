@@ -18,7 +18,18 @@ public class ItemOrderRepository extends HibernateDaoSupport {
   @SuppressWarnings("unchecked")
   public List<ItemOrden> find(final String dniShopper) {
     Criteria criteria = getSession().createCriteria(ItemOrden.class);
+    criteria.createAlias("tipoPago", "tipoPagoNombre");
+    criteria.createAlias("ordenPago", "ordenNumero");
+
     criteria.add(Expression.eq("shopperDni", dniShopper));
+
+    criteria.addOrder(Order.asc("cliente"));
+    criteria.addOrder(Order.asc("sucursal"));
+    criteria.addOrder(Order.asc("fecha"));
+    criteria.addOrder(Order.asc("tipoPagoNombre.description"));
+    criteria.addOrder(Order.asc("ordenNumero.numero"));
+    criteria.addOrder(Order.asc("ordenNumero.fechaPago"));
+
     return (List<ItemOrden>) criteria.list();
   }
 

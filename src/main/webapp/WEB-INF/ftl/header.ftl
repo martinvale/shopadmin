@@ -14,6 +14,7 @@
             </li>
             <li><a href="#"><i class="icon-user"></i>Items de orden de pago</a>
               <ul class="sub-menu">
+                <li><a href="../item/search">Buscar items pagos</a></li>
                 <#assign puedeAutorizarAdicional = true />
                 <#list model["user"].authorities as role>
                   <#assign puedeAutorizarAdicional = puedeAutorizarAdicional || (role.authority == 'ADITIONAL') />
