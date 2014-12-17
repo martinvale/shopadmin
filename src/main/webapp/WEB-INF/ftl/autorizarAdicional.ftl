@@ -60,7 +60,7 @@
     </#if>
 
 App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
-    sucursalesGAC, sucursalesShopmetrics) {
+    sucursalesGAC, sucursalesShopmetrics, adicionales) {
 
   var tipoCliente = 2;
 
@@ -139,7 +139,22 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
 
     fechaValidation = new LiveValidation("fecha");
     fechaValidation.add(Validate.Presence, {
-      failureMessage: "Obligatorio"
+      failureMessage: "La fecha del adicional es obligatoria"
+    });
+    fechaValidation.add(Validate.Custom, {
+      against: function (value, args) {
+        var day = value.substring(0, 2);
+        var month = value.substring(3, 5);
+        var year = value.substring(6, 10);
+        var fecha = new Date(year, month - 1, day);
+        var hoy = new Date();
+        hoy.setHours(0);
+        hoy.setMinutes(0);
+        hoy.setSeconds(0);
+        hoy.setMilliseconds(0);
+        return hoy <= fecha;
+      },
+      failureMessage: "La fecha del adicional no puede ser anterior a hoy"
     });
 
     otraSucursalValidation = new LiveValidation("otraSucursalNombre");
@@ -151,10 +166,38 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
     fechaCobroValidation.add(Validate.Presence, {
       failureMessage: "Complete la fecha de cobro"
     });
+    fechaCobroValidation.add(Validate.Custom, {
+      against: function (value, args) {
+        var day = value.substring(0, 2);
+        var month = value.substring(3, 5);
+        var year = value.substring(6, 10);
+        var fecha = new Date(year, month - 1, day);
+        var hoy = new Date();
+        hoy.setHours(0);
+        hoy.setMinutes(0);
+        hoy.setSeconds(0);
+        hoy.setMilliseconds(0);
+        return hoy <= fecha;
+      },
+      failureMessage: "La fecha de cobro no puede ser anterior a hoy"
+    });
 
     importeValidation = new LiveValidation("importe");
     importeValidation.add(Validate.Presence, {
       failureMessage: "Ingrese el importe"
+    });
+
+    var tipoPagoValidation = new LiveValidation("tipoPago");
+    tipoPagoValidation.add(Validate.Custom, {
+      against: function (value, args) {
+        var tipoPago = container.find("select[name='tipoPagoId']").val();
+        var isValid = true;
+        if (tipoPago !== '3') {
+          isValid = jQuery.inArray(tipoPago, adicionales) === -1;
+        }
+        return isValid;
+      },
+      failureMessage: "Este tipo de pago no esta disponible para el mismo dia"
     });
   };
 
@@ -194,6 +237,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
     });
 
     container.find(".js-date" ).datepicker({
+      dateFormat: 'dd/mm/yy',
       minDate: new Date(),
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
@@ -319,10 +363,18 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
         <#if sucursal_has_next>,</#if></#list>
         ];
 
+        var adicionales = [
+          <#if model["adicionales"]??>
+            <#list model["adicionales"] as adicional>
+              "${adicional.tipoPago.id?c}"<#if adicional_has_next>,</#if>
+            </#list>
+          </#if>
+        ];
+
         var editorContainer = jQuery(".js-editor-adicional");
         var enabled = <#if adicional??>false<#else>true</#if>;
         var editor = App.widget.AdicionalEditor(editorContainer, enabled,
-            sucursalesMCD, sucursalesGAC, sucursalesShopmetrics);
+            sucursalesMCD, sucursalesGAC, sucursalesShopmetrics, adicionales);
         editor.render();
       });
 
@@ -440,10 +492,8 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
                   </select>
                 </li>
                 <li class="form-shop date-selector">
-                  <div class="full">
-                    <label for="fecha">Fecha</label>
-                    <input type="text" id="fecha" name="fechaValue" class="js-date" value="${fecha}" />
-                  </div>
+                  <label for="fecha">Fecha</label>
+                  <input type="text" id="fecha" name="fechaValue" class="js-date js-fecha-adicional" value="${fecha}" />
                 </li>
               </ul>
             </fieldset>

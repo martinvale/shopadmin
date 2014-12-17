@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -115,9 +116,10 @@ public class AdicionalController {
       @RequestParam(required = false, defaultValue = "-1") Integer clienteId,
       String clienteNombre,
       @RequestParam(required = false, defaultValue = "-1") String sucursalId,
-      String sucursalNombre, String shopperDni, Date fecha,
-      Date fechaCobro, String observacion, double importe, int tipoPagoId,
-      int tipoItem) {
+      String sucursalNombre, String shopperDni,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date fecha,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaCobro,
+      String observacion, double importe, int tipoPagoId, int tipoItem) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);

@@ -225,6 +225,21 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
     fechaPagoValidation.add(Validate.Presence, {
         failureMessage: "La fecha de pago es obligatoria"
     });
+    fechaPagoValidation.add(Validate.Custom, {
+      against: function (value, args) {
+        var day = value.substring(0, 2);
+        var month = value.substring(3, 5);
+        var year = value.substring(6, 10);
+        var fecha = new Date(year, month - 1, day);
+        var hoy = new Date();
+        hoy.setHours(0);
+        hoy.setMinutes(0);
+        hoy.setSeconds(0);
+        hoy.setMilliseconds(0);
+        return hoy <= fecha;
+      },
+      failureMessage: "La fecha de cobro no puede ser anterior a hoy"
+    });
     var medioPagoValidation = new LiveValidation("medioPago");
     medioPagoValidation.add(Validate.Exclusion, {
         within: ["Seleccionar"],
