@@ -328,6 +328,7 @@ textarea.LV_invalid_field:active {
             </table>
           </div>
           <ul class="action-columns">
+            <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
             <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
           </ul>
 
