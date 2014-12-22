@@ -247,10 +247,35 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
     });
   };
 
+  var changeTitular = function (titular) {
+    if (titular) {
+      jQuery.ajax({
+        url: "getAsociacionMedioPago",
+        data: {
+          tipoProveedor: titular.tipo,
+          titularId: titular.id
+        }
+      }).done(function (data) {
+        var sinMedioSeleccionado = container.find(".js-sin-medio-pago");
+        var asociarMedio = container.find(".js-asociar-medio");
+        var medioDefault = container.find(".js-medio-pago-predeterminado");
+        if (data) {
+          container.find(".js-medio-pago").val(data.medioPago);
+          var tipoPagoSelected = container.find(".js-medio-pago option:selected");
+
+          asociarMedio.hide();
+          sinMedioSeleccionado.hide();
+          medioDefault.text('Medio de pago predeterminado: ' + tipoPagoSelected[0].innerHTML);
+          medioDefault.show();
+        }
+      });
+    }
+  };
+
   return {
     render: function () {
       titularSelector = new App.widget.TitularSelector(
-          container.find(".js-titular-selector"));
+          container.find(".js-titular-selector"), changeTitular);
       titularSelector.render();
 
       initialize();

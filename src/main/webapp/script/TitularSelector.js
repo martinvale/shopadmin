@@ -1,8 +1,10 @@
-App.widget.TitularSelector = function (container, shoppers) {
+App.widget.TitularSelector = function (container, callback) {
 
   var selector = container.find(".js-titulares");
 
   var filter;
+
+  var onSelect = callback || function () {};
 
   var initEventListeners = function () {
     container.find(".js-proveedor").change(function (event) {
@@ -28,6 +30,7 @@ App.widget.TitularSelector = function (container, shoppers) {
 
   return {
     render: function () {
+      var me = this;
       filter = selector.autocomplete({
         source: "../services/shoppers/suggest",
         minLength: 2,
@@ -38,6 +41,7 @@ App.widget.TitularSelector = function (container, shoppers) {
             selector.val(ui.item.description);
           }
           container.find(".js-titular-id").val(ui.item.id);
+          onSelect(me.getTitularSelected());
           return false;
         }
       });

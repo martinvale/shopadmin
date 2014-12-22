@@ -249,6 +249,16 @@ public class OrdenPagoController {
     return medioPago.getDescription();
   }
 
+  @RequestMapping(value="getAsociacionMedioPago")
+  public @ResponseBody AsociacionMedioPago getAsociacionMedioPago(
+      @ModelAttribute("model") final ModelMap model,
+      int tipoProveedor, int titularId) {
+
+    AsociacionMedioPago asociacion = orderRepository.findAsociacion(
+        tipoProveedor, titularId);
+    return asociacion;
+  }
+
   @RequestMapping(value="/search")
   public String search(@ModelAttribute("model") final ModelMap model,
       Long numeroOrden, Integer tipoTitular, Integer titularId,
