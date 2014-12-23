@@ -141,21 +141,6 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
     fechaValidation.add(Validate.Presence, {
       failureMessage: "La fecha del adicional es obligatoria"
     });
-    fechaValidation.add(Validate.Custom, {
-      against: function (value, args) {
-        var day = value.substring(0, 2);
-        var month = value.substring(3, 5);
-        var year = value.substring(6, 10);
-        var fecha = new Date(year, month - 1, day);
-        var hoy = new Date();
-        hoy.setHours(0);
-        hoy.setMinutes(0);
-        hoy.setSeconds(0);
-        hoy.setMilliseconds(0);
-        return hoy <= fecha;
-      },
-      failureMessage: "La fecha del adicional no puede ser anterior a hoy"
-    });
 
     otraSucursalValidation = new LiveValidation("otraSucursalNombre");
     otraSucursalValidation.add(Validate.Presence, {
@@ -236,7 +221,14 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
       }
     });
 
-    container.find(".js-date" ).datepicker({
+    container.find(".js-fecha-adicional" ).datepicker({
+      dateFormat: 'dd/mm/yy',
+      onSelect: function(dateText, datePicker) {
+        $(this).attr('value', dateText);
+      }
+    });
+
+    container.find(".js-fecha-cobro" ).datepicker({
       dateFormat: 'dd/mm/yy',
       minDate: new Date(),
       onSelect: function(dateText, datePicker) {
@@ -521,7 +513,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
           <input type="hidden" name="itemId" value="${itemId}"/>
           <div class="form-shop-row">
             <label for="fechaCobro">Fecha de cobro:</label>
-            <input type="text" id="fechaCobro" name="fechaCobro" value="${fechaCobro}" disabled="true" class="js-item-field js-date" />
+            <input type="text" id="fechaCobro" name="fechaCobro" value="${fechaCobro}" disabled="true" class="js-item-field js-date js-fecha-cobro" />
           </div>
           <div class="form-shop-row">
             <label for="tipoPago">Tipo de pago:</label>

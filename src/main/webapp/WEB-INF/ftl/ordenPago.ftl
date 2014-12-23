@@ -62,7 +62,7 @@
       <#assign estadoOrden = "${model['ordenPago'].estado.description}" />
       <#assign iva = "${model['ordenPago'].iva?string['0.##']}" />
       <#assign tipoTitular = model['ordenPago'].tipoProveedor />
-      <#assign titularId = "${model['ordenPago'].proveedor}" />
+      <#assign titularId = "${model['ordenPago'].proveedor?c}" />
       <#assign facturaNumero = "${model['ordenPago'].numeroFactura!''}" />
       <#if model['ordenPago'].fechaCheque??>
         <#assign fechaCheque = "${model['ordenPago'].fechaCheque?string('dd/MM/yyyy')}" />

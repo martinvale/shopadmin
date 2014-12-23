@@ -113,8 +113,8 @@
           <#list model["items"].data as item>
           <tr>
             <td>${(item.shopper.name)!''} <a href="autorizacion?groupId=${item.group?c}&itemId=${item.id?c}">editar</a></td>
-            <td>${item.clienteNombre}</td>
-            <td>${item.sucursalNombre}</td>
+            <td>${item.clienteNombre!''}</td>
+            <td>${item.sucursalNombre!''}</td>
             <td>${item.tipoPago.description}</td>
             <td>${item.importe?string.currency}</td>
             <td>${item.fecha?string('dd/MM/yyyy')}</td>
@@ -127,7 +127,11 @@
       </table>
 
       <div class="paginator">
-        <#assign parameters = "shopperDni=${model['shopperDni']!''}&mes=${model['mesVisita']!''}&anio=${model['anioVisita']!''}&usuarioId=${model['usuarioId']!''}" />
+        <#assign anioVisita = ""/>
+        <#if model['anioVisita']??>
+          <#assign anioVisita = "${model['anioVisita']?c}" />
+        </#if>
+        <#assign parameters = "shopperDni=${model['shopperDni']!''}&mes=${model['mesVisita']!''}&anio=${anioVisita}&usuarioId=${model['usuarioId']!''}" />
         <a href="search?page=1&${parameters}">&lt;&lt;</a>
         <#assign start = 0 />
         <#if model["items"].size &gt; 0>
