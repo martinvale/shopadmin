@@ -67,9 +67,36 @@ public class AdicionalController {
   @Autowired
   private UserRepository userRepository;
 
-  @RequestMapping(value="/autorizacion")
-  public String index(@ModelAttribute("model") final ModelMap model,
-      @RequestParam(required = false) Integer groupId,
+  @RequestMapping(value="/new")
+  public String create(@ModelAttribute("model") final ModelMap model) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    List<Programa> programas = programRepository.find();
+    model.addAttribute("programas", programas);
+
+    List<ClienteShopmetrics> clientes = itemOrdenRepository.findClientes();
+    model.addAttribute("clientes", clientes);
+
+    List<TipoPago> tiposPago = itemOrdenRepository.findTiposDePago();
+    model.addAttribute("tiposPago", tiposPago);
+
+    List<Shopper> shoppers = shopperRepository.find(null);
+    model.addAttribute("shoppers", shoppers);
+
+    List<SucursalMCD> sucursalesMCD = sucursalMCDRepository.find();
+    model.addAttribute("sucursalesMCD", sucursalesMCD);
+
+    List<SucursalShopmetrics> sucursalesShopmetrics = sucursalShopmetricsRepository.find();
+    model.addAttribute("sucursalesShopmetrics", sucursalesShopmetrics);
+
+    return "autorizarAdicional";
+  }
+
+  @RequestMapping(value="/edit")
+  public String edit(@ModelAttribute("model") final ModelMap model,
+      @RequestParam Integer groupId,
       @RequestParam(required = false) Integer itemId) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
@@ -93,15 +120,13 @@ public class AdicionalController {
     List<SucursalShopmetrics> sucursalesShopmetrics = sucursalShopmetricsRepository.find();
     model.addAttribute("sucursalesShopmetrics", sucursalesShopmetrics);
 
-    if (groupId != null) {
-      List<AutorizacionAdicional> adicionales = itemOrdenRepository
-          .findAdicionalesByGroup(groupId);
-      model.addAttribute("adicionales", adicionales);
-      if (itemId != null) {
-        for (AutorizacionAdicional adicional : adicionales) {
-          if (adicional.getId() == itemId) {
-            model.addAttribute("adicional", adicional);
-          }
+    List<AutorizacionAdicional> adicionales = itemOrdenRepository
+        .findAdicionalesByGroup(groupId);
+    model.addAttribute("adicionales", adicionales);
+    if (itemId != null) {
+      for (AutorizacionAdicional adicional : adicionales) {
+        if (adicional.getId() == itemId) {
+          model.addAttribute("adicional", adicional);
         }
       }
     }
@@ -173,7 +198,7 @@ public class AdicionalController {
       adicional.update(fechaCobro, observacion, importe, tipoPago);
       itemOrdenRepository.updateAdicionalAutorizado(adicional);
     }
-    return "redirect:autorizacion?groupId=" + adicional.getGroup();
+    return "redirect:edit?groupId=" + adicional.getGroup();
   }
 
   @RequestMapping(value="/delete")
@@ -181,7 +206,7 @@ public class AdicionalController {
       int groupId, int itemId) {
 
     itemOrdenRepository.deleteAdicionalAutorizado(itemId);
-    return "redirect:autorizacion?groupId=" + groupId;
+    return "redirect:edit?groupId=" + groupId;
   }
 
   @RequestMapping(value="/search")

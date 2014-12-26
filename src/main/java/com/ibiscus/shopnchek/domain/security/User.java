@@ -25,6 +25,9 @@ public class User {
   @Column(name="PERFIL")
   private int perfil;
 
+  @Column(name="PERFIL_MODIF_ESTADO_ORDENES")
+  private int modificarEstadoOrdenes;
+
   @Column(name="PERFIL_AUTORIZACION_ADICIONALES")
   private int autorizarAdicionales;
 
@@ -72,5 +75,9 @@ public class User {
 
   public boolean isAditionalEnabled() {
     return autorizarAdicionales == 2;
+  }
+
+  public boolean isModificacioOrdenesEnabled() {
+    return modificarEstadoOrdenes == 2;
   }
 }

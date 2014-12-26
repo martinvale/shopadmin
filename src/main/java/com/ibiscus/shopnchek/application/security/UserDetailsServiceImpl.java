@@ -38,6 +38,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     if (user.isAditionalEnabled()) {
       authorities.add(new SimpleGrantedAuthority("ADITIONAL"));
     }
+    if (user.isModificacioOrdenesEnabled()) {
+      authorities.add(new SimpleGrantedAuthority("EDITOR"));
+    }
     return new org.springframework.security.core.userdetails.User(
         username, user.getPassword(), authorities);
   }

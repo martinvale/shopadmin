@@ -286,7 +286,7 @@ textarea.LV_invalid_field:active {
           </p>
           <ul class="action-columns">
             <li> <input type="submit" class="btn-shop-small" value="Guardar" <#if !canEdit>disabled="true"</#if>></li>
-            <li> <input type="button" class="btn-shop-small js-caratula" value="Car&aacute;tula" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
+            <li> <input type="button" class="btn-shop-small js-caratula" value="Car&aacute;tula" <#if !model["ordenPago"]??>disabled="true"</#if>></li>
           </ul>
           <!-- FIN FILA 2 -->
 
@@ -382,7 +382,7 @@ textarea.LV_invalid_field:active {
           <ul class="action-columns">
             <li><input type="button" class="btn-shop js-remito" value="Imprimir" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
             <li><input type="button" class="btn-shop js-detail" value="Imprimir Detalle" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
-            <li><input type="button" class="btn-shop js-detail-shopper" value="Detalle Shopper" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop js-detail-shopper" value="Detalle Shopper" <#if !model["ordenPago"]??>disabled="true"</#if>></li>
           </ul>
         </div>
       </form>

@@ -110,9 +110,13 @@
           </tr>
         </thead>
         <tbody>
+          <#assign puedeAutorizarAdicional = false />
+          <#list model["user"].authorities as role>
+            <#assign puedeAutorizarAdicional = puedeAutorizarAdicional || (role.authority == 'ADITIONAL') />
+          </#list>
           <#list model["items"].data as item>
           <tr>
-            <td>${(item.shopper.name)!''} <a href="autorizacion?groupId=${item.group?c}&itemId=${item.id?c}">editar</a></td>
+            <td>${(item.shopper.name)!''} <#if puedeAutorizarAdicional><a href="edit?groupId=${item.group?c}&itemId=${item.id?c}">editar</a></#if></td>
             <td>${item.clienteNombre!''}</td>
             <td>${item.sucursalNombre!''}</td>
             <td>${item.tipoPago.description}</td>

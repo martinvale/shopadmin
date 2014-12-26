@@ -17,8 +17,9 @@
     <security:intercept-url pattern="/script/**" access="permitAll" />
     <security:intercept-url pattern="/font-awesome/**" access="permitAll" />
     <security:intercept-url pattern="/favicon.ico" access="permitAll" />
-    <security:intercept-url pattern="/**" access="hasAnyRole('ADMIN', 'GUEST')" />
-    <security:intercept-url pattern="/aditional/**" access="hasAnyRole('ADITIONAL')" />
+    <security:intercept-url pattern="/adicional/new" access="hasRole('ADITIONAL')" />
+    <security:intercept-url pattern="/adicional/edit" access="hasRole('ADITIONAL')" />
+    <security:intercept-url pattern="/**" access="isAuthenticated()" />
     <security:form-login
         login-page="/login"
         default-target-url="/"

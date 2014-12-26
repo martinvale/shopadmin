@@ -59,7 +59,7 @@
       <#assign observacion = "${item.observacion!''}" />
     </#if>
 
-App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
+App.widget.AdicionalEditor = function (container, itemId, enabled, sucursalesMCD,
     sucursalesGAC, sucursalesShopmetrics, adicionales) {
 
   var tipoCliente = 2;
@@ -177,7 +177,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
       against: function (value, args) {
         var tipoPago = container.find("select[name='tipoPagoId']").val();
         var isValid = true;
-        if (tipoPago !== '3') {
+        if (tipoPago !== '3' && itemId === '') {
           isValid = jQuery.inArray(tipoPago, adicionales) === -1;
         }
         return isValid;
@@ -365,7 +365,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
 
         var editorContainer = jQuery(".js-editor-adicional");
         var enabled = <#if adicional??>false<#else>true</#if>;
-        var editor = App.widget.AdicionalEditor(editorContainer, enabled,
+        var editor = App.widget.AdicionalEditor(editorContainer, '${itemId}', enabled,
             sucursalesMCD, sucursalesGAC, sucursalesShopmetrics, adicionales);
         editor.render();
       });
@@ -555,7 +555,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
           <#if model["adicionales"]??>
             <#list model["adicionales"] as adicional>
             <tr>
-              <td>${adicional.clienteNombre!''} <#if adicional.observacion?has_content><span class="tooltip" title="${adicional.observacion}">(obs.)</span></#if> <a href="autorizacion?groupId=${groupId}&itemId=${adicional.id?c}">editar</a> <a href="delete?groupId=${groupId}&itemId=${adicional.id?c}">borrar</a></td>
+              <td>${adicional.clienteNombre!''} <#if adicional.observacion?has_content><span class="tooltip" title="${adicional.observacion}">(obs.)</span></#if> <a href="edit?groupId=${groupId}&itemId=${adicional.id?c}">editar</a> <a href="delete?groupId=${groupId}&itemId=${adicional.id?c}">borrar</a></td>
               <td>${adicional.sucursalNombre!''}</td>
               <td>${adicional.tipoPago.description}</td>
               <td>${adicional.importe?string.currency}</td>
@@ -572,7 +572,7 @@ App.widget.AdicionalEditor = function (container, enabled, sucursalesMCD,
 
         <div class="actions-form">
           <ul class="action-columns">
-            <li><a href="autorizacion" class="btn-shop">Nuevo grupo</a></li>
+            <li><a href="new" class="btn-shop">Nuevo grupo</a></li>
           </ul>
         </div>
       </form>
