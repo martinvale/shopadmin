@@ -47,7 +47,8 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
           url: numeroOrden + "/item/" + itemId,
           method: 'DELETE'
         }).done(function (data) {
-          location.href = location.href;
+          deleteConfirmDialog.dialog("close");
+          removeItem(new Number(itemId));
         })
       },
       Cancel: function() {
@@ -60,6 +61,21 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
 
   var itemsTableTemplate = null;
 
+  var removeItem = function (itemId) {
+    var newItems = [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].id != itemId) {
+        newItems.push(items[i]);
+      }
+    }
+    items = newItems;
+    container.find('#js-item-' + itemId).fadeOut(300,
+      function () {
+        jQuery(this).remove();
+        refreshSummary();
+      });
+  }
+
   var refreshOrden = function () {
     location.href = location.href;
   }
@@ -68,6 +84,9 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
     var directives = {
       'tr': {
         'itemOrden<-items': {
+          '.@id' : function (a) {
+            return 'js-item-' + a.item.id;
+          },
           '.js-shopper': function (a) {
             var cellContent = a.item.shopper;
             if (canEdit) {
@@ -270,6 +289,40 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
         }
       });
     }
+  };
+
+  var refreshSummary = function () {
+    var totalReintegros = 0;
+    var totalHonorarios = 0;
+    var totalOtrosGastos = 0;
+    jQuery.each(items, function(index, item) {
+      var importe = parseFloat(item.importe);
+      if (item.tipoPago === "H") {
+        totalHonorarios += importe;
+      } else if (item.tipoPago === "R") {
+        totalReintegros += importe;
+      } else {
+        totalOtrosGastos += importe;
+      }
+    });
+    var ivaValue = container.find("input[name='iva']").val();
+    var iva = new Number(ivaValue.replace(',', '.'));
+    var ivaHonorarios = (totalHonorarios / 100) * iva;
+    var totalHonorariosConIva = totalHonorarios + ivaHonorarios;
+    var total = totalHonorariosConIva + totalReintegros + totalOtrosGastos;
+
+    container.find(".js-total-honorarios")
+        .val(totalHonorarios.toFixed(2).replace('.', ','));
+    container.find(".js-total-iva")
+        .val(ivaHonorarios.toFixed(2).replace('.', ','));
+    container.find(".js-total-honorarios-con-iva")
+        .val(totalHonorariosConIva.toFixed(2).replace('.', ','));
+    container.find(".js-total-reintegros")
+        .val(totalReintegros.toFixed(2).replace('.', ','));
+    container.find(".js-total-otros-gastos")
+        .val(totalOtrosGastos.toFixed(2).replace('.', ','));
+    container.find(".js-total")
+        .val(total.toFixed(2).replace('.', ','));
   };
 
   return {

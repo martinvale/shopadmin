@@ -307,7 +307,7 @@ textarea.LV_invalid_field:active {
               <tbody>
                 <#if model["ordenPago"]??>
                   <#list model["ordenPago"].items as item>
-                  <tr>
+                  <tr id="js-item-${item.id?c}">
                     <#assign shopperDescription = "" />
                     <#if item.shopper??>
                       <#assign shopperDescription = "${item.shopper.name}">
@@ -332,42 +332,51 @@ textarea.LV_invalid_field:active {
             <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
           </ul>
 
-  <!-- FIN FILA 3 -->
-  <!-- FILA 4 -->
-  <h2 class="subtitulo"> Totales </h2>
-         <ul class="columnas-form col-three">
+          <!-- FIN FILA 3 -->
+          <!-- FILA 4 -->
+          <h2 class="subtitulo"> Totales </h2>
+          <ul class="columnas-form col-three">
             <li>
-                <div class="form-shop-row">
-                    <label for="subt0">Subt. honorarios</label>
-                    <input type="text" id="sbt0" value="${totalHonorarios?string.currency}">
-                </div>
-                <div class="form-shop-row">
-                    <label for="sbt1">Subt. reintegros</label>
-                    <input type="text" id="sbt1" value="${totalReintegros?string.currency}">
-                </div>
+              <div class="form-shop-row">
+                <label for="total-honorarios">Subt. honorarios ($)</label>
+                <input type="text" id="total-honorarios"
+                    class="js-total-honorarios"
+                    value="${totalHonorarios?string['0.##']?replace('.', ',')}">
+              </div>
+              <div class="form-shop-row">
+                <label for="total-reintegros">Subt. reintegros ($)</label>
+                <input type="text" id="total-reintegros"
+                    class="js-total-reintegros"
+                    value="${totalReintegros?string['0.##']?replace('.', ',')}">
+              </div>
             </li>
             <li>
-                <div class="form-shop-row">
-                    <label for="iva-honorarios">IVA $</label>
-                     <input type="text" id="iva-honorarios" value="${ivaHonorarios?string.currency}">
-                </div>
-                <div class="form-shop-row">
-                   <label for="sbt3">Subt. otros gastos</label>
-                    <input type="text" id="sbt3" value="${totalOtrosGastos?string.currency}">
-                </div>
+              <div class="form-shop-row">
+                <label for="total-iva">IVA ($)</label>
+                 <input type="text" id="total-iva" class="js-total-iva"
+                    value="${ivaHonorarios?string['0.##']?replace('.', ',')}">
+              </div>
+              <div class="form-shop-row">
+                <label for="total-otros-gastos">Subt. otros gastos ($)</label>
+                <input type="text" id="total-otros-gastos"
+                    class="js-total-otros-gastos"
+                    value="${totalOtrosGastos?string['0.##']?replace('.', ',')}">
+              </div>
             </li>
             <li>
-                  <div class="form-shop-row">
-                   <label for="honorarios">Honorarios c/IVA</label>
-                    <input type="text" id="honorarios" value="${totalHonorariosConIva?string.currency}">
-                </div>
-                
-                <div class="form-shop-row">
-                    <label for="total">Total general</label>
-                    <input type="text" id="total" value="${total?string.currency}">
-                </div>
+              <div class="form-shop-row">
+                <label for="total-honorarios-con-iva">Honorarios c/IVA ($)</label>
+                <input type="text" id="total-honorarios-con-iva" 
+                    class="js-total-honorarios-con-iva"
+                    value="${totalHonorariosConIva?string['0.##']?replace('.', ',')}">
+              </div>
+              <div class="form-shop-row">
+                <label for="total">Total general ($)</label>
+                <input type="text" id="total" class="js-total"
+                    value="${total?string['0.##']?replace('.', ',')}">
+              </div>
             </li>
-         </ul>
+          </ul>
 
         <div class="actions-form">
           <ul class="action-columns">
@@ -376,7 +385,7 @@ textarea.LV_invalid_field:active {
             <li><input type="button" class="btn-shop js-detail-shopper" value="Detalle Shopper" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
           </ul>
         </div>
-    </form>
+      </form>
     </div>
     <div id="item-selector" style="display:none;">
         <div class="container-box-plantilla">
