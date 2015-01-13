@@ -34,18 +34,19 @@ public class Visita {
 
   private String observacion;
 
-  public Visita(final String unShopperDni, final String unaEmpresa,
+  public Visita(final Integer unaAsignacion, final String unShopperDni,
+      final String unaEmpresa,
       final String unPrograma, final String unLocal, final String unNombre,
-      final Integer unaAsignacion, final int unMes, final int unAnio,
+      final int unMes, final int unAnio,
       final String unaFecha,
       final String unaDescripcion, final String unaFechaCobro,
       final Float unImporte, final Integer unTipoItem, final int unTipoPago) {
+    asignacion = unaAsignacion;
     shopperDni = unShopperDni;
     empresa = unaEmpresa;
     programa = unPrograma;
     local = unLocal;
     nombre = unNombre;
-    asignacion = unaAsignacion;
     mes = unMes;
     anio = unAnio;
     fecha = unaFecha;

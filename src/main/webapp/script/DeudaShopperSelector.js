@@ -73,8 +73,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     buttons: {
       "Ok": function() {
         var importe = formVisita.find(".js-importe").val();
-        var index = parseInt(formVisita.find(".js-index").val());
-        dialogVisita.callback(index, importe);
+        dialogVisita.callback(dialogVisita.visita, importe);
       },
       Cancel: function() {
         dialogVisita.dialog("close");
@@ -82,7 +81,6 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     },
     close: function() {
       formVisita.find("js-importe").val();
-      formVisita.find("js-index").val();
       //allFields.removeClass( "ui-state-error" );
     }
   });
@@ -92,6 +90,9 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     var directives = {
       'tr': {
         'itemOrden<-itemsOrden': {
+          '.@id' : function (a) {
+            return 'js-item-' + a.item.asignacion;
+          },
           '.@class': function (a) {
             if (a.item.agregar) {
               return 'selected';
@@ -101,8 +102,16 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
           },
           '.empresa': function (a) {
             content = a.item.empresa;
-            content += ' <a id="add-visita-' + a.pos + '" href="#" class="action js-add-visita">agregar</a>';
-            content += '<a id="remove-visita-' + a.pos + '" href="#" class="action js-remove-visita" style="display:none;">quitar</a>';
+            content += ' <a href="#" class="action js-add-visita" ';
+            if (a.item.agregar) {
+              content += 'style="display:none;"';
+            }
+            content += '>agregar</a>';
+            content += '<a href="#" class="action js-remove-visita" ';
+            if (!a.item.agregar) {
+              content += 'style="display:none;"';
+            }
+            content += '>quitar</a>';
             if (a.item.observacion) {
               content += ' <a href="javascript:void(0);" class="action js-view-observation">avisos</a>';
             }
@@ -132,6 +141,28 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
       dialogVisita.callback(index, importe);
     });
   }
+
+  var bindItemsRows = function() {
+    jQuery.each(visitas, function(index, visita) {
+      var itemContainer = container.find("#js-item-" + visita.asignacion);
+      itemContainer.find(".js-add-visita").click(function (event) {
+        event.preventDefault();
+        addVisita(visita);
+      })
+      itemContainer.find(".js-remove-visita").click(function (event) {
+        event.preventDefault();
+        removeVisita(visita);
+      })
+      itemContainer.find(".js-view-observation").click(function (event) {
+        event.preventDefault();
+        showObservation(visita);
+      })
+      itemContainer.find(".js-view-user").click(function (event) {
+        event.preventDefault();
+        showUser(visita);
+      })
+    });
+  };
 
   var initEventListeners = function () {
     container.find(".js-buscar").click(function () {
@@ -163,26 +194,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
         }).done(function (data) {
           visitas = data;
           rows = rows.render({'itemsOrden': data}, rowsTemplate);
-          var actions = container.find(".js-add-visita").click(function (event) {
-            event.preventDefault();
-            var index = actions.index(this);
-            addVisita(index);
-          })
-          var actionsRemove = container.find(".js-remove-visita").click(function (event) {
-            event.preventDefault();
-            var index = actionsRemove.index(this);
-            removeVisita(index);
-          })
-          var actionsObservation = container.find(".js-view-observation").click(function (event) {
-            event.preventDefault();
-            var index = actionsObservation.index(this);
-            showObservation(index);
-          })
-          var actionsUser = container.find(".js-view-user").click(function (event) {
-            event.preventDefault();
-            var index = actionsUser.index(this);
-            showUser(index);
-          })
+          bindItemsRows();
           loadingIndicator.stop();
         })
       }
@@ -205,14 +217,13 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
         arrow.removeClass("fa-angle-down");
         arrow.addClass("fa-angle-up");
       }
-      //container.find(".js-table-items tbody").html(itemsTableTemplate({'items': items}));
       visitas.sort(function (a, b) {
         var cmp = function (x, y){
           return x > y ? 1 : x < y ? -1 : 0;
         };
         if (!currentItemFieldSort) {
           return 0;
-        } 
+        }
         var first = a[currentItemFieldSort];
         var second = b[currentItemFieldSort];
         if (fieldSort[currentItemFieldSort].type === 'string') {
@@ -231,26 +242,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
         }
       })
       rows = rows.render({'itemsOrden': visitas}, rowsTemplate);
-      var actions = container.find(".js-add-visita").click(function (event) {
-        event.preventDefault();
-        var index = actions.index(this);
-        addVisita(index);
-      })
-      var actionsRemove = container.find(".js-remove-visita").click(function (event) {
-        event.preventDefault();
-        var index = actionsRemove.index(this);
-        removeVisita(index);
-      })
-      var actionsObservation = container.find(".js-view-observation").click(function (event) {
-        event.preventDefault();
-        var index = actionsObservation.index(this);
-        showObservation(index);
-      })
-      var actionsUser = container.find(".js-view-user").click(function (event) {
-        event.preventDefault();
-        var index = actionsUser.index(this);
-        showUser(index);
-      })
+      bindItemsRows();
     });
 
     container.find(".js-date" ).datepicker({
@@ -303,23 +295,23 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     }
   };
 
-  var showObservation = function (index) {
-    var visita = visitas[index];
+  var showObservation = function (visita) {
     alert(visita.observacion);
   };
 
-  var showUser = function (index) {
-    var visita = visitas[index];
+  var showUser = function (visita) {
     alert(visita.usuario);
   };
 
-  var createVisita = function (index, importe) {
-    var visita = visitas[index];
+  var createVisita = function (visita, importe) {
+    var itemContainer = container.find("#js-item-" + visita.asignacion);
+
     visita.importe = new Number(importe.replace(',', '.'));
     visita.agregar = true;
-    jQuery('#add-visita-' + index).hide();
-    jQuery('#remove-visita-' + index).show();
-    container.find(".js-items tr:eq(" + (index + 1) + ")").addClass("selected");
+
+    itemContainer.find(".js-add-visita").hide();
+    itemContainer.find(".js-remove-visita").show();
+    itemContainer.addClass("selected");
     dialogVisita.dialog("close");
     refreshSummary();
   };
@@ -346,20 +338,20 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     container.find(".js-otros-gastos").val(totalOtrosGastos.toFixed(2).replace('.', ','));
   };
 
-  var addVisita = function (index) {
-    var visita = visitas[index];
-    formVisita.find(".js-index").val(index);
+  var addVisita = function (visita) {
     formVisita.find(".js-importe").val(visita.importe.toFixed(2).replace('.', ','));
+    dialogVisita.visita = visita;
     dialogVisita.callback = createVisita;
     dialogVisita.dialog("open");
   };
 
-  var removeVisita = function (index) {
-    var visita = visitas[index];
+  var removeVisita = function (visita) {
+    var itemContainer = container.find("#js-item-" + visita.asignacion);
+
     visita.agregar = false;
-    jQuery('#add-visita-' + index).show();
-    jQuery('#remove-visita-' + index).hide();
-    container.find(".js-items tr:eq(" + (index + 1) + ")").removeClass("selected");
+    itemContainer.find(".js-add-visita").show();
+    itemContainer.find(".js-remove-visita").hide();
+    itemContainer.removeClass("selected");
     refreshSummary();
   };
 

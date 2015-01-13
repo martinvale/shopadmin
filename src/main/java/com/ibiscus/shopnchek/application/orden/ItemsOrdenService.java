@@ -102,11 +102,10 @@ public class ItemsOrdenService {
       rs = cstmt.executeQuery();
       while (rs.next()) {
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        String importe = String.format("%.2f", rs.getFloat("IMPORTE"));
-        Visita visita = new Visita(dniShopper, null,
+        //String importe = String.format("%.2f", rs.getFloat("IMPORTE"));
+        Visita visita = new Visita(rs.getInt("ASIGNACION"), dniShopper, null,
             rs.getString("SUBCUESTIONARIO"),
             rs.getString("LOCAL"), rs.getString("Apellido_Y_Nombre"),
-            rs.getInt("ASIGNACION"),
             rs.getInt("MES"), rs.getInt("AÑO"), format.format(rs.getDate("FECHA")),
             rs.getString("PAGO"), format.format(rs.getDate("Fecha_Cobro")),
             rs.getFloat("IMPORTE"), rs.getInt("TIPO_ITEM"),
@@ -213,11 +212,11 @@ public class ItemsOrdenService {
       rs = cstmt.executeQuery();
       while (rs.next()) {
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        String importe = String.format("%.2f", rs.getFloat("IMPORTE"));
-        Visita visita = new Visita(dniShopper, rs.getString("EMPRESA"),
+        //String importe = String.format("%.2f", rs.getFloat("IMPORTE"));
+        Visita visita = new Visita(rs.getInt("ASIGNACION"), dniShopper,
+            rs.getString("EMPRESA"),
             rs.getString("SUBCUESTIONARIO"),
             rs.getString("LOCAL"), rs.getString("Shopper"),
-            rs.getInt("ASIGNACION"),
             rs.getInt("MES"), rs.getInt("AÑO"), format.format(rs.getDate("FECHA")),
             rs.getString("PAGO"), format.format(rs.getDate("Fecha_Cobro")),
             rs.getFloat("IMPORTE"), rs.getInt("TIPO_ITEM"),
