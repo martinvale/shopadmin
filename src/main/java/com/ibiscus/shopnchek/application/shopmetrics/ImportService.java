@@ -190,7 +190,7 @@ public class ImportService {
       surveyIdValue = cell.getNumericCellValue();
     } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
       String cellTotal = cell.getStringCellValue();
-      end = cellTotal.equals("Total");
+      end = "Total".equals(cellTotal);
     }
     if (surveyIdValue != null) {
       Long surveyId = surveyIdValue.longValue();
@@ -229,42 +229,44 @@ public class ImportService {
             .getStringCellValue();
         Double honorarios = null;
         if (honorariosValue != null && !honorariosValue.isEmpty()) {
+          honorariosValue = honorariosValue.replaceAll(",", "");
           honorarios = new Double(honorariosValue);
         }
         String reintegrosValue = row.getCell(headers.get(ColReintegros))
             .getStringCellValue();
         Double reintegros = null;
         if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
+          reintegrosValue = reintegrosValue.replaceAll(",", "");
           reintegros = new Double(reintegrosValue);
         }
         String okPayValue = row.getCell(headers.get(ColOK_Pay))
             .getStringCellValue();
 
-        if (cliente.length() > 50) {
+        if (cliente != null && cliente.length() > 50) {
           cliente = cliente.substring(0, 50);
         }
-        if (apellido.length() > 60) {
+        if (apellido != null && apellido.length() > 60) {
           apellido = apellido.substring(0, 60);
         }
-        if (nombre.length() > 100) {
+        if (nombre != null && nombre.length() > 100) {
           nombre = nombre.substring(0, 100);
         }
-        if (login.length() > 50) {
+        if (login != null && login.length() > 50) {
           login = login.substring(0, 50);
         }
-        if (subCuestionario.length() > 50) {
+        if (subCuestionario != null && subCuestionario.length() > 50) {
           subCuestionario = subCuestionario.substring(0, 50);
         }
-        if (idSucursal.length() > 20) {
+        if (idSucursal != null && idSucursal.length() > 20) {
           idSucursal = idSucursal.substring(0, 20);
         }
-        if (nombreSucursal.length() > 50) {
+        if (nombreSucursal != null && nombreSucursal.length() > 50) {
           nombreSucursal = nombreSucursal.substring(0, 50);
         }
-        if (direccionSucursal.length() > 100) {
+        if (direccionSucursal != null && direccionSucursal.length() > 100) {
           direccionSucursal = direccionSucursal.substring(0, 100);
         }
-        if (ciudadSucursal.length() > 50) {
+        if (ciudadSucursal != null && ciudadSucursal.length() > 50) {
           ciudadSucursal = ciudadSucursal.substring(0, 50);
         }
 

@@ -70,6 +70,11 @@
   text-align: right;
 }
 
+.left {
+  display: inline-block;
+  float: right;
+}
+
 </style>
   </head>
   <body>
@@ -123,7 +128,25 @@
         </table>
       </div>
       <hr/>
-      <p>&nbsp;</p>
+      <p class="heading">
+        <#if model["ordenPago"].idTransferencia??>
+          <span class="name">ID Transfer:</span> ${model["ordenPago"].idTransferencia}
+        </#if>
+        <#if model["ordenPago"].numeroChequera??>
+          <span class="name">Chequera Nro:</span> ${model["ordenPago"].numeroChequera}
+        </#if>
+        <#if model["ordenPago"].numeroCheque??>
+          <span class="left"><span class="name">Cheque Nro:</span> ${model["ordenPago"].numeroCheque}</span>
+        </#if>
+      </p>
+      <p class="heading">
+        <#if model["ordenPago"].medioPago??>
+          ${model["ordenPago"].medioPago.description}
+        </#if>
+        <#if model["ordenPago"].localidad??>
+          <span class="left">${model["ordenPago"].localidad}</span>
+        </#if>
+      </p>
       <hr/>
       <p class="heading">Recib&iacute; conforme</p>
       <p class="heading"><span class="name">Firma</span></p>

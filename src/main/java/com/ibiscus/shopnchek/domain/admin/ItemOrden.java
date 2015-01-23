@@ -14,6 +14,9 @@ import javax.persistence.Transient;
 @Table(name = "items_orden")
 public class ItemOrden {
 
+  public static final int CLIENTE_FIELD_LENGTH = 40;
+  public static final int SUCURSAL_FIELD_LENGTH = 200;
+
   @Id
   @Column(name="id")
   private long id;
@@ -22,10 +25,10 @@ public class ItemOrden {
   @JoinColumn(name = "orden_nro")
   private OrdenPago ordenPago;
 
-  @Column(name = "cliente")
+  @Column(name = "cliente", length = CLIENTE_FIELD_LENGTH)
   private String cliente;
 
-  @Column(name = "sucursal")
+  @Column(name = "sucursal", length = SUCURSAL_FIELD_LENGTH)
   private String sucursal;
 
   @Column(name = "mes")

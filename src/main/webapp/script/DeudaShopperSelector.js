@@ -8,6 +8,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     modal: true,
     buttons: {
       'Agregar': function() {
+        loadingIndicator.start();
         createItems();
       },
       'Cancelar': function() {
@@ -91,7 +92,8 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
       'tr': {
         'itemOrden<-itemsOrden': {
           '.@id' : function (a) {
-            return 'js-item-' + a.item.asignacion;
+            var tipoPago = a.item.descripcion.substring(0, 1);
+            return 'js-item-' + tipoPago + '-' + a.item.asignacion;
           },
           '.@class': function (a) {
             if (a.item.agregar) {
@@ -144,7 +146,8 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var bindItemsRows = function() {
     jQuery.each(visitas, function(index, visita) {
-      var itemContainer = container.find("#js-item-" + visita.asignacion);
+      tipoPago = visita.descripcion.substring(0, 1);
+      var itemContainer = container.find("#js-item-" + tipoPago + '-' + visita.asignacion);
       itemContainer.find(".js-add-visita").click(function (event) {
         event.preventDefault();
         addVisita(visita);
@@ -304,7 +307,8 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
   };
 
   var createVisita = function (visita, importe) {
-    var itemContainer = container.find("#js-item-" + visita.asignacion);
+    tipoPago = visita.descripcion.substring(0, 1);
+    var itemContainer = container.find("#js-item-" + tipoPago + '-' + visita.asignacion);
 
     visita.importe = new Number(importe.replace(',', '.'));
     visita.agregar = true;
@@ -346,7 +350,8 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
   };
 
   var removeVisita = function (visita) {
-    var itemContainer = container.find("#js-item-" + visita.asignacion);
+    tipoPago = visita.descripcion.substring(0, 1);
+    var itemContainer = container.find("#js-item-" + tipoPago + '-' + visita.asignacion);
 
     visita.agregar = false;
     itemContainer.find(".js-add-visita").show();
@@ -359,9 +364,9 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
     shopperSelector.reset();
     visitas = [];
     rows = rows.render({'itemsOrden': []}, rowsTemplate);
-    container.find(".js-honorarios").val(0);
-    container.find(".js-reintegros").val(0);
-    container.find(".js-otros-gastos").val(0);
+    container.find(".js-honorarios").val('0,00');
+    container.find(".js-reintegros").val('0,00');
+    container.find(".js-otros-gastos").val('0,00');
   };
 
   return {

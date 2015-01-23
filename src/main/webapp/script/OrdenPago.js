@@ -38,7 +38,6 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
   var deleteConfirmDialog = jQuery( "#confirm-delete-item" ).dialog({
     resizable: false,
     autoOpen: false,
-    height:140,
     modal: true,
     buttons: {
       "Ok": function() {

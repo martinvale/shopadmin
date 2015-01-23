@@ -95,22 +95,15 @@ table td.value {
         <#assign total = (totalReintegros + totalOtrosGastos + totalHonorarios) />
         <table>
           <tr class="header">
-            <td>Shopper</td>
-            <td>Mes</td>
-            <td>A&ntilde;o</td>
+            <td>Fecha</td>
             <td>Cliente</td>
             <td>Sucursal</td>
             <td>Pago</td>
             <td>Importe</td>
           </tr>
-        <#list model["ordenPago"].items as item>
+        <#list model["ordenPago"].items?sort_by(["tipoPago", "description"]) as item>
           <tr>
-            <#if item.shopper??>
-              <#assign shopperDescription = "${item.shopper.name}">
-            </#if>
-            <td>${shopperDescription!'No encontrado'}</td>
-            <td>${item.mes!''}</td>
-            <td>${item.anio?c!''}</td>
+            <td>${item.fecha!''}</td>
             <td>${item.cliente!''}</td>
             <td>${item.sucursal!''}</td>
             <td>${item.tipoPago.description}</td>
@@ -119,8 +112,6 @@ table td.value {
         </#list>
           <tr class="header">
             <td>Total:</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>

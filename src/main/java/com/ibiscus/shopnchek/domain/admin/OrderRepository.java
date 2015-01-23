@@ -102,7 +102,7 @@ public class OrderRepository extends HibernateDaoSupport {
   public List<OrdenPago> findOrdenes(Integer tipoTitular, Integer titularId,
       String dniShopper, String numeroCheque, OrderState estado) {
     Criteria criteria = getSession().createCriteria(OrdenPago.class);
-    if (tipoTitular != null && titularId != null) {
+    if (tipoTitular != null && tipoTitular.equals(2) && titularId != null) {
       criteria.add(Expression.eq("proveedor", titularId));
     }
     if (dniShopper != null && !dniShopper.isEmpty()) {

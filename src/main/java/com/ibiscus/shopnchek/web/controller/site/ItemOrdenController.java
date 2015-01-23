@@ -185,12 +185,20 @@ public class ItemOrdenController {
       String fecha, int tipoItem) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
+    System.out.println("general [" + tipoPago + "]: " + importe);
     com.ibiscus.shopnchek.domain.security.User autorizador;
     autorizador = userRepository.findByUsername(user.getUsername());
     Shopper shopper = shopperRepository.findByDni(shopperDni);
     OrdenPago ordenPago = orderRepository.get(ordenNro);
     TipoPago unTipoPago = orderRepository.getTipoPago(tipoPago);
     Long newId = itemsOrdenService.getItemOrdenId();
+    if (cliente != null && cliente.length() > ItemOrden.CLIENTE_FIELD_LENGTH) {
+      cliente = cliente.substring(0, ItemOrden.CLIENTE_FIELD_LENGTH);
+    }
+    if (sucursal != null
+        && sucursal.length() > ItemOrden.SUCURSAL_FIELD_LENGTH) {
+      sucursal = sucursal.substring(0, ItemOrden.SUCURSAL_FIELD_LENGTH);
+    }
     ItemOrden itemOrden = new ItemOrden(newId, ordenPago, autorizador.getId(),
         shopperDni, asignacion, tipoItem, unTipoPago,
         cliente, sucursal, mes, anio, fecha, importe, null, 1);
@@ -207,6 +215,7 @@ public class ItemOrdenController {
       String fecha) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
+    System.out.println("adicional [" + tipoPago + "]: " + importe);
     com.ibiscus.shopnchek.domain.security.User autorizador;
     autorizador = userRepository.findByUsername(user.getUsername());
     Shopper shopper = shopperRepository.findByDni(shopperDni);
@@ -214,6 +223,14 @@ public class ItemOrdenController {
     TipoPago unTipoPago = orderRepository.getTipoPago(tipoPago);
     String descripcion = itemsOrdenService.getObservacionAdicional(asignacion);
     Long newId = itemsOrdenService.getItemOrdenId();
+    if (cliente != null && cliente.length() > ItemOrden.CLIENTE_FIELD_LENGTH) {
+      cliente = cliente.substring(0, ItemOrden.CLIENTE_FIELD_LENGTH);
+    }
+    if (sucursal != null
+        && sucursal.length() > ItemOrden.SUCURSAL_FIELD_LENGTH) {
+      sucursal = sucursal.substring(0, ItemOrden.SUCURSAL_FIELD_LENGTH);
+    }
+
     ItemOrden itemOrden = new ItemOrden(newId, ordenPago, autorizador.getId(),
         shopperDni, asignacion, 3, unTipoPago,
         cliente, sucursal, mes, anio, fecha, importe, descripcion, 1);

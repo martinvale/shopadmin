@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.NumberFormat;
+import org.springframework.format.annotation.NumberFormat.Style;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -137,8 +139,11 @@ public class OrdenPagoController {
 
   @RequestMapping(value="create", method=RequestMethod.POST)
   public String createOrden(@ModelAttribute("model") final ModelMap model,
-      int tipoTitular, int titularId, String tipoFactura, Date fechaPago,
-      long estadoId, long medioPagoId, double iva, String facturaNumero,
+      int tipoTitular, int titularId, String tipoFactura,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
+      long estadoId, long medioPagoId,
+      @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva,
+      String numeroFactura,
       String fechaCheque, String chequeraNumero,
       String chequeNumero,
       String transferId, String localidad, String observaciones,
@@ -164,7 +169,7 @@ public class OrdenPagoController {
       }
     }
     ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago, state,
-        medioPago, iva, facturaNumero, fechaChequeValue, chequeraNumero,
+        medioPago, iva, numeroFactura, fechaChequeValue, chequeraNumero,
         chequeNumero, transferId, localidad, observaciones,
         observacionesShopper);
 
@@ -180,7 +185,8 @@ public class OrdenPagoController {
   public String update(@ModelAttribute("model") final ModelMap model,
       int numeroOrden, int tipoTitular, int titularId, String tipoFactura,
       @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago, long estadoId,
-      long medioPagoId, double iva,
+      long medioPagoId,
+      @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva,
       String numeroFactura, String fechaCheque,
       String numeroChequera, String numeroCheque, String transferId,
       String localidad, String observaciones, String observacionesShopper) {
@@ -275,6 +281,7 @@ public class OrdenPagoController {
       model.addAttribute("titularId", titularId);
       if (tipoTitular.equals(1)) {
         Shopper shopper = shopperRepository.get(titularId);
+        dniShopper = shopper.getDni();
         model.addAttribute("titularNombre", shopper.getName());
       } else {
         Proveedor proveedor = proveedorRepository.get(titularId);

@@ -124,22 +124,15 @@ table td.value {
         <#assign total = (totalReintegros + totalOtrosGastos + totalHonorarios) />
         <table>
           <tr class="header">
-            <td>Shopper</td>
-            <td>Mes</td>
-            <td>A&ntilde;o</td>
+            <td>Fecha</td>
             <td>Cliente</td>
             <td>Sucursal</td>
             <td>Pago</td>
             <td>Importe</td>
           </tr>
-        <#list model["ordenPago"].items as item>
+        <#list model["ordenPago"].items?sort_by(["tipoPago", "description"]) as item>
           <tr>
-            <#if item.shopper??>
-              <#assign shopperDescription = "${item.shopper.name}">
-            </#if>
-            <td>${shopperDescription!'No encontrado'}</td>
-            <td>${item.mes!''}</td>
-            <td>${item.anio?c!''}</td>
+            <td>${item.fecha!''}</td>
             <td>${item.cliente!''}</td>
             <td>${item.sucursal!''}</td>
             <td>${item.tipoPago.description}</td>
@@ -148,8 +141,6 @@ table td.value {
         </#list>
           <tr class="header">
             <td>Total:</td>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
@@ -164,23 +155,21 @@ table td.value {
         los <span class="important">90 d&iacute;as</span> desde la emisi&oacute;n del cheque
         o de realizaci&oacute;n de la transferencia bancaria.
       </p>
-      <div class="footer">
-        <hr>
-        <p class="observacion note important">ATENCI&Oacute;N: A partir del 1/6/2012 el
-          horario de la ma&ntilde;ana es de 10:00 hs a 11:30 hs
-        </p>
-        <table>
-          <tr>
-            <td><span class="important">D&iacute;as y horarios de pago, sin excepci&oacute;n:</span> Martes y Jueves</td>
-            <td>10:00 hs a 11:30 hs</td>
-          </tr>
-          <tr>
-            <td>&nbsp;</td>
-            <td>15:00 hs a 16:30 hs</td>
-          </tr>
-        </table>
-        <p>&nbsp;</p>
-      </div>
+      <hr>
+      <p class="observacion note important">ATENCI&Oacute;N: A partir del 1/6/2012 el
+        horario de la ma&ntilde;ana es de 10:00 hs a 11:30 hs
+      </p>
+      <table>
+        <tr>
+          <td><span class="important">D&iacute;as y horarios de pago, sin excepci&oacute;n:</span> Martes y Jueves</td>
+          <td>10:00 hs a 11:30 hs</td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td>15:00 hs a 16:30 hs</td>
+        </tr>
+      </table>
+      <p>&nbsp;</p>
     </div>
   </body>
 </html>

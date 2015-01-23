@@ -26,7 +26,7 @@ public class ItemsOrdenService {
     dataSource = theDataSource;
   }
 
-  public Long getItemOrdenId() {
+  public synchronized Long getItemOrdenId() {
     Long newId = null;
 
     Statement stmt = null;

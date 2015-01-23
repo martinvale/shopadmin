@@ -31,8 +31,13 @@ App.widget.TitularSelector = function (container, callback) {
   return {
     render: function () {
       var me = this;
+      var suggestEndpoint = "../proveedores/suggest";
+      var shopperSelected = container.find(".js-shopper").prop("checked");
+      if (shopperSelected) {
+        suggestEndpoint = "../services/shoppers/suggest";
+      }
       filter = selector.autocomplete({
-        source: "../services/shoppers/suggest",
+        source: suggestEndpoint,
         minLength: 2,
         select: function(event, ui) {
           if (ui.item.name) {

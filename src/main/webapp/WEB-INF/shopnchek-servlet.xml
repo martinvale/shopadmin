@@ -26,6 +26,14 @@
     class="com.ibiscus.shopnchek.application.config.ConfigurationService">
   </bean-->
 
+  <!-- bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean">
+    <property name="formatters">
+      <set>
+        <bean class="org.springframework.format.number.NumberFormatAnnotationFormatterFactory" />
+      </set>
+    </property>
+  </bean-->
+
   <!-- freemarker config -->
   <bean id="freemarkerConfig"
       class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">

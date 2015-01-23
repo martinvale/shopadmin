@@ -31,14 +31,8 @@
 
   </head>
   <body>
-    <#assign user = model["user"] />
-    <header>
-      <div class="header-box">
-        <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
-        <#include "header.ftl" />
-        <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>
-      </div>
-    </header>
+    <#include "header.ftl" />
+
     <#if model["proveedor"]??>
       <#assign proveedor = model["proveedor"] />
     </#if>

@@ -28,7 +28,7 @@
       <#assign canEdit = (role.authority == 'ADMIN') />
     </#list>
     <#assign ordenAbierta = true />
-    <#assign estadoOrden = "ABIERTA" />
+    <#assign estadoOrden = "Abierta" />
 
     <#assign tipoFactura = "" />
     <#assign medioPagoId = "" />
@@ -195,7 +195,7 @@ textarea.LV_invalid_field:active {
                 <label for="tipoFactura" class="mandatory">Factura</label>
                 <select id="tipoFactura" name="tipoFactura">
                   <option value="Seleccionar">Seleccionar</option>
-                  <option value="S/F">S/F</option>
+                  <option value="S/F" <#if tipoFactura == 'S/F'>selected="selected"</#if>>S/F</option>
                   <option value="A" <#if tipoFactura == 'A'>selected="selected"</#if>>A</option>
                   <option value="C" <#if tipoFactura == 'C'>selected="selected"</#if>>C</option>
                   <option value="M" <#if tipoFactura == 'M'>selected="selected"</#if>>M</option>
@@ -244,11 +244,11 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="numeroChequera">Chequera N&deg;</label>
-                <input type="number" name="numeroChequera" id="numeroChequera" value="${numeroChequera}" <#if !canEdit || estadoOrden == 'Abierta' || estadoOrden == 'En Espera'>disabled="true"</#if>/>
+                <input type="number" name="numeroChequera" id="numeroChequera" value="${numeroChequera}" <#if !canEdit || estadoOrden != 'Abierta'>disabled="true"</#if>/>
               </div>
               <div class="form-shop-row">
                 <label for="transferId">ID Transfer</label>
-                <input type="number" name="transferId" id="transferId" value="${transferId}" <#if !canEdit || estadoOrden == 'Abierta' || estadoOrden == 'En Espera'>disabled="true"</#if>/>
+                <input type="number" name="transferId" id="transferId" value="${transferId}" <#if !canEdit || estadoOrden != 'Abierta'>disabled="true"</#if>/>
               </div>
             </li>
             <li>
@@ -266,13 +266,13 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="numeroCheque">Cheque N&deg;</label>
-                <input type="number" name="numeroCheque" id="numeroCheque" value="${numeroCheque}" <#if !canEdit || estadoOrden == 'Abierta' || estadoOrden == 'En Espera'>disabled="true"</#if>/>
+                <input type="number" name="numeroCheque" id="numeroCheque" value="${numeroCheque}" <#if !canEdit || estadoOrden != 'Abierta'>disabled="true"</#if>/>
               </div>
             </li>
             <li>
               <div class="form-shop-row">
                 <label for="fechaCheque">Fecha cheque</label>
-                <input type="text" id="fechaCheque" name="fechaCheque" class="js-date" value="${fechaCheque}" <#if !canEdit || estadoOrden == 'Abierta' || estadoOrden == 'En Espera'>disabled="true"</#if>/>
+                <input type="text" id="fechaCheque" name="fechaCheque" class="js-date" value="${fechaCheque}" <#if !canEdit || estadoOrden != 'Abierta'>disabled="true"</#if>/>
               </div>
             </li>
           </ul>
@@ -328,8 +328,8 @@ textarea.LV_invalid_field:active {
             </table>
           </div>
           <ul class="action-columns">
-            <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
-            <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit || !ordenAbierta>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
           </ul>
 
           <!-- FIN FILA 3 -->
