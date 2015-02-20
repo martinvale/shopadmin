@@ -34,6 +34,9 @@ public class Visita {
 
   private String observacion;
 
+  public Visita() {
+  }
+
   public Visita(final Integer unaAsignacion, final String unShopperDni,
       final String unaEmpresa,
       final String unPrograma, final String unLocal, final String unNombre,
@@ -164,4 +167,117 @@ public class Visita {
   public String getObservacion() {
     return observacion;
   }
+
+  /**
+   * @param shopperDni the shopperDni to set
+   */
+  public void setShopperDni(String shopperDni) {
+    this.shopperDni = shopperDni;
+  }
+
+  /**
+   * @param empresa the empresa to set
+   */
+  public void setEmpresa(String empresa) {
+    this.empresa = empresa;
+  }
+
+  /**
+   * @param programa the programa to set
+   */
+  public void setPrograma(String programa) {
+    this.programa = programa;
+  }
+
+  /**
+   * @param local the local to set
+   */
+  public void setLocal(String local) {
+    this.local = local;
+  }
+
+  /**
+   * @param nombre the nombre to set
+   */
+  public void setNombre(String nombre) {
+    this.nombre = nombre;
+  }
+
+  /**
+   * @param asignacion the asignacion to set
+   */
+  public void setAsignacion(Integer asignacion) {
+    this.asignacion = asignacion;
+  }
+
+  /**
+   * @param mes the mes to set
+   */
+  public void setMes(Integer mes) {
+    this.mes = mes;
+  }
+
+  /**
+   * @param anio the anio to set
+   */
+  public void setAnio(Integer anio) {
+    this.anio = anio;
+  }
+
+  /**
+   * @param fecha the fecha to set
+   */
+  public void setFecha(String fecha) {
+    this.fecha = fecha;
+  }
+
+  /**
+   * @param descripcion the descripcion to set
+   */
+  public void setDescripcion(String descripcion) {
+    this.descripcion = descripcion;
+  }
+
+  /**
+   * @param fechaCobro the fechaCobro to set
+   */
+  public void setFechaCobro(String fechaCobro) {
+    this.fechaCobro = fechaCobro;
+  }
+
+  /**
+   * @param importe the importe to set
+   */
+  public void setImporte(Float importe) {
+    this.importe = importe;
+  }
+
+  /**
+   * @param tipoItem the tipoItem to set
+   */
+  public void setTipoItem(int tipoItem) {
+    this.tipoItem = tipoItem;
+  }
+
+  /**
+   * @param tipoPago the tipoPago to set
+   */
+  public void setTipoPago(int tipoPago) {
+    this.tipoPago = tipoPago;
+  }
+
+  /**
+   * @param usuario the usuario to set
+   */
+  public void setUsuario(String usuario) {
+    this.usuario = usuario;
+  }
+
+  /**
+   * @param observacion the observacion to set
+   */
+  public void setObservacion(String observacion) {
+    this.observacion = observacion;
+  }
+
 }

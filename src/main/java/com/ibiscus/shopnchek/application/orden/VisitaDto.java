@@ -3,8 +3,6 @@ package com.ibiscus.shopnchek.application.orden;
 
 public class VisitaDto {
 
-  private long ordenNro;
-
   private int tipoPago;
 
   private String shopperDni;
@@ -26,20 +24,6 @@ public class VisitaDto {
   private int tipoItem;
 
   public VisitaDto() {
-  }
-
-  /**
-   * @return the ordenNro
-   */
-  public long getOrdenNro() {
-    return ordenNro;
-  }
-
-  /**
-   * @param ordenNro the ordenNro to set
-   */
-  public void setOrdenNro(long ordenNro) {
-    this.ordenNro = ordenNro;
   }
 
   /**

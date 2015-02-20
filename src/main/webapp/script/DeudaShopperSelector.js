@@ -258,43 +258,39 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var createItems = function() {
     var currentShopper = shopperSelector.getCurrentShopper();
-    var itemsCreated = 0;
-    var checkItems = function () {
-      if (itemsCreated === 0) {
+    if (currentShopper) {
+      var visitasToAdd = [];
+      jQuery.each(visitas, function(index, visita) {
+        if (visita.agregar) {
+          visitasToAdd.push({
+            'tipoItem': visita.tipoItem,
+            'tipoPago': visita.tipoPago,
+            'shopperDni': visita.shopperDni,
+            'importe': visita.importe,
+            'cliente': visita.empresa,
+            'sucursal': visita.local,
+            'fecha': visita.fecha,
+            'mes': visita.mes,
+            'anio': visita.anio,
+            'asignacion': visita.asignacion
+          });
+        }
+      });
+      jQuery.ajax({
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        url: "../item/createVisitas",
+        type: 'POST',
+        dataType: 'json',
+        data: JSON.stringify({"nroOrden": numeroOrden, "items": visitasToAdd})
+      }).done(function () {
         visitas = [];
         rows = rows.render({'itemsOrden': visitas}, rowsTemplate);
         callback();
         itemDialog.dialog("close");
-      } else {
-        setTimeout(checkItems, 500);
-      }
-    };
-    if (currentShopper) {
-      jQuery.each(visitas, function(index, visita) {
-        if (visita.agregar) {
-          itemsCreated++;
-          jQuery.ajax({
-            url: "../item/" + createEndpoints[visita.tipoItem],
-            type: 'POST',
-            data: {
-              ordenNro: numeroOrden,
-              tipoItem: visita.tipoItem,
-              tipoPago: visita.tipoPago,
-              asignacion: visita.asignacion,
-              shopperDni: currentShopper.dni,
-              importe: visita.importe,
-              cliente: visita.empresa,
-              sucursal: visita.local,
-              mes: visita.mes,
-              anio: visita.anio,
-              fecha: visita.fecha
-            }
-          }).done(function () {
-            itemsCreated = itemsCreated - 1;
-          });
-        }
       });
-      setTimeout(checkItems, 2000);
     }
   };
 

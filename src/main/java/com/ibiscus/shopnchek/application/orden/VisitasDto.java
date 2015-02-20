@@ -4,14 +4,23 @@ import java.util.List;
 
 public class VisitasDto {
 
-  private List<VisitaDto> visitas;
+  private long nroOrden;
+  private List<VisitaDto> items;
 
-  public List<VisitaDto> getVisitas() {
-    return visitas;
+  public long getNroOrden() {
+    return nroOrden;
   }
 
-  public void setVisitas(List<VisitaDto> visitas) {
-    this.visitas = visitas;
+  public void setNroOrden(final long theNroOrden) {
+    nroOrden = theNroOrden;
+  }
+
+  public List<VisitaDto> getItems() {
+    return items;
+  }
+
+  public void setItems(final List<VisitaDto> theItems) {
+    items = theItems;
   }
 
 }

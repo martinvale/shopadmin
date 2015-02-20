@@ -15,12 +15,15 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.orden.VisitaDto;
+import com.ibiscus.shopnchek.application.orden.VisitasDto;
 import com.ibiscus.shopnchek.application.shopmetrics.ImportService;
 import com.ibiscus.shopnchek.domain.admin.Adicional;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
@@ -176,6 +179,45 @@ public class ItemOrdenController {
     }
     return Boolean.TRUE;
   }*/
+
+  @RequestMapping(value="/createVisitas", method = RequestMethod.POST)
+  public @ResponseBody Boolean createVisitas(@RequestBody VisitasDto visitas) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    com.ibiscus.shopnchek.domain.security.User autorizador;
+    autorizador = userRepository.findByUsername(user.getUsername());
+    OrdenPago ordenPago = orderRepository.get(visitas.getNroOrden());
+    for (VisitaDto visita : visitas.getItems()) {
+      Shopper shopper = shopperRepository.findByDni(visita.getShopperDni());
+      TipoPago unTipoPago = orderRepository.getTipoPago(visita.getTipoPago());
+      Long newId = itemsOrdenService.getItemOrdenId();
+      String cliente = visita.getCliente();
+      if (cliente != null && cliente.length() > ItemOrden.CLIENTE_FIELD_LENGTH) {
+        cliente = cliente.substring(0, ItemOrden.CLIENTE_FIELD_LENGTH);
+      }
+      String sucursal = visita.getSucursal();
+      if (sucursal != null
+          && sucursal.length() > ItemOrden.SUCURSAL_FIELD_LENGTH) {
+        sucursal = sucursal.substring(0, ItemOrden.SUCURSAL_FIELD_LENGTH);
+      }
+      String description = null;
+      if (visita.getTipoItem() == 3) {
+        description = itemsOrdenService.getObservacionAdicional(
+            visita.getAsignacion());
+      }
+      ItemOrden itemOrden = new ItemOrden(newId, ordenPago, autorizador.getId(),
+          visita.getShopperDni(), visita.getAsignacion(), visita.getTipoItem(),
+          unTipoPago, cliente, sucursal, visita.getMes(), visita.getAnio(),
+          visita.getFecha(), visita.getImporte(), description, 1);
+      itemOrden.updateShopper(shopper);
+      orderRepository.saveItem(itemOrden);
+      if (visita.getTipoItem() == 3) {
+        itemsOrdenService.linkAdicional(visita.getAsignacion(),
+            ordenPago.getNumero());
+      }
+    }
+    return Boolean.TRUE;
+  }
 
   @RequestMapping(value="/create", method = RequestMethod.POST)
   public @ResponseBody Boolean create(
