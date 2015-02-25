@@ -35,6 +35,8 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
     }
   };
 
+  var dialogContainer = container.find(".js-edit-importe");
+
   var deleteConfirmDialog = jQuery( "#confirm-delete-item" ).dialog({
     resizable: false,
     autoOpen: false,
@@ -227,6 +229,38 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
         deleteConfirmDialog.dialog("open");
       });
     });
+
+    jQuery.each(items, function(index, item) {
+      container.find('.js-item-value-' + item.id).click(function (event) {
+        event.preventDefault();
+        var importe = item.importe.toFixed(2).replace('.', ',');
+        dialogContainer.find(".js-importe-item").val(importe)
+        var dialogEditImporte = dialogContainer.dialog({
+          autoOpen: true,
+          width: 350,
+          modal: true,
+          buttons: {
+            "Ok": function() {
+              var nuevoImporte = dialogContainer.find(".js-importe-item").val();
+              jQuery.ajax({
+                url: "../item/updateImporte",
+                type: 'POST',
+                data: {
+                  'itemId': item.id,
+                  'importe': nuevoImporte.replace(',', '.')
+                }
+              }).done(function () {
+                refreshOrden();
+              });
+            },
+            Cancel: function() {
+              dialogEditImporte.dialog("close");
+            }
+          }
+        });
+      });
+    });
+
   };
 
   var initValidators = function () {

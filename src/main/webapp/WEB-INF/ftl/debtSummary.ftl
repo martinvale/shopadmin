@@ -118,9 +118,9 @@
           <tr>
             <th scope="col">A&ntilde;o</th>
             <th scope="col">Mes</th>
-            <th scope="col">Dia</th>
+            <!--th scope="col">Dia</th>
             <th scope="col">Empresa</th>
-            <th scope="col">Tipo item</th>
+            <th scope="col">Tipo item</th-->
             <th scope="col">Honorarios</th>
             <th scope="col">Reintegros</th>
             <th scope="col">Otros gastos</th>
@@ -145,9 +145,6 @@
                 </#if>
               </td>
               <td>${row.getValue("month")?c}</td>
-              <td>${row.getValue("day")?c}</td>
-              <td>${row.getValue("empresa")}</td>
-              <td>${row.getValue("tipo_item")?c}</td>
               <td>${row.getValue("honorarios")?string.currency}</td>
               <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />
               <td>${row.getValue("reintegros")?string.currency}</td>

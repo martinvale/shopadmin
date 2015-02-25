@@ -39,6 +39,11 @@ public class OrderRepository extends HibernateDaoSupport {
   }
 
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+  public void updateItem(final ItemOrden itemOrden) {
+    getSession().update(itemOrden);
+  }
+
+  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public long saveItem(final ItemOrden itemOrden) {
     long numeroItem = (Long) getSession().save(itemOrden);
     return numeroItem;
@@ -78,6 +83,10 @@ public class OrderRepository extends HibernateDaoSupport {
   public boolean removeItem(final ItemOrden itemOrden) {
     getSession().delete(itemOrden);
     return true;
+  }
+
+  public ItemOrden getItem(final long id) {
+    return (ItemOrden) getSession().get(ItemOrden.class, id);
   }
 
   public AsociacionMedioPago findAsociacion(final int titularTipo,

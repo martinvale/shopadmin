@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -57,7 +59,9 @@ public class ImportService {
     dataSource = theDataSource;
   }
 
-  public void process(final InputStream inputStream) {
+  public List<ShopmetricsUserDto> process(final InputStream inputStream) {
+    List<ShopmetricsUserDto> users = new LinkedList<ShopmetricsUserDto>();
+
     PreparedStatement stmt = null;
     try {
       //Actualizar ID shoppers
@@ -103,6 +107,7 @@ public class ImportService {
       salir = addRow(headers, row);
     }
 
+    ResultSet rs = null;
     try {
       //Actualizar ID shoppers
       stmt = dataSource.getConnection().prepareStatement(
@@ -124,7 +129,7 @@ public class ImportService {
           "update ImportacionShopmetrics set Honorarios=A.Honorarios "
               + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
               + "S.InstanceID = A.InstanceID Left join Items_Orden I on ((S.InstanceId = "
-              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =1)) where (a.honorarios <> S.Honorarios) "
+              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =1)) where ((a.honorarios <> S.Honorarios) or (S.Honorarios is null)) "
               + "and ((I.asignacion is null) or ((A.Honorarios = I.Importe)and(I.asignacion is not null)))");
       stmt.execute();
 
@@ -133,7 +138,7 @@ public class ImportService {
           "update ImportacionShopmetrics set Reintegros=A.Reintegros "
               + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
               + "S.InstanceID = A.InstanceID Left join Items_Orden I on ((S.InstanceId = "
-              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =2)) where (a.Reintegros <> S.Reintegros) "
+              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =2)) where ((S.reintegros <> A.reintegros) or (S.reintegros is null)) "
               + "and ((I.asignacion is null) or ((A.Reintegros = I.Importe)and(I.asignacion is not null)))");
       stmt.execute();
 
@@ -142,7 +147,7 @@ public class ImportService {
           "update ImportacionShopmetrics set OtrosGastos=A.OtrosGastos "
               + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
               + "S.InstanceID = A.InstanceID Left join Items_Orden I on ((S.InstanceId = "
-              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =3)) where (a.OtrosGastos <> S.OtrosGastos) "
+              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =3)) where ((a.OtrosGastos <> S.OtrosGastos) or (S.OtrosGastos is null)) "
               + "and ((I.asignacion is null) or ((A.OtrosGastos = I.Importe)and(I.asignacion is not null)))");
       stmt.execute();
 
@@ -169,9 +174,30 @@ public class ImportService {
               + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
               + "S.InstanceID = A.InstanceID where (a.OK_Pay <> S.OK_Pay)");
       stmt.execute();
+
+      stmt = dataSource.getConnection().prepareStatement("select aux.login, "
+          + "aux.apellido, aux.nombre from ImportacionShopmetricsauxiliar aux "
+          + "LEFT JOIN mcdonalds.dbo.shoppers s ON aux.login = s.login_shopmetrics "
+          + "collate Modern_Spanish_CI_AS where s.id is null "
+          + "group by aux.login, aux.apellido, aux.nombre;");
+
+      rs = stmt.executeQuery();
+      while (rs.next()) {
+        ShopmetricsUserDto user = new ShopmetricsUserDto(rs.getString("login"),
+            rs.getString("apellido"), rs.getString("nombre"));
+        users.add(user);
+      }
+
     } catch (Exception ex) {
       logger.log(Level.SEVERE, null, ex);
     } finally {
+      if (rs != null) {
+        try {
+          rs.close();
+        } catch (SQLException ex) {
+          logger.log(Level.WARNING, null, ex);
+        }
+      }
       if (stmt != null) {
         try {
           stmt.close();
@@ -180,6 +206,8 @@ public class ImportService {
         }
       }
     }
+
+    return users;
   }
 
   private boolean addRow(final Map<Integer, Integer> headers, final Row row) {

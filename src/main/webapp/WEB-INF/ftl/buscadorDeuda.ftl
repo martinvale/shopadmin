@@ -79,11 +79,12 @@
               </li>
               <li>
                 <label for="desde">Desde</label>
-                <input type="text" name="desde" id="desde" class="js-date" value="01/01/2014">
+                <input type="text" name="desde" id="desde" class="js-date" value="${model['fechaDesde']?string('dd/MM/yyyy')}">
               </li>
               <li>
                 <label for="hasta">Hasta</label>
-                <input type="text" name="hasta" id="hasta" class="js-date" value="01/01/2015">
+                <#assign currentDate = .now />
+                <input type="text" name="hasta" id="hasta" class="js-date" value="${currentDate?string('dd/MM/yyyy')}">
               </li>
             </ul>
           </div>

@@ -299,8 +299,8 @@ textarea.LV_invalid_field:active {
                   <th scope="col" style="width:25%"><a id="order-shopper" href="#" class="js-order">Shopper <i class="fa fa-angle-down"></i></a></th>
                   <th scope="col" style="width:25%"><a id="order-cliente" href="#" class="js-order">Cliente <i class="fa fa-angle-down"></i></a></th>
                   <th scope="col" style="width:26%"><a id="order-sucursal" href="#" class="js-order">Sucursal <i class="fa fa-angle-down"></i></a></th>
-                  <th scope="col" style="width:8%"><a id="order-tipoPago" href="#" class="js-order">Pago <i class="fa fa-angle-down"></i></a></th>
-                  <th scope="col" style="width:8%"><a id="order-importe" href="#" class="js-order">Importe <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:4%"><a id="order-tipoPago" href="#" class="js-order">Pago <i class="fa fa-angle-down"></i></a></th>
+                  <th scope="col" style="width:12%"><a id="order-importe" href="#" class="js-order">Importe <i class="fa fa-angle-down"></i></a></th>
                   <th scope="col" style="width:8%"><a id="order-fecha" href="#" class="js-order">Fecha <i class="fa fa-angle-down"></i></a></th>
                 </tr>
               </thead>
@@ -319,7 +319,7 @@ textarea.LV_invalid_field:active {
                     <td class="js-cliente">${item.cliente!''}</td>
                     <td class="js-sucursal">${item.sucursal!''}</td>
                     <td>${item.tipoPago.description?substring(0, 1)}</td>
-                    <td class="js-importe" style="text-align: right;">${item.importe?string.currency}</td>
+                    <td class="js-importe" style="text-align: right;">${item.importe?string.currency} <#if canEdit && ordenAbierta><a class="js-item-value-${item.id?c}" href="#">editar</a></#if></td>
                     <td class="js-fecha">${item.fecha!''}</td>
                   </tr>
                   </#list>
@@ -328,7 +328,7 @@ textarea.LV_invalid_field:active {
             </table>
           </div>
           <ul class="action-columns">
-            <li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
+            <!--li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li-->
             <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
           </ul>
 
@@ -384,6 +384,12 @@ textarea.LV_invalid_field:active {
             <li><input type="button" class="btn-shop js-detail" value="Imprimir Detalle" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
             <li><input type="button" class="btn-shop js-detail-shopper" value="Detalle Shopper" <#if !model["ordenPago"]??>disabled="true"</#if>></li>
           </ul>
+        </div>
+        <div style="display:none">
+          <div class="js-edit-importe" title="Modificar el importe">
+            <label for="importe-item">Ingrese el importe de este item de la factura</label>
+            <input id="importe-item" type="text" value="" class="js-importe-item" />
+          </div>
         </div>
       </form>
     </div>

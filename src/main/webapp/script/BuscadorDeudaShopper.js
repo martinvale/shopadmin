@@ -222,6 +222,7 @@ App.widget.BuscadorDeudaShopper = function (container) {
     });
 
     container.find(".js-date" ).datepicker({
+      dateFormat: 'dd/mm/yy',
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
       }

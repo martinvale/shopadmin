@@ -102,6 +102,10 @@ public class ItemOrden {
     shopper = unShopper;
   }
 
+  public void updateImporte(final double unImporte) {
+    importe = unImporte;
+  }
+
   public long getId() {
     return id;
   }

@@ -123,14 +123,15 @@ h2.subtitulo {
         }
 
 .combo-titular {
-    display: inline-block;
-    padding: 10px 20px 0 20px;
-    vertical-align: top;
-    width: 200px;
-    }
-    .combo-titular select {
-        width: 200px;
-    }
+  display: inline-block;
+  padding: 10px 20px 0 20px;
+  vertical-align: top;
+  width: 300px;
+}
+
+.combo-titular input {
+  width: 300px;
+}
 
 
 .columnas-form {

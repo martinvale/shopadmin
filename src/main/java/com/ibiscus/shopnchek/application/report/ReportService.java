@@ -213,25 +213,25 @@ public class ReportService {
     ResultSet resulset = null;
     try {
       statement = dataSource.getConnection().prepareStatement("select año as year, mes as month, "
-          + "DATEPART(dd, fecha) as day, empresa, tipo_item, "
+          //+ "DATEPART(dd, fecha) as day, empresa, tipo_item, "
           + "SUM(CASE WHEN PAGO_HONORARIOS is null THEN IMPORTE_HONORARIOS ELSE 0 END) AS honorarios, "
           + "SUM(CASE WHEN PAGO_REINTEGROS is null THEN IMPORTE_REINTEGROS ELSE 0 END) AS reintegros, "
           + "SUM(CASE WHEN PAGO_OTROS_GASTOS is null THEN IMPORTE_OTROS_GASTOS ELSE 0 END) AS otros "
           + "from AUXILIAR_VISITAS "
-          + "group by año, mes, DATEPART(dd, fecha), empresa, tipo_item "
+          + "group by año, mes "
           + "having (SUM(CASE WHEN PAGO_HONORARIOS is null THEN IMPORTE_HONORARIOS ELSE 0 END) <> 0) or "
           + "(SUM(CASE WHEN PAGO_REINTEGROS is null THEN IMPORTE_REINTEGROS ELSE 0 END) <> 0) or "
           + "(SUM(CASE WHEN PAGO_OTROS_GASTOS is null THEN IMPORTE_OTROS_GASTOS ELSE 0 END) <> 0) "
-          + "order by año, mes, DATEPART(dd, fecha), empresa");
+          + "order by año, mes");
 
       resulset = statement.executeQuery();
       while (resulset.next()) {
         Row row = new Row();
         row.addValue("year", resulset.getInt("year"));
         row.addValue("month", resulset.getInt("month"));
-        row.addValue("empresa", resulset.getString("empresa"));
+        /*row.addValue("empresa", resulset.getString("empresa"));
         row.addValue("day", resulset.getInt("day"));
-        row.addValue("tipo_item", resulset.getInt("tipo_item"));
+        row.addValue("tipo_item", resulset.getInt("tipo_item"));*/
         row.addValue("honorarios", resulset.getDouble("honorarios"));
         row.addValue("reintegros", resulset.getDouble("reintegros"));
         row.addValue("otros", resulset.getDouble("otros"));

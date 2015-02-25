@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -69,6 +70,9 @@ public class OrdenPagoController {
     model.addAttribute("user", user);
     model.addAttribute("orderStates", orderRepository.findOrderStates());
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.MONTH, -4);
+    model.addAttribute("fechaDesde", calendar.getTime());
     return "ordenPago";
   }
 
@@ -79,6 +83,9 @@ public class OrdenPagoController {
         .getPrincipal();
     model.addAttribute("user", user);
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.MONTH, -4);
+    model.addAttribute("fechaDesde", calendar.getTime());
     OrdenPago ordenPago = orderRepository.get(orderId);
     for (ItemOrden itemOrden : ordenPago.getItems()) {
       Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
@@ -153,6 +160,9 @@ public class OrdenPagoController {
     model.addAttribute("user", user);
     model.addAttribute("orderStates", orderRepository.findOrderStates());
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.MONTH, -4);
+    model.addAttribute("fechaDesde", calendar.getTime());
 
     OrderState state = orderRepository.getOrderState(estadoId);
     MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
@@ -195,6 +205,9 @@ public class OrdenPagoController {
     model.addAttribute("user", user);
     model.addAttribute("orderStates", orderRepository.findOrderStates());
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.MONTH, -4);
+    model.addAttribute("fechaDesde", calendar.getTime());
 
     OrderState state = orderRepository.getOrderState(estadoId);
     MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
@@ -355,8 +368,7 @@ public class OrdenPagoController {
 
     if (ordenPago.getTipoProveedor() == 1) {
       Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", shopper.getName() + " "
-          + shopper.getUsername());
+      model.addAttribute("titularNombre", shopper.getName());
     } else {
       Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
       model.addAttribute("titularNombre", proveedor.getDescription());

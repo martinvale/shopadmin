@@ -62,6 +62,27 @@
           <li><input type="submit" value="Importar" class="btn-shop-small"></li>
         </ul>
       </form>
+    <#if model["users"]??>
+      <p>Los siguientes usuarios no pudieron ser identificados en la tabla de shoppers</p>
+      <table summary="Listado de shoppers no identificados" class="table-form">
+        <thead>
+          <tr>
+            <th scope="col" style="width:33%">Login</th>
+            <th scope="col" style="width:33%">Apellido</th>
+            <th scope="col" style="width:34%">Nombre</th>
+          </tr>
+        </thead>
+        <tbody>
+          <#list model["users"] as user>
+          <tr>
+            <td>${user.login!''}</td>
+            <td>${user.lastName!''}</td>
+            <td>${user.name!''}</td>
+          </tr>
+          </#list>
+        </tbody>
+      </table>
+    </#if>
     </div>
   </body>
 </html>

@@ -2,6 +2,7 @@ package com.ibiscus.shopnchek.web.controller.site;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -133,6 +134,9 @@ public class ItemOrdenController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.MONTH, -4);
+    model.addAttribute("fechaDesde", calendar.getTime());
     return "buscadorDeuda";
   }
 
@@ -307,5 +311,15 @@ public class ItemOrdenController {
     }
     model.addAttribute("items", items);
     return "buscadorItems";
+  }
+
+  @RequestMapping(value="/updateImporte", method = RequestMethod.POST)
+  public @ResponseBody Boolean updateImporte(
+      @ModelAttribute("model") final ModelMap model,
+      long itemId, double importe) {
+    ItemOrden itemOrden = orderRepository.getItem(itemId);
+    itemOrden.updateImporte(importe);
+    orderRepository.updateItem(itemOrden);
+    return Boolean.TRUE;
   }
 }
