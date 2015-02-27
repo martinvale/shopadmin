@@ -53,7 +53,7 @@
 }
 
 table {
-  font-size: 12px;
+  font-size: 11px;
   width: 100%;
 }
 
@@ -95,6 +95,7 @@ table td.value {
         <#assign total = (totalReintegros + totalOtrosGastos + totalHonorarios) />
         <table>
           <tr class="header">
+            <td>Shopper</td>
             <td>Fecha</td>
             <td>Cliente</td>
             <td>Sucursal</td>
@@ -103,6 +104,7 @@ table td.value {
           </tr>
         <#list model["ordenPago"].items?sort_by(["tipoPago", "description"]) as item>
           <tr>
+            <td>${(item.shopper.name)!''}</td>
             <td>${item.fecha!''}</td>
             <td>${item.cliente!''}</td>
             <td>${item.sucursal!''}</td>

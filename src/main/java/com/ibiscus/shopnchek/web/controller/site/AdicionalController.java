@@ -186,7 +186,7 @@ public class AdicionalController {
     if (itemId == null) {
       Calendar calendar = Calendar.getInstance();
       calendar.setTime(fecha);
-      int mes = calendar.get(Calendar.MONTH);
+      int mes = calendar.get(Calendar.MONTH) + 1;
       int anio = calendar.get(Calendar.YEAR);
       adicional = new AutorizacionAdicional(groupId, clienteId, clienteNombre,
           sucursalId, sucursalNombre, shopperDni, mes, anio, fecha,

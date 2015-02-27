@@ -260,12 +260,15 @@ public class ImportService {
           honorariosValue = honorariosValue.replaceAll(",", "");
           honorarios = new Double(honorariosValue);
         }
-        String reintegrosValue = row.getCell(headers.get(ColReintegros))
-            .getStringCellValue();
         Double reintegros = null;
-        if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
-          reintegrosValue = reintegrosValue.replaceAll(",", "");
-          reintegros = new Double(reintegrosValue);
+        Integer reintegroPos = headers.get(ColReintegros);
+        if (reintegroPos != null) {
+          String reintegrosValue = row.getCell(reintegroPos)
+              .getStringCellValue();
+          if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
+            reintegrosValue = reintegrosValue.replaceAll(",", "");
+            reintegros = new Double(reintegrosValue);
+          }
         }
         String okPayValue = row.getCell(headers.get(ColOK_Pay))
             .getStringCellValue();

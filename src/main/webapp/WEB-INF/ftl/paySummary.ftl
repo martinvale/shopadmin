@@ -116,9 +116,6 @@
           <tr>
             <th scope="col">A&ntilde;o</th>
             <th scope="col">Mes</th>
-
-            <th scope="col">Dia</th>
-
             <th scope="col">Honorarios</th>
             <th scope="col">Reintegros</th>
             <th scope="col">Otros gastos</th>
@@ -143,8 +140,6 @@
                 </#if>
               </td>
               <td>${row.getValue("month")?c}</td>
-
-              <td>${row.getValue("day")?c}</td>
 
               <td>${row.getValue("honorarios")?string.currency}</td>
               <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />

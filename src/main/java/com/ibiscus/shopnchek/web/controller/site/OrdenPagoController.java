@@ -391,8 +391,7 @@ public class OrdenPagoController {
 
     if (ordenPago.getTipoProveedor() == 1) {
       Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", shopper.getName() + " "
-          + shopper.getUsername());
+      model.addAttribute("titularNombre", shopper.getName());
     } else {
       Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
       model.addAttribute("titularNombre", proveedor.getDescription());
