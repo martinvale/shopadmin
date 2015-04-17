@@ -112,7 +112,7 @@ public class ItemOrdenController {
       @RequestParam(defaultValue = "false") Boolean includeAdicionales,
       @RequestParam(defaultValue = "false") Boolean includeShopmetrics,
       Boolean applyDate, Date desde, Date hasta) {
-    String fileName = "deudaShopper.xls";
+    String fileName = "deudaShopper.xlsx";
     response.setContentType("application/vnd.openxmlformats-officedocument."
         + "spreadsheetml.sheet");
     String headerKey = "Content-Disposition";

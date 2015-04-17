@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
 import org.springframework.format.annotation.NumberFormat.Style;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -111,30 +112,34 @@ public class OrdenPagoController {
     }
     List<OrderState> states = new ArrayList<OrderState>();
     List<OrderState> availableStates = orderRepository.findOrderStates();
-    if (ordenPago.getEstado().getId() == 3
-        || ordenPago.getEstado().getId() == 4) {
-      for (OrderState state : availableStates) {
-        if (state.getId() == 3 || state.getId() == 4) {
-          states.add(state);
+    if (!user.getAuthorities().contains(new SimpleGrantedAuthority("EDITOR"))) {
+      if (ordenPago.getEstado().getId() == 3
+          || ordenPago.getEstado().getId() == 4) {
+        for (OrderState state : availableStates) {
+          if (state.getId() == 3 || state.getId() == 4) {
+            states.add(state);
+          }
         }
-      }
-    } else if (ordenPago.getEstado().getId() == 5) {
-      for (OrderState state : availableStates) {
-        if (state.getId() == 1 || state.getId() == 5) {
-          states.add(state);
+      } else if (ordenPago.getEstado().getId() == 5) {
+        for (OrderState state : availableStates) {
+          if (state.getId() == 1 || state.getId() == 5) {
+            states.add(state);
+          }
         }
-      }
-    } else if (ordenPago.getEstado().getId() == 2) {
-      for (OrderState state : availableStates) {
-        if (state.getId() > 1 && state.getId() < 5) {
-          states.add(state);
+      } else if (ordenPago.getEstado().getId() == 2) {
+        for (OrderState state : availableStates) {
+          if (state.getId() > 1 && state.getId() < 5) {
+            states.add(state);
+          }
         }
-      }
-    } else if (ordenPago.getEstado().getId() == 6) {
-      for (OrderState state : availableStates) {
-        if (state.getId() == 6) {
-          states.add(state);
+      } else if (ordenPago.getEstado().getId() == 6) {
+        for (OrderState state : availableStates) {
+          if (state.getId() == 6) {
+            states.add(state);
+          }
         }
+      } else {
+        states.addAll(availableStates);
       }
     } else {
       states.addAll(availableStates);

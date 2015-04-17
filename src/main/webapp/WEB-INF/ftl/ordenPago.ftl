@@ -25,7 +25,7 @@
 
     <#assign canEdit = false />
     <#list model["user"].authorities as role>
-      <#assign canEdit = (role.authority == 'ADMIN') />
+      <#assign canEdit = canEdit || (role.authority == 'ADMIN') />
     </#list>
     <#assign ordenAbierta = true />
     <#assign estadoOrden = "Abierta" />
@@ -329,7 +329,7 @@ textarea.LV_invalid_field:active {
           </div>
           <ul class="action-columns">
             <!--li><input type="button" class="btn-shop-small js-add-item" value="Agregar" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li-->
-            <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !model["ordenPago"]?? || !canEdit>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !model["ordenPago"]?? || !canEdit || estadoOrden != 'Abierta'>disabled="true"</#if>></li>
           </ul>
 
           <!-- FIN FILA 3 -->

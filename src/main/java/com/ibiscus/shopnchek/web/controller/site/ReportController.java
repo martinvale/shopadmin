@@ -32,7 +32,8 @@ public class ReportController {
       @RequestParam(required = false) Integer anioDesde,
       @RequestParam(required = false) Integer mesDesde,
       @RequestParam(required = false) Integer anioHasta,
-      @RequestParam(required = false) Integer mesHasta) {
+      @RequestParam(required = false) Integer mesHasta,
+      @RequestParam(required = false) boolean includeEmpresa) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
@@ -40,6 +41,8 @@ public class ReportController {
     List<Row> rows = new LinkedList<Row>();
     if (anioDesde != null && mesDesde != null && anioHasta != null
         && mesHasta != null) {
+      model.addAttribute("includeEmpresa", includeEmpresa);
+
       model.addAttribute("anioDesde", anioDesde);
       model.addAttribute("mesDesde", mesDesde);
       model.addAttribute("anioHasta", anioHasta);
@@ -69,7 +72,7 @@ public class ReportController {
         anioHasta++;
       }
       rows = reportsService.getDebtSummaryReport(mesDesde, anioDesde, mesHasta,
-          anioHasta, true, true, true, true);
+          anioHasta, true, true, true, true, includeEmpresa);
     }
 
     model.addAttribute("rows", rows);
@@ -79,7 +82,9 @@ public class ReportController {
   @RequestMapping(value="/printDebtSummary")
   public String printDebtSummary(@ModelAttribute("model") final ModelMap model,
       Integer anioDesde, Integer mesDesde, Integer anioHasta,
-      Integer mesHasta) {
+      Integer mesHasta, boolean includeEmpresa) {
+    model.addAttribute("includeEmpresa", includeEmpresa);
+
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     String fechaDesde = "01-" + mesDesde + "-" + anioDesde;
     String fechaHasta = "01-" + (mesHasta + 1) + "-" + anioHasta;
@@ -104,7 +109,7 @@ public class ReportController {
       anioHasta++;
     }
     model.addAttribute("rows", reportsService.getDebtSummaryReport(mesDesde,
-        anioDesde, mesHasta, anioHasta, true, true, true, true));
+        anioDesde, mesHasta, anioHasta, true, true, true, true, includeEmpresa));
     model.addAttribute("title", "Resumen de Deuda");
     return "printSummary";
   }
@@ -114,7 +119,8 @@ public class ReportController {
       @RequestParam(required = false) Integer anioDesde,
       @RequestParam(required = false) Integer mesDesde,
       @RequestParam(required = false) Integer anioHasta,
-      @RequestParam(required = false) Integer mesHasta) {
+      @RequestParam(required = false) Integer mesHasta,
+      @RequestParam(required = false) boolean includeEmpresa) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
@@ -122,6 +128,8 @@ public class ReportController {
     List<Row> rows = new LinkedList<Row>();
     if (anioDesde != null && mesDesde != null && anioHasta != null
         && mesHasta != null) {
+      model.addAttribute("includeEmpresa", includeEmpresa);
+
       model.addAttribute("anioDesde", anioDesde);
       model.addAttribute("mesDesde", mesDesde);
       model.addAttribute("anioHasta", anioHasta);
@@ -134,7 +142,7 @@ public class ReportController {
         anioHasta++;
       }
       rows = reportsService.getProdSummaryReport(mesDesde, anioDesde, mesHasta,
-          anioHasta, true, true, true, true);
+          anioHasta, true, true, true, true, includeEmpresa);
     }
 
     model.addAttribute("rows", rows);
@@ -144,7 +152,8 @@ public class ReportController {
   @RequestMapping(value="/printProdSummary")
   public String printProdSummary(@ModelAttribute("model") final ModelMap model,
       Integer anioDesde, Integer mesDesde, Integer anioHasta,
-      Integer mesHasta) {
+      Integer mesHasta, boolean includeEmpresa) {
+    model.addAttribute("includeEmpresa", includeEmpresa);
     if (mesHasta < 12) {
       mesHasta++;
     } else {
@@ -152,7 +161,7 @@ public class ReportController {
       anioHasta++;
     }
     model.addAttribute("rows", reportsService.getProdSummaryReport(mesDesde,
-        anioDesde, mesHasta, anioHasta, true, true, true, true));
+        anioDesde, mesHasta, anioHasta, true, true, true, true, includeEmpresa));
     model.addAttribute("title", "Resumen de Producción");
     return "printSummary";
   }

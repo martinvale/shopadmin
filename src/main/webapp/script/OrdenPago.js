@@ -99,7 +99,8 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
           '.js-sucursal': 'itemOrden.sucursal',
           '.js-tipo-pago': 'itemOrden.tipoPago',
           '.js-importe': function (a) {
-            return '$' + a.item.importe.toFixed(2).replace('.', ',');
+            return '$' + a.item.importe.toFixed(2).replace('.', ',')
+                + ' <a class="js-item-value-' + a.item.id + '" href="#">editar</a>';
           },
           '.js-fecha': 'itemOrden.fecha'
         },
@@ -135,7 +136,7 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
         numeroOrden, refreshOrden, container.width());
 
     container.find(".js-date" ).datepicker({
-      minDate: new Date(),
+      //minDate: new Date(),
       dateFormat: 'dd/mm/yy',
       onSelect: function(dateText, datePicker) {
         $(this).attr('value', dateText);
@@ -228,6 +229,38 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
         deleteConfirmDialog.currentId = event.target.id.substr(5);
         deleteConfirmDialog.dialog("open");
       });
+
+      jQuery.each(items, function(index, item) {
+        container.find('.js-item-value-' + item.id).click(function (event) {
+          event.preventDefault();
+          var importe = item.importe.toFixed(2).replace('.', ',');
+          dialogContainer.find(".js-importe-item").val(importe)
+          var dialogEditImporte = dialogContainer.dialog({
+            autoOpen: true,
+            width: 350,
+            modal: true,
+            buttons: {
+              "Ok": function() {
+                var nuevoImporte = dialogContainer.find(".js-importe-item").val();
+                jQuery.ajax({
+                  url: "../item/updateImporte",
+                  type: 'POST',
+                  data: {
+                    'itemId': item.id,
+                    'importe': nuevoImporte.replace(',', '.')
+                  }
+                }).done(function () {
+                  refreshOrden();
+                });
+              },
+              Cancel: function() {
+                dialogEditImporte.dialog("close");
+              }
+            }
+          });
+        });
+      });
+
     });
 
     jQuery.each(items, function(index, item) {
@@ -277,7 +310,7 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
     fechaPagoValidation.add(Validate.Presence, {
         failureMessage: "La fecha de pago es obligatoria"
     });
-    fechaPagoValidation.add(Validate.Custom, {
+    /*fechaPagoValidation.add(Validate.Custom, {
       against: function (value, args) {
         var day = value.substring(0, 2);
         var month = value.substring(3, 5);
@@ -291,7 +324,7 @@ App.widget.OrdenPago = function (container, numeroOrden, canEdit, items) {
         return hoy <= fecha;
       },
       failureMessage: "La fecha de cobro no puede ser anterior a hoy"
-    });
+    });*/
     var medioPagoValidation = new LiveValidation("medioPago");
     medioPagoValidation.add(Validate.Exclusion, {
         within: ["Seleccionar"],

@@ -31,9 +31,10 @@
           var anioDesde = jQuery("select[name='anioDesde']");
           var mesHasta = jQuery("select[name='mesHasta']");
           var anioHasta = jQuery("select[name='anioHasta']");
+          var includeEmpresa = jQuery("input[name='includeEmpresa']").prop("checked");
           var url = "printProdSummary?mesDesde=" + mesDesde.val() + '&anioDesde='
               + anioDesde.val() + '&mesHasta=' + mesHasta.val() + '&anioHasta='
-              + anioHasta.val();
+              + anioHasta.val() + '&includeEmpresa=' + includeEmpresa;
           window.open(url, "", "width=1000, height=600");
         });
 
@@ -105,6 +106,12 @@
               </#list>
               </select>
             </div>
+            <div class="field groups">
+              <label>Agrupado por: </label>
+              <input type="checkbox" checked="checked" disabled="true"/><span>A&ntilde;o</span>
+              <input type="checkbox" checked="checked" disabled="true"/><span>Mes</span>
+              <input type="checkbox" name="includeEmpresa" value="true" <#if model["includeEmpresa"]!false>checked="checked"</#if> /><span>Empresa</span>
+            </div>
           </div>
         </div>
         <ul class="action-columns">
@@ -117,8 +124,10 @@
             <th scope="col">A&ntilde;o</th>
             <th scope="col">Mes</th>
 
-            <!--th scope="col">Dia</th>
+          <#if model["includeEmpresa"]!false>
             <th scope="col">Empresa</th>
+          </#if>
+            <!--th scope="col">Dia</th>
             <th scope="col">Tipo item</th-->
 
             <th scope="col">Honorarios</th>
@@ -135,6 +144,27 @@
           <#assign imprimirResto = false />
           <#list model["rows"] as row>
             <#assign imprimirResto = true />
+
+            <#if row.getValue("year") != anioAnt && anioAnt != 0>
+              <#assign imprimirResto = false />
+
+              <tr>
+                <td class="total">Total ${anioAnt?c}</td>
+                <td>&nbsp;</td>
+              <#if model["includeEmpresa"]!false>
+                <td>&nbsp;</td>
+              </#if>
+                <td>${honorariosAnio?string.currency}</td>
+                <td>${reintegrosAnio?string.currency}</td>
+                <td>${otrosAnio?string.currency}</td>
+                <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
+                <#assign honorariosAnio = 0 />
+                <#assign reintegrosAnio = 0 />
+                <#assign otrosAnio = 0 />
+              </tr>
+
+            </#if>
+
             <tr>
               <td>
                 <#if row.getValue("year") != anioAnt>
@@ -145,6 +175,9 @@
                 </#if>
               </td>
               <td>${row.getValue("month")?c}</td>
+            <#if model["includeEmpresa"]!false>
+              <td>${row.getValue("empresa")!''}</td>
+            </#if>
 
               <td>${row.getValue("honorarios")?string.currency}</td>
               <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />
@@ -154,27 +187,14 @@
               <#assign otrosAnio = otrosAnio + row.getValue("otros") />
               <td>${(row.getValue("honorarios") + row.getValue("reintegros") + row.getValue("otros"))?string.currency}</td>
             </tr>
-            <#if row.getValue("month") == 12>
-              <#assign imprimirResto = false />
-
-            <tr>
-              <td class="total">Total ${row.getValue("year")?c}</td>
-              <td>&nbsp;</td>
-              <td>${honorariosAnio?string.currency}</td>
-              <td>${reintegrosAnio?string.currency}</td>
-              <td>${otrosAnio?string.currency}</td>
-              <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
-              <#assign honorariosAnio = 0 />
-              <#assign reintegrosAnio = 0 />
-              <#assign otrosAnio = 0 />
-            </tr>
-
-            </#if>
           </#list>
           <#if model["rows"]?size &gt; 0 && imprimirResto>
             <tr>
               <td class="total">Total ${anioAnt?c}</td>
               <td>&nbsp;</td>
+            <#if model["includeEmpresa"]!false>
+              <td>&nbsp;</td>
+            </#if>
               <td>${honorariosAnio?string.currency}</td>
               <td>${reintegrosAnio?string.currency}</td>
               <td>${otrosAnio?string.currency}</td>

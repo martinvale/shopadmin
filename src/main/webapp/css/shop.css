@@ -267,3 +267,8 @@ h2.subtitulo {
     .box-sucursal label {
         margin-right: 20px;
     }
+
+.groups span {
+  display: inline-box;
+  margin: 0 10px 0 5px;
+}

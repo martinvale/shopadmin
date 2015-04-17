@@ -168,69 +168,47 @@ public class ReportService {
   public List<Row> getDebtSummaryReport(final int mesDesde, final int anioDesde,
       final int mesHasta, final int anioHasta,
       final boolean includeGac, final boolean includeMCD,
-      final boolean includeAdicionales, final boolean includeShopmetrics) {
+      final boolean includeAdicionales, final boolean includeShopmetrics,
+      final boolean includeEmpresa) {
     List<Row> rows = new LinkedList<Row>();
 
     initializeData(mesDesde, anioDesde, mesHasta, anioHasta, includeGac,
         includeMCD, includeAdicionales, includeShopmetrics);
 
-    //Calculamos las deudas
-    /*CallableStatement cstmt = null;
-    try {
-      if (includeMCD) {
-        cstmt = dataSource.getConnection().prepareCall(
-            "{call dbo.SProc_CALCULAR_DEUDA_GENERAL_MCD}");
-        cstmt.execute();
-        cstmt.close();
-      }
-      if (includeGac) {
-        cstmt = dataSource.getConnection().prepareCall(
-            "{call dbo.SProc_CALCULAR_DEUDA_GENERAL_GAC}");
-        cstmt.execute();
-        cstmt.close();
-      }
-      if (includeAdicionales) {
-        cstmt = dataSource.getConnection().prepareCall(
-            "{call dbo.SProc_CALCULAR_DEUDA_GENERAL_ADICIONALES(?,?)}");
-        cstmt.setInt(1, (mesDesde + (anioDesde * 12)));
-        cstmt.setInt(2, (mesHasta + (anioHasta * 12)));
-        cstmt.execute();
-        cstmt.close();
-      }
-    } catch (Exception ex) {
-      logger.log(Level.SEVERE, null, ex);
-    } finally {
-      if (cstmt != null) {
-        try {
-          cstmt.close();
-        } catch (SQLException ex) {
-          logger.log(Level.WARNING, null, ex);
-        }
-      }
-    }*/
-
     PreparedStatement statement = null;
     ResultSet resulset = null;
     try {
-      statement = dataSource.getConnection().prepareStatement("select año as year, mes as month, "
+      String sql = "select año as year, mes as month, ";
           //+ "DATEPART(dd, fecha) as day, empresa, tipo_item, "
-          + "SUM(CASE WHEN PAGO_HONORARIOS is null THEN IMPORTE_HONORARIOS ELSE 0 END) AS honorarios, "
+      if (includeEmpresa) {
+        sql += "empresa, ";
+      }
+      sql += "SUM(CASE WHEN PAGO_HONORARIOS is null THEN IMPORTE_HONORARIOS ELSE 0 END) AS honorarios, "
           + "SUM(CASE WHEN PAGO_REINTEGROS is null THEN IMPORTE_REINTEGROS ELSE 0 END) AS reintegros, "
           + "SUM(CASE WHEN PAGO_OTROS_GASTOS is null THEN IMPORTE_OTROS_GASTOS ELSE 0 END) AS otros "
           + "from AUXILIAR_VISITAS "
-          + "group by año, mes "
-          + "having (SUM(CASE WHEN PAGO_HONORARIOS is null THEN IMPORTE_HONORARIOS ELSE 0 END) <> 0) or "
+          + "group by año, mes ";
+      if (includeEmpresa) {
+        sql += ", empresa ";
+      }
+      sql += "having (SUM(CASE WHEN PAGO_HONORARIOS is null THEN IMPORTE_HONORARIOS ELSE 0 END) <> 0) or "
           + "(SUM(CASE WHEN PAGO_REINTEGROS is null THEN IMPORTE_REINTEGROS ELSE 0 END) <> 0) or "
           + "(SUM(CASE WHEN PAGO_OTROS_GASTOS is null THEN IMPORTE_OTROS_GASTOS ELSE 0 END) <> 0) "
-          + "order by año, mes");
+          + "order by año, mes";
+      if (includeEmpresa) {
+        sql += ", empresa";
+      }
+      statement = dataSource.getConnection().prepareStatement(sql);
 
       resulset = statement.executeQuery();
       while (resulset.next()) {
         Row row = new Row();
         row.addValue("year", resulset.getInt("year"));
         row.addValue("month", resulset.getInt("month"));
-        /*row.addValue("empresa", resulset.getString("empresa"));
-        row.addValue("day", resulset.getInt("day"));
+        if (includeEmpresa) {
+          row.addValue("empresa", resulset.getString("empresa"));
+        }
+        /*row.addValue("day", resulset.getInt("day"));
         row.addValue("tipo_item", resulset.getInt("tipo_item"));*/
         row.addValue("honorarios", resulset.getDouble("honorarios"));
         row.addValue("reintegros", resulset.getDouble("reintegros"));
@@ -262,71 +240,36 @@ public class ReportService {
   public List<Row> getProdSummaryReport(final int mesDesde, final int anioDesde,
       final int mesHasta, final int anioHasta,
       final boolean includeGac, final boolean includeMCD,
-      final boolean includeAdicionales, final boolean includeShopmetrics) {
+      final boolean includeAdicionales, final boolean includeShopmetrics,
+      final boolean includeEmpresa) {
     List<Row> rows = new LinkedList<Row>();
 
     initializeData(mesDesde, anioDesde, mesHasta, anioHasta, includeGac,
         includeMCD, includeAdicionales, includeShopmetrics);
 
-    //Calculamos las gastos de produccion
-    /*CallableStatement cstmt = null;
-    try {
-      if (includeMCD) {
-        cstmt = dataSource.getConnection().prepareCall(
-            "{call dbo.SProc_CALCULAR_PRODUCCION_GENERAL_MCD}");
-        cstmt.execute();
-        cstmt.close();
-      }
-      if (includeGac) {
-        cstmt = dataSource.getConnection().prepareCall(
-            "{call dbo.SProc_CALCULAR_PRODUCCION_GENERAL_GAC}");
-        cstmt.execute();
-        cstmt.close();
-      }
-      if (includeAdicionales) {
-        cstmt = dataSource.getConnection().prepareCall(
-            "{call dbo.SProc_CALCULAR_PRODUCCION_GENERAL_ADICIONALES(?,?)}");
-        cstmt.setInt(1, (mesDesde + (anioDesde * 12)));
-        cstmt.setInt(2, (mesHasta + (anioHasta * 12)));
-        cstmt.execute();
-        cstmt.close();
-      }
-    } catch (Exception ex) {
-      logger.log(Level.SEVERE, null, ex);
-    } finally {
-      if (cstmt != null) {
-        try {
-          cstmt.close();
-        } catch (SQLException ex) {
-          logger.log(Level.WARNING, null, ex);
-        }
-      }
-    }*/
-
     PreparedStatement statement = null;
     ResultSet resulset = null;
     try {
-      statement = dataSource.getConnection().prepareStatement("select año as year, mes as month, "
-          + "SUM(CASE WHEN isnull(PAGO_HONORARIOS, 0) = 0 THEN IMPORTE_HONORARIOS ELSE PAGO_HONORARIOS END) AS honorarios, "
+      String sql = "select año as year, mes as month, ";
+      if (includeEmpresa) {
+        sql += "empresa, ";
+      }
+      sql += "SUM(CASE WHEN isnull(PAGO_HONORARIOS, 0) = 0 THEN IMPORTE_HONORARIOS ELSE PAGO_HONORARIOS END) AS honorarios, "
           + "SUM(CASE WHEN isnull(PAGO_REINTEGROS, 0) = 0 THEN IMPORTE_REINTEGROS ELSE PAGO_REINTEGROS END) AS reintegros, "
           + "SUM(CASE WHEN isnull(PAGO_OTROS_GASTOS, 0) = 0 THEN IMPORTE_OTROS_GASTOS ELSE PAGO_OTROS_GASTOS END) AS otros "
           + "from AUXILIAR_VISITAS "
-          + "group by año, mes "
-          + "having (SUM(CASE WHEN isnull(PAGO_HONORARIOS, 0) = 0 THEN IMPORTE_HONORARIOS ELSE PAGO_HONORARIOS END) <> 0) or "
+          + "group by año, mes ";
+      if (includeEmpresa) {
+        sql += ", empresa ";
+      }
+      sql += "having (SUM(CASE WHEN isnull(PAGO_HONORARIOS, 0) = 0 THEN IMPORTE_HONORARIOS ELSE PAGO_HONORARIOS END) <> 0) or "
           + "(SUM(CASE WHEN isnull(PAGO_REINTEGROS, 0) = 0 THEN IMPORTE_REINTEGROS ELSE PAGO_REINTEGROS END) <> 0) or "
           + "(SUM(CASE WHEN isnull(PAGO_OTROS_GASTOS, 0) = 0 THEN IMPORTE_OTROS_GASTOS ELSE PAGO_OTROS_GASTOS END) <> 0) "
-          + "order by año, mes");
-      /*statement = dataSource.getConnection().prepareStatement("select año as year, mes as month, "
-          + "DATEPART(dd, fecha) as day, empresa, tipo_item, "
-          + "SUM(CASE WHEN PAGO_HONORARIOS = 0 THEN IMPORTE_HONORARIOS ELSE PAGO_HONORARIOS END) AS honorarios, "
-          + "SUM(CASE WHEN PAGO_REINTEGROS = 0 THEN IMPORTE_REINTEGROS ELSE PAGO_REINTEGROS END) AS reintegros, "
-          + "SUM(CASE WHEN PAGO_OTROS_GASTOS = 0 THEN IMPORTE_OTROS_GASTOS ELSE PAGO_OTROS_GASTOS END) AS otros "
-          + "from AUXILIAR_VISITAS "
-          + "group by año, mes, DATEPART(dd, fecha), empresa, tipo_item "
-          + "having (SUM(CASE WHEN PAGO_HONORARIOS = 0 THEN IMPORTE_HONORARIOS ELSE PAGO_HONORARIOS END) <> 0) or "
-          + "(SUM(CASE WHEN PAGO_REINTEGROS = 0 THEN IMPORTE_REINTEGROS ELSE PAGO_REINTEGROS END) <> 0) or "
-          + "(SUM(CASE WHEN PAGO_OTROS_GASTOS = 0 THEN IMPORTE_OTROS_GASTOS ELSE PAGO_OTROS_GASTOS END) <> 0) "
-          + "order by año, mes, DATEPART(dd, fecha), empresa");*/
+          + "order by año, mes";
+      if (includeEmpresa) {
+        sql += ", empresa";
+      }
+      statement = dataSource.getConnection().prepareStatement(sql);
 
       resulset = statement.executeQuery();
       while (resulset.next()) {
@@ -334,8 +277,10 @@ public class ReportService {
         row.addValue("year", resulset.getInt("year"));
         row.addValue("month", resulset.getInt("month"));
 
-        /*row.addValue("empresa", resulset.getString("empresa"));
-        row.addValue("day", resulset.getInt("day"));
+        if (includeEmpresa) {
+          row.addValue("empresa", resulset.getString("empresa"));
+        }
+        /*row.addValue("day", resulset.getInt("day"));
         row.addValue("tipo_item", resulset.getInt("tipo_item"));*/
 
         row.addValue("honorarios", resulset.getDouble("honorarios"));
