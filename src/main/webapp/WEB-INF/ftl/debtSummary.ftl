@@ -141,6 +141,9 @@
           <#assign honorariosAnio = 0 />
           <#assign reintegrosAnio = 0 />
           <#assign otrosAnio = 0 />
+          <#assign honorariosTotal = 0 />
+          <#assign reintegrosTotal = 0 />
+          <#assign otrosTotal = 0 />
           <#assign imprimirResto = false />
           <#list model["rows"] as row>
             <#assign imprimirResto = true />
@@ -175,8 +178,11 @@
               <td>&nbsp;</td>
             </#if>
               <td>${honorariosAnio?string.currency}</td>
+              <#assign honorariosTotal = honorariosTotal + honorariosAnio />
               <td>${reintegrosAnio?string.currency}</td>
+              <#assign reintegrosTotal = reintegrosTotal + reintegrosAnio />
               <td>${otrosAnio?string.currency}</td>
+              <#assign otrosTotal = otrosTotal + otrosAnio />
               <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
               <#assign honorariosAnio = 0 />
               <#assign reintegrosAnio = 0 />
@@ -193,11 +199,25 @@
               <td>&nbsp;</td>
             </#if>
               <td>${honorariosAnio?string.currency}</td>
+              <#assign honorariosTotal = honorariosTotal + honorariosAnio />
               <td>${reintegrosAnio?string.currency}</td>
+              <#assign reintegrosTotal = reintegrosTotal + reintegrosAnio />
               <td>${otrosAnio?string.currency}</td>
+              <#assign otrosTotal = otrosTotal + otrosAnio />
               <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
             </tr>
           </#if>
+          <tr>
+            <td class="total">Total</td>
+            <td>&nbsp;</td>
+          <#if model["includeEmpresa"]!false>
+            <td>&nbsp;</td>
+          </#if>
+            <td>${honorariosTotal?string.currency}</td>
+            <td>${reintegrosTotal?string.currency}</td>
+            <td>${otrosTotal?string.currency}</td>
+            <td>${(honorariosTotal + reintegrosTotal + otrosTotal)?string.currency}</td>
+          </tr>
         </tbody>
       </table>
     </div>

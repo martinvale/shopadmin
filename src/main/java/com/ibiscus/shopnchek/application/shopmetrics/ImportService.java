@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -557,6 +558,160 @@ public class ImportService {
       }
     }
   }
+
+  public void reportDeuda(final OutputStream outputStream,
+		  final Date desde, final Date hasta) {
+	    Map<Class<?>, CellStyle> styles = new HashMap<Class<?>, CellStyle>();
+
+	    Workbook workbook = new SXSSFWorkbook();
+	    Sheet sheet = workbook.createSheet("Items Adeudados");
+
+	    CallableStatement cstmt = null;
+	    ResultSet rs = null;
+	    try {
+	      int currentRow = 1;
+	      cstmt = dataSource.getConnection().prepareCall(
+	          "{call prodGeneral2(?,?)}");
+
+	      cstmt.setDate(1, new java.sql.Date(desde.getTime()));
+	      cstmt.setDate(2, new java.sql.Date(hasta.getTime()));
+	      rs = cstmt.executeQuery();
+
+	      Row row = sheet.createRow(0);
+	      createCell(workbook, styles, row, 0, "SHOPPER");
+	      createCell(workbook, styles, row, 1, "EMPRESA");
+	      createCell(workbook, styles, row, 2, "LOCAL");
+	      createCell(workbook, styles, row, 3, "FECHA");
+	      createCell(workbook, styles, row, 4, "PAGO");
+	      createCell(workbook, styles, row, 5, "IMPORTE");
+
+	      while (rs.next()) {
+	        row = sheet.createRow(currentRow++);
+	        Object value = rs.getString("SHOPPER");
+	        createCell(workbook, styles, row, 0, value);
+	        value = rs.getString("EMPRESA");
+	        createCell(workbook, styles, row, 1, value);
+	        value = rs.getString("LOCAL");
+	        createCell(workbook, styles, row, 2, value);
+	        value = rs.getTimestamp("FECHA");
+	        createCell(workbook, styles, row, 3, value);
+	        value = rs.getString("PAGO");
+	        createCell(workbook, styles, row, 4, value);
+	        value = rs.getFloat("IMPORTE");
+	        createCell(workbook, styles, row, 5, value);
+	      }
+
+	      workbook.write(outputStream);
+	    } catch (Exception ex) {
+	      logger.log(Level.SEVERE, null, ex);
+	    } finally {
+	      if (rs != null) {
+	        try {
+	          rs.close();
+	        } catch (SQLException ex) {
+	          logger.log(Level.WARNING, null, ex);
+	        }
+	      }
+	      if (cstmt != null) {
+	        try {
+	          cstmt.close();
+	        } catch (SQLException ex) {
+	          logger.log(Level.WARNING, null, ex);
+	        }
+	      }
+	    }
+	  }
+
+  public void reportAdicionales(final OutputStream outputStream) {
+	    Map<Class<?>, CellStyle> styles = new HashMap<Class<?>, CellStyle>();
+
+	    Workbook workbook = new SXSSFWorkbook();
+	    Sheet sheet = workbook.createSheet("Items Adeudados");
+
+	    PreparedStatement stmt = null;
+	    ResultSet rs = null;
+	    try {
+	      int currentRow = 1;
+	      /*stmt = dataSource.getConnection().prepareStatement(
+	          "select mcdonalds.dbo.shoppers.apellido_y_nombre as shopper, "
+	    		  + "items_orden.orden_nro as numero, items_orden.cliente, items_orden.sucursal, "
+	        	  + "ordenes.fecha_pago as fecha, tipos_pago.descripcion as pago, items_orden.importe, items_adicionales_autorizados.observaciones "
+	    		  + "from items_orden "
+	    		  + "inner join ordenes on (ordenes.numero = items_orden.orden_nro) "
+	    		  + "inner join tipos_pago on (tipos_pago.id = items_orden.tipo_pago) "
+	        	  + "inner join items_adicionales_autorizados on (items_adicionales_autorizados.opnro = items_orden.orden_nro) "
+	        	  + "left join mcdonalds.dbo.shoppers on (mcdonalds.dbo.shoppers.nro_documento collate Modern_Spanish_CI_AS = items_adicionales_autorizados.shopper_dni) "
+	        	  + "where ordenes.fecha_pago >= ? "
+    	  		  + "order by ordenes.fecha_pago asc");*/
+	      stmt = dataSource.getConnection().prepareStatement(
+		          "select mcdonalds.dbo.shoppers.apellido_y_nombre as shopper, "
+		    		  + "items_adicionales_autorizados.opnro as numero, items_adicionales_autorizados.cliente_nombre as cliente, items_adicionales_autorizados.sucursal_nombre as sucursal, "
+		        	  + "items_adicionales_autorizados.fecha_visita as fecha, '-' as pago, items_adicionales_autorizados.importe, items_adicionales_autorizados.observaciones "
+		    		  + "from items_adicionales_autorizados "
+		    		  //+ "inner join ordenes on (ordenes.numero = items_adicionales_autorizados.opnro) "
+		        	  + "left join mcdonalds.dbo.shoppers on (mcdonalds.dbo.shoppers.nro_documento collate Modern_Spanish_CI_AS = items_adicionales_autorizados.shopper_dni) "
+		        	  + "where items_adicionales_autorizados.fecha_visita >= ? and items_adicionales_autorizados.shopper_dni <> '' "
+		        	  + "and items_adicionales_autorizados.opnro is not null and items_adicionales_autorizados.opnro > 0 "
+	    	  		  + "order by items_adicionales_autorizados.fecha_visita asc");
+
+	      Calendar calendar = Calendar.getInstance();
+	      calendar.set(Calendar.YEAR, 2014);
+	      calendar.set(Calendar.MONTH, Calendar.DECEMBER);
+	      calendar.set(Calendar.DAY_OF_MONTH, 1);
+	      
+	      stmt.setDate(1, new java.sql.Date(calendar.getTimeInMillis()));
+	      rs = stmt.executeQuery();
+
+	      Row row = sheet.createRow(0);
+	      createCell(workbook, styles, row, 0, "SHOPPER");
+	      createCell(workbook, styles, row, 1, "NUMERO ORDEN");
+	      createCell(workbook, styles, row, 2, "EMPRESA");
+	      createCell(workbook, styles, row, 3, "LOCAL");
+	      createCell(workbook, styles, row, 4, "FECHA");
+	      createCell(workbook, styles, row, 5, "PAGO");
+	      createCell(workbook, styles, row, 6, "IMPORTE");
+	      createCell(workbook, styles, row, 7, "OBSERVACIONES");
+
+	      while (rs.next()) {
+	        row = sheet.createRow(currentRow++);
+	        Object value = rs.getString("shopper");
+	        createCell(workbook, styles, row, 0, value);
+	        value = rs.getString("numero");
+	        createCell(workbook, styles, row, 1, value);
+	        value = rs.getString("cliente");
+	        createCell(workbook, styles, row, 2, value);
+	        value = rs.getString("sucursal");
+	        createCell(workbook, styles, row, 3, value);
+	        value = rs.getTimestamp("fecha");
+	        createCell(workbook, styles, row, 4, value);
+	        value = rs.getString("pago");
+	        createCell(workbook, styles, row, 5, value);
+	        value = rs.getFloat("importe");
+	        createCell(workbook, styles, row, 6, value);
+	        value = rs.getString("observaciones");
+	        createCell(workbook, styles, row, 7, value);
+	      }
+
+	      workbook.write(outputStream);
+	    } catch (Exception ex) {
+	      logger.log(Level.SEVERE, null, ex);
+	    } finally {
+	      if (rs != null) {
+	        try {
+	          rs.close();
+	        } catch (SQLException ex) {
+	          logger.log(Level.WARNING, null, ex);
+	        }
+	      }
+	      if (stmt != null) {
+	        try {
+	          stmt.close();
+	        } catch (SQLException ex) {
+	          logger.log(Level.WARNING, null, ex);
+	        }
+	      }
+	    }
+	  }
 
   /** Creates a cell and writes into it the value received. It applies the style
   * needed, in order to write the data with the correct format.

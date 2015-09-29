@@ -104,6 +104,87 @@ public class ItemOrdenController {
     return items;
   }
 
+  @RequestMapping(value="/debtReportFull")
+  public void getDebtReportFull(HttpServletResponse response) {
+    String fileName = "deudafull.xlsx";
+    response.setContentType("application/vnd.openxmlformats-officedocument."
+        + "spreadsheetml.sheet");
+    String headerKey = "Content-Disposition";
+    String headerValue = String.format("attachment; filename=\"%s\"",
+            fileName);
+    response.setHeader(headerKey, headerValue);
+
+    try {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 2006);
+		calendar.set(Calendar.MONTH, Calendar.SEPTEMBER);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		Date from = calendar.getTime();
+	
+		calendar = Calendar.getInstance();
+		calendar.add(Calendar.MONTH, Calendar.SEPTEMBER);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		Date to = calendar.getTime();
+	    importService.reportDeuda(response.getOutputStream(), from, to);
+    } catch (IOException e) {
+    	throw new RuntimeException("Cannot write the XLS file", e);
+    }
+  }
+
+  @RequestMapping(value="/debtReport")
+  public void getDebtReport(HttpServletResponse response) {
+    String fileName = "deuda.xlsx";
+    response.setContentType("application/vnd.openxmlformats-officedocument."
+        + "spreadsheetml.sheet");
+    String headerKey = "Content-Disposition";
+    String headerValue = String.format("attachment; filename=\"%s\"",
+            fileName);
+    response.setHeader(headerKey, headerValue);
+
+    try {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 2014);
+		calendar.set(Calendar.MONTH, Calendar.SEPTEMBER);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		Date from = calendar.getTime();
+	
+		calendar = Calendar.getInstance();
+		calendar.add(Calendar.MONTH, Calendar.SEPTEMBER);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		Date to = calendar.getTime();
+	    importService.reportDeuda(response.getOutputStream(), from, to);
+    } catch (IOException e) {
+    	throw new RuntimeException("Cannot write the XLS file", e);
+    }
+  }
+
+  @RequestMapping(value="/adicionalesPagosReport")
+  public void getAdicionalesPagosReport(HttpServletResponse response) {
+    String fileName = "adicionalesPagos.xlsx";
+    response.setContentType("application/vnd.openxmlformats-officedocument."
+        + "spreadsheetml.sheet");
+    String headerKey = "Content-Disposition";
+    String headerValue = String.format("attachment; filename=\"%s\"",
+            fileName);
+    response.setHeader(headerKey, headerValue);
+
+    try {
+		/*Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.YEAR, 2014);
+		calendar.set(Calendar.MONTH, Calendar.SEPTEMBER);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		Date from = calendar.getTime();
+	
+		calendar = Calendar.getInstance();
+		calendar.add(Calendar.MONTH, 1);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		Date to = calendar.getTime();*/
+	    importService.reportAdicionales(response.getOutputStream());
+    } catch (IOException e) {
+    	throw new RuntimeException("Cannot write the XLS file", e);
+    }
+  }
+
   @RequestMapping(value="/exportDeuda")
   public void exportDeuda(HttpServletResponse response,
       String dniShopper,

@@ -84,9 +84,9 @@
         <tbody>
           <#list model["items"] as item>
           <tr>
-            <td>${item.cliente}</td>
-            <td>${item.sucursal}</td>
-            <td>${item.fecha}</td>
+            <td>${item.cliente!''}</td>
+            <td>${item.sucursal!''}</td>
+            <td>${item.fecha!''}</td>
             <td>${item.tipoPago.description}</td>
             <td>${item.importe?string.currency}</td>
             <td>${item.ordenPago.numero?c} <a href="../orden/${item.ordenPago.numero?c}">editar</a></td>

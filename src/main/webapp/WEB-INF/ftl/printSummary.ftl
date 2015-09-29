@@ -56,6 +56,9 @@
           <#assign honorariosAnio = 0 />
           <#assign reintegrosAnio = 0 />
           <#assign otrosAnio = 0 />
+          <#assign honorariosTotal = 0 />
+          <#assign reintegrosTotal = 0 />
+          <#assign otrosTotal = 0 />
           <#assign imprimirResto = false />
           <#list model["rows"] as row>
             <#assign imprimirResto = true />
@@ -72,6 +75,9 @@
                 <td>$ ${honorariosAnio?string(",##0.00")}</td>
                 <td>$ ${reintegrosAnio?string(",##0.00")}</td>
                 <td>$ ${otrosAnio?string(",##0.00")}</td>
+                <#assign honorariosTotal = honorariosTotal + honorariosAnio />
+                <#assign reintegrosTotal = reintegrosTotal + reintegrosAnio />
+                <#assign otrosTotal = otrosTotal + otrosAnio />
                 <td>$ ${(honorariosAnio + reintegrosAnio + otrosAnio)?string(",##0.00")}</td>
                 <#assign honorariosAnio = 0 />
                 <#assign reintegrosAnio = 0 />
@@ -112,9 +118,23 @@
               <td>$ ${honorariosAnio?string(",##0.00")}</td>
               <td>$ ${reintegrosAnio?string(",##0.00")}</td>
               <td>$ ${otrosAnio?string(",##0.00")}</td>
+              <#assign honorariosTotal = honorariosTotal + honorariosAnio />
+              <#assign reintegrosTotal = reintegrosTotal + reintegrosAnio />
+              <#assign otrosTotal = otrosTotal + otrosAnio />
               <td>$ ${(honorariosAnio + reintegrosAnio + otrosAnio)?string(",##0.00")}</td>
             </tr>
           </#if>
+          <tr>
+            <td class="total">Total</td>
+            <td>&nbsp;</td>
+          <#if model["includeEmpresa"]!false>
+            <td>&nbsp;</td>
+          </#if>
+            <td>$ ${honorariosTotal?string(",##0.00")}</td>
+            <td>$ ${reintegrosTotal?string(",##0.00")}</td>
+            <td>$ ${otrosTotal?string(",##0.00")}</td>
+            <td>$ ${(honorariosTotal + reintegrosTotal + otrosTotal)?string(",##0.00")}</td>
+          </tr>
         </tbody>
       </table>
     </div>

@@ -4,6 +4,7 @@ import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -165,20 +166,19 @@ public class ReportService {
     }
   }
 
-  public List<Row> getDebtSummaryReport(final int mesDesde, final int anioDesde,
-      final int mesHasta, final int anioHasta,
+  public List<Row> getDebtSummaryReport(final Date desde, final Date hasta,
       final boolean includeGac, final boolean includeMCD,
       final boolean includeAdicionales, final boolean includeShopmetrics,
       final boolean includeEmpresa) {
     List<Row> rows = new LinkedList<Row>();
 
-    initializeData(mesDesde, anioDesde, mesHasta, anioHasta, includeGac,
-        includeMCD, includeAdicionales, includeShopmetrics);
+    /*initializeData(mesDesde, anioDesde, mesHasta, anioHasta, includeGac,
+        includeMCD, includeAdicionales, includeShopmetrics);*/
 
-    PreparedStatement statement = null;
+    CallableStatement cstmt = null;
     ResultSet resulset = null;
     try {
-      String sql = "select año as year, mes as month, ";
+      /*String sql = "select año as year, mes as month, ";
           //+ "DATEPART(dd, fecha) as day, empresa, tipo_item, "
       if (includeEmpresa) {
         sql += "empresa, ";
@@ -198,9 +198,15 @@ public class ReportService {
       if (includeEmpresa) {
         sql += ", empresa";
       }
-      statement = dataSource.getConnection().prepareStatement(sql);
+      statement = dataSource.getConnection().prepareStatement(sql);*/
+      cstmt = dataSource.getConnection().prepareCall(
+	          "{call deudaGeneral2(?,?,?)}");
 
-      resulset = statement.executeQuery();
+      cstmt.setDate(1, new java.sql.Date(desde.getTime()));
+      cstmt.setDate(2, new java.sql.Date(hasta.getTime()));
+      cstmt.setBoolean(3, includeEmpresa);
+
+      resulset = cstmt.executeQuery();
       while (resulset.next()) {
         Row row = new Row();
         row.addValue("year", resulset.getInt("year"));
@@ -225,9 +231,9 @@ public class ReportService {
           logger.log(Level.WARNING, null, ex);
         }
       }
-      if (statement != null) {
+      if (cstmt != null) {
         try {
-          statement.close();
+          cstmt.close();
         } catch (SQLException ex) {
           logger.log(Level.WARNING, null, ex);
         }
@@ -237,20 +243,19 @@ public class ReportService {
     return rows;
   }
 
-  public List<Row> getProdSummaryReport(final int mesDesde, final int anioDesde,
-      final int mesHasta, final int anioHasta,
+  public List<Row> getProdSummaryReport(final Date desde, final Date hasta,
       final boolean includeGac, final boolean includeMCD,
       final boolean includeAdicionales, final boolean includeShopmetrics,
       final boolean includeEmpresa) {
     List<Row> rows = new LinkedList<Row>();
 
-    initializeData(mesDesde, anioDesde, mesHasta, anioHasta, includeGac,
-        includeMCD, includeAdicionales, includeShopmetrics);
+/*    initializeData(mesDesde, anioDesde, mesHasta, anioHasta, includeGac,
+        includeMCD, includeAdicionales, includeShopmetrics);*/
 
-    PreparedStatement statement = null;
+    CallableStatement cstmt = null;
     ResultSet resulset = null;
     try {
-      String sql = "select año as year, mes as month, ";
+      /*String sql = "select año as year, mes as month, ";
       if (includeEmpresa) {
         sql += "empresa, ";
       }
@@ -269,9 +274,16 @@ public class ReportService {
       if (includeEmpresa) {
         sql += ", empresa";
       }
-      statement = dataSource.getConnection().prepareStatement(sql);
+      statement = dataSource.getConnection().prepareStatement(sql);*/
 
-      resulset = statement.executeQuery();
+	  cstmt = dataSource.getConnection().prepareCall(
+	          "{call prodGeneral(?,?,?)}");
+	
+	  cstmt.setDate(1, new java.sql.Date(desde.getTime()));
+	  cstmt.setDate(2, new java.sql.Date(hasta.getTime()));
+	  cstmt.setBoolean(3, includeEmpresa);
+
+      resulset = cstmt.executeQuery();
       while (resulset.next()) {
         Row row = new Row();
         row.addValue("year", resulset.getInt("year"));
@@ -298,9 +310,9 @@ public class ReportService {
           logger.log(Level.WARNING, null, ex);
         }
       }
-      if (statement != null) {
+      if (cstmt != null) {
         try {
-          statement.close();
+          cstmt.close();
         } catch (SQLException ex) {
           logger.log(Level.WARNING, null, ex);
         }

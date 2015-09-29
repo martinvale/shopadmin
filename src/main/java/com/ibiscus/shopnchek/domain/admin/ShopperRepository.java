@@ -21,11 +21,18 @@ public class ShopperRepository extends HibernateDaoSupport {
     return (List<Shopper>) criteria.list();
   }
 
+  @SuppressWarnings("unchecked")
   public Shopper findByDni(final String dni) {
     Validate.notNull(dni, "The shopper dni cannot be null");
     Criteria criteria = getSession().createCriteria(Shopper.class);
     criteria.add(Expression.eq("dni", dni));
-    return (Shopper) criteria.uniqueResult();
+    Shopper shopper = null;
+    //TODO Volver a usar unique result cuando arreglen la base de shoppers
+    List<Shopper> shoppers = criteria.list();
+    if (shoppers.size() > 0) {
+    	shopper = shoppers.get(0);
+    }
+    return shopper;
   }
 
   public Shopper get(final long id) {

@@ -48,31 +48,24 @@ public class ReportController {
       model.addAttribute("anioHasta", anioHasta);
       model.addAttribute("mesHasta", mesHasta);
 
-      SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-      String fechaDesde = "01-" + mesDesde + "-" + anioDesde;
-      String fechaHasta = "01-" + (mesHasta + 1) + "-" + anioHasta;
-      Date desde;
-      Date hasta;
-      try {
-        desde = dateFormat.parse(fechaDesde);
-        hasta = dateFormat.parse(fechaHasta);
-      } catch (ParseException e) {
-        throw new RuntimeException(e);
-      }
-
       Calendar calendar = Calendar.getInstance();
-      calendar.setTime(hasta);
-      calendar.add(Calendar.DAY_OF_MONTH, -1);
-      hasta = calendar.getTime();
+      calendar.set(Calendar.YEAR, anioDesde);
+      calendar.set(Calendar.MONTH, mesDesde - 1);
+      calendar.set(Calendar.DAY_OF_MONTH, 1);
+      calendar.set(Calendar.HOUR, 0);
+      calendar.set(Calendar.MINUTE, 0);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+      Date desde = calendar.getTime();
 
-      if (mesHasta < 12) {
-        mesHasta++;
-      } else {
-        mesHasta = 1;
-        anioHasta++;
-      }
-      rows = reportsService.getDebtSummaryReport(mesDesde, anioDesde, mesHasta,
-          anioHasta, true, true, true, true, includeEmpresa);
+      calendar.set(Calendar.YEAR, anioHasta);
+      calendar.set(Calendar.MONTH, mesHasta - 1);
+      calendar.add(Calendar.MONTH, 1);
+      calendar.add(Calendar.DAY_OF_MONTH, -1);
+      Date hasta = calendar.getTime();
+
+      rows = reportsService.getDebtSummaryReport(desde, hasta,
+          true, true, true, true, includeEmpresa);
     }
 
     model.addAttribute("rows", rows);
@@ -85,31 +78,24 @@ public class ReportController {
       Integer mesHasta, boolean includeEmpresa) {
     model.addAttribute("includeEmpresa", includeEmpresa);
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-    String fechaDesde = "01-" + mesDesde + "-" + anioDesde;
-    String fechaHasta = "01-" + (mesHasta + 1) + "-" + anioHasta;
-    Date desde;
-    Date hasta;
-    try {
-      desde = dateFormat.parse(fechaDesde);
-      hasta = dateFormat.parse(fechaHasta);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
-    }
-
     Calendar calendar = Calendar.getInstance();
-    calendar.setTime(hasta);
-    calendar.add(Calendar.DAY_OF_MONTH, -1);
-    hasta = calendar.getTime();
+    calendar.set(Calendar.YEAR, anioDesde);
+    calendar.set(Calendar.MONTH, mesDesde - 1);
+    calendar.set(Calendar.DAY_OF_MONTH, 1);
+    calendar.set(Calendar.HOUR, 0);
+    calendar.set(Calendar.MINUTE, 0);
+    calendar.set(Calendar.SECOND, 0);
+    calendar.set(Calendar.MILLISECOND, 0);
+    Date desde = calendar.getTime();
 
-    if (mesHasta < 12) {
-      mesHasta++;
-    } else {
-      mesHasta = 1;
-      anioHasta++;
-    }
-    model.addAttribute("rows", reportsService.getDebtSummaryReport(mesDesde,
-        anioDesde, mesHasta, anioHasta, true, true, true, true, includeEmpresa));
+    calendar.set(Calendar.YEAR, anioHasta);
+    calendar.set(Calendar.MONTH, mesHasta - 1);
+    calendar.add(Calendar.MONTH, 1);
+    calendar.add(Calendar.DAY_OF_MONTH, -1);
+    Date hasta = calendar.getTime();
+
+    model.addAttribute("rows", reportsService.getDebtSummaryReport(desde,
+        hasta, true, true, true, true, includeEmpresa));
     model.addAttribute("title", "Resumen de Deuda");
     return "printSummary";
   }
@@ -135,14 +121,23 @@ public class ReportController {
       model.addAttribute("anioHasta", anioHasta);
       model.addAttribute("mesHasta", mesHasta);
 
-      if (mesHasta < 12) {
-        mesHasta++;
-      } else {
-        mesHasta = 1;
-        anioHasta++;
-      }
-      rows = reportsService.getProdSummaryReport(mesDesde, anioDesde, mesHasta,
-          anioHasta, true, true, true, true, includeEmpresa);
+      Calendar calendar = Calendar.getInstance();
+      calendar.set(Calendar.YEAR, anioDesde);
+      calendar.set(Calendar.MONTH, mesDesde - 1);
+      calendar.set(Calendar.DAY_OF_MONTH, 1);
+      calendar.set(Calendar.HOUR, 0);
+      calendar.set(Calendar.MINUTE, 0);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+      Date desde = calendar.getTime();
+
+      calendar.set(Calendar.YEAR, anioHasta);
+      calendar.set(Calendar.MONTH, mesHasta - 1);
+      calendar.add(Calendar.MONTH, 1);
+      calendar.add(Calendar.DAY_OF_MONTH, -1);
+      Date hasta = calendar.getTime();
+      rows = reportsService.getProdSummaryReport(desde, hasta,
+          true, true, true, true, includeEmpresa);
     }
 
     model.addAttribute("rows", rows);
@@ -154,14 +149,25 @@ public class ReportController {
       Integer anioDesde, Integer mesDesde, Integer anioHasta,
       Integer mesHasta, boolean includeEmpresa) {
     model.addAttribute("includeEmpresa", includeEmpresa);
-    if (mesHasta < 12) {
-      mesHasta++;
-    } else {
-      mesHasta = 1;
-      anioHasta++;
-    }
-    model.addAttribute("rows", reportsService.getProdSummaryReport(mesDesde,
-        anioDesde, mesHasta, anioHasta, true, true, true, true, includeEmpresa));
+
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.YEAR, anioDesde);
+    calendar.set(Calendar.MONTH, mesDesde - 1);
+    calendar.set(Calendar.DAY_OF_MONTH, 1);
+    calendar.set(Calendar.HOUR, 0);
+    calendar.set(Calendar.MINUTE, 0);
+    calendar.set(Calendar.SECOND, 0);
+    calendar.set(Calendar.MILLISECOND, 0);
+    Date desde = calendar.getTime();
+
+    calendar.set(Calendar.YEAR, anioHasta);
+    calendar.set(Calendar.MONTH, mesHasta - 1);
+    calendar.add(Calendar.MONTH, 1);
+    calendar.add(Calendar.DAY_OF_MONTH, -1);
+    Date hasta = calendar.getTime();
+
+    model.addAttribute("rows", reportsService.getProdSummaryReport(desde,
+        hasta, true, true, true, true, includeEmpresa));
     model.addAttribute("title", "Resumen de Producción");
     return "printSummary";
   }
