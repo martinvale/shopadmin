@@ -80,6 +80,22 @@
     <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
 
+  <bean id="debtRepository" class="com.ibiscus.shopnchek.domain.debt.DebtRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
+  <bean id="tipoPagoRepository" class="com.ibiscus.shopnchek.domain.admin.TipoPagoRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
+  <bean id="clientRepository" class="com.ibiscus.shopnchek.domain.debt.ClientRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
+  <bean id="branchRepository" class="com.ibiscus.shopnchek.domain.debt.BranchRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
   <bean id="shopperRepository" class="com.ibiscus.shopnchek.domain.admin.ShopperRepository">
     <property name="sessionFactory" ref="sessionFactory2"></property>
   </bean>

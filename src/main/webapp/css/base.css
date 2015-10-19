@@ -1271,3 +1271,15 @@ nav {
     color:#333;
     }
 
+/* Forms */
+form .item-field {
+  width: 300px;
+}
+
+form select.item-field {
+  width: 315px;
+}
+
+form .item-field:disabled {
+  background: #f2f2f2;
+}

@@ -20,6 +20,7 @@
 
   <context:component-scan base-package="com.ibiscus.shopnchek.web.controller" />
   <context:component-scan base-package="com.ibiscus.shopnchek.domain.admin" />
+  <context:component-scan base-package="com.ibiscus.shopnchek.application" />
 
   <!-- Configuration service -->
   <!-- bean id="configurationService"
@@ -38,6 +39,11 @@
   <bean id="freemarkerConfig"
       class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
     <property name="templateLoaderPath" value="/WEB-INF/ftl/" />
+	<!-- property name="freemarkerSettings">
+      <props>
+        <prop key="locale">en_US</prop>
+      </props>
+    </property-->
   </bean>
 
   <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">

@@ -13,7 +13,7 @@ public class TipoItem {
   @Column(name="id")
   private long id;
 
-  @Column(name="descripcion")
+  @Column(name="description")
   private String description;
 
   TipoItem() {

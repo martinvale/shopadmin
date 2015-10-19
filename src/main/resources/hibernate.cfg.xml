@@ -7,6 +7,10 @@
   <session-factory>
     <mapping class="com.ibiscus.shopnchek.domain.security.User"></mapping>
 
+    <mapping class="com.ibiscus.shopnchek.domain.debt.Client"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.debt.Branch"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.debt.Debt"></mapping>
+
     <mapping class="com.ibiscus.shopnchek.domain.admin.Shopper"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.Proveedor"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.OrdenPago"></mapping>
@@ -14,6 +18,7 @@
     <mapping class="com.ibiscus.shopnchek.domain.admin.OrderState"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.MedioPago"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.TipoPago"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.admin.TipoItem"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.AsociacionMedioPago"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.Programa"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.ClienteShopmetrics"></mapping>
