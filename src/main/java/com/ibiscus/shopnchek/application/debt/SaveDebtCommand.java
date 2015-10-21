@@ -3,8 +3,6 @@ package com.ibiscus.shopnchek.application.debt;
 import java.util.Date;
 
 import org.apache.commons.lang.Validate;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.ibiscus.shopnchek.application.Command;
 import com.ibiscus.shopnchek.domain.debt.Branch;
@@ -43,7 +41,7 @@ public class SaveDebtCommand implements Command<Debt> {
 	private long branchId;
 
 	private Long externalId;
-	
+
 	public SaveDebtCommand(final DebtRepository debtRepository, final ClientRepository clientRepository,
 			final BranchRepository branchRepository) {
 		this(debtRepository, clientRepository, branchRepository, null);
@@ -61,7 +59,6 @@ public class SaveDebtCommand implements Command<Debt> {
 	}
 
 	@Override
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Debt execute() {
 		Validate.notNull(shopperDni, "The shopper DNI cannot be null");
 		TipoItem tipoItem = TipoItem.valueOf(tipoItemValue);

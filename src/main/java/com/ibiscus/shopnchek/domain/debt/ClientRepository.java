@@ -12,8 +12,12 @@ public class ClientRepository extends HibernateDaoSupport {
 		return getHibernateTemplate().get(Client.class, id);
 	}
 
-	public Client save(final Client client) {
-		return (Client) getHibernateTemplate().save(client);
+	public Long save(final Client client) {
+		return (Long) getHibernateTemplate().save(client);
+	}
+
+	public void update(final Client client) {
+		getHibernateTemplate().update(client);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -21,5 +25,17 @@ public class ClientRepository extends HibernateDaoSupport {
 		Criteria criteria = getSession().createCriteria(Client.class);
 		criteria.add(Expression.like("name", name + "%"));
 		return criteria.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public Client getByName(final String name) {
+		Client client = null;
+		Criteria criteria = getSession().createCriteria(Client.class);
+		criteria.add(Expression.eq("name", name));
+		List<Client> clients = criteria.list();
+		if (!clients.isEmpty()) {
+			client = clients.get(0);
+		}
+		return client;
 	}
 }

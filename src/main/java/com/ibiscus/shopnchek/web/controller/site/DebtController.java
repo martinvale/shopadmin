@@ -22,7 +22,6 @@ import com.ibiscus.shopnchek.domain.debt.BranchRepository;
 import com.ibiscus.shopnchek.domain.debt.ClientRepository;
 import com.ibiscus.shopnchek.domain.debt.Debt;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
-import com.ibiscus.shopnchek.domain.debt.TipoItem;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
 
 @Controller

@@ -3,15 +3,9 @@ package com.ibiscus.shopnchek.application.shopmetrics;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.CallableStatement;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,8 +15,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.sql.DataSource;
-
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.Validate;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -33,6 +27,19 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.ibiscus.shopnchek.domain.admin.Shopper;
+import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
+import com.ibiscus.shopnchek.domain.debt.Branch;
+import com.ibiscus.shopnchek.domain.debt.BranchRepository;
+import com.ibiscus.shopnchek.domain.debt.Client;
+import com.ibiscus.shopnchek.domain.debt.ClientRepository;
+import com.ibiscus.shopnchek.domain.debt.Debt;
+import com.ibiscus.shopnchek.domain.debt.DebtRepository;
+import com.ibiscus.shopnchek.domain.debt.TipoItem;
+import com.ibiscus.shopnchek.domain.debt.TipoPago;
 
 public class ImportService {
 
@@ -54,32 +61,24 @@ public class ImportService {
 
   private final Logger logger = Logger.getLogger(ImportService.class.getName());
 
-  private final DataSource dataSource;
+  private final DebtRepository debtRepository;
 
-  public ImportService(final DataSource theDataSource) {
-    dataSource = theDataSource;
+  private final ClientRepository clientRepository;
+
+  private final BranchRepository branchRepository;
+
+  private final ShopperRepository shopperRepository;
+
+  public ImportService(final DebtRepository debtRepository, final ClientRepository clientRepository,
+		  final BranchRepository branchRepository, final ShopperRepository shopperRepository) {
+    this.debtRepository = debtRepository;
+    this.clientRepository = clientRepository;
+    this.branchRepository = branchRepository;
+    this.shopperRepository = shopperRepository;
   }
 
   public List<ShopmetricsUserDto> process(final InputStream inputStream) {
     List<ShopmetricsUserDto> users = new LinkedList<ShopmetricsUserDto>();
-
-    PreparedStatement stmt = null;
-    try {
-      //Actualizar ID shoppers
-      stmt = dataSource.getConnection().prepareStatement(
-          "DELETE FROM ImportacionShopmetricsAuxiliar");
-      stmt.execute();
-    } catch (Exception ex) {
-      logger.log(Level.SEVERE, null, ex);
-    } finally {
-      if (stmt != null) {
-        try {
-          stmt.close();
-        } catch (SQLException ex) {
-          logger.log(Level.WARNING, null, ex);
-        }
-      }
-    }
 
     Workbook workbook;
     Sheet sheet;
@@ -105,10 +104,16 @@ public class ImportService {
     boolean salir = false;
     while (rowIterator.hasNext() && !salir) {
       row = (Row) rowIterator.next();
-      salir = addRow(headers, row);
+      try {
+    	  salir = addRow(headers, row);
+      } catch (ShopperNotFoundException e) {
+    	  logger.log(Level.WARNING, "Cannot import Shopmetrics item for shopper with login "
+    			  + e.getIdentifier());
+    	  users.add(new ShopmetricsUserDto(e.getIdentifier(), null, null));
+      }
     }
 
-    ResultSet rs = null;
+    /*ResultSet rs = null;
     try {
       //Actualizar ID shoppers
       stmt = dataSource.getConnection().prepareStatement(
@@ -206,11 +211,12 @@ public class ImportService {
           logger.log(Level.WARNING, null, ex);
         }
       }
-    }
+    }*/
 
     return users;
   }
 
+  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   private boolean addRow(final Map<Integer, Integer> headers, final Row row) {
     boolean end = false;
     Cell cell = row.getCell(headers.get(ColSurveyID));
@@ -222,8 +228,6 @@ public class ImportService {
       end = "Total".equals(cellTotal);
     }
     if (surveyIdValue != null) {
-      Long surveyId = surveyIdValue.longValue();
-
       cell = row.getCell(headers.get(Collogin));
       String login = cell.getStringCellValue();
       if (login != null && !login.isEmpty()) {
@@ -271,80 +275,65 @@ public class ImportService {
             reintegros = new Double(reintegrosValue);
           }
         }
-        String okPayValue = row.getCell(headers.get(ColOK_Pay))
-            .getStringCellValue();
 
-        if (cliente != null && cliente.length() > 50) {
-          cliente = cliente.substring(0, 50);
-        }
-        if (apellido != null && apellido.length() > 60) {
-          apellido = apellido.substring(0, 60);
-        }
-        if (nombre != null && nombre.length() > 100) {
-          nombre = nombre.substring(0, 100);
-        }
-        if (login != null && login.length() > 50) {
-          login = login.substring(0, 50);
-        }
-        if (subCuestionario != null && subCuestionario.length() > 50) {
-          subCuestionario = subCuestionario.substring(0, 50);
-        }
-        if (idSucursal != null && idSucursal.length() > 20) {
-          idSucursal = idSucursal.substring(0, 20);
-        }
-        if (nombreSucursal != null && nombreSucursal.length() > 50) {
-          nombreSucursal = nombreSucursal.substring(0, 50);
-        }
-        if (direccionSucursal != null && direccionSucursal.length() > 100) {
-          direccionSucursal = direccionSucursal.substring(0, 100);
-        }
-        if (ciudadSucursal != null && ciudadSucursal.length() > 50) {
-          ciudadSucursal = ciudadSucursal.substring(0, 50);
-        }
+        Branch branch = null;
+        Client client = clientRepository.getByName(cliente);
+        if (client == null) {
+        	client = new Client(cliente);
+        	clientRepository.save(client);
+        } else {
+        	final String sucursalCode = idSucursal;
+        	branch = (Branch) CollectionUtils.find(client.getBranchs(), new Predicate() {
 
-        PreparedStatement stmt = null;
-        try {
-          stmt = dataSource.getConnection().prepareStatement(
-              "INSERT INTO ImportacionShopmetricsAuxiliar(Cliente, Apellido, Nombre, Login, Tax_ID, "
-              + "Tax_ID_Type, Date_Time, Survey, InstanceID, Location, Location_Name, Loc_Address, "
-              + "Loc_City, Honorarios, Reintegros, OK_Pay) Values(?, ?, ?, "
-              + "?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+				@Override
+				public boolean evaluate(Object item) {
+					boolean result = false;
+					Branch branch = (Branch) item;
+					if (branch.getCode() != null) {
+						result = branch.getCode().equals(sucursalCode);
+					}
+					return result;
+				}
 
-          stmt.setString(1, cliente);
-          stmt.setString(2, apellido);
-          stmt.setString(3, nombre);
-          stmt.setString(4, login);
-          stmt.setDate(5, new java.sql.Date(fecha.getTime()));
-          stmt.setString(6, subCuestionario);
-          stmt.setLong(7, surveyId);
-          stmt.setString(8, idSucursal);
-          stmt.setString(9, nombreSucursal);
-          stmt.setString(10, direccionSucursal);
-          stmt.setString(11, ciudadSucursal);
-          if (honorarios != null) {
-            stmt.setDouble(12, honorarios);
-          } else {
-            stmt.setNull(12, Types.DOUBLE);
-          }
-          if (reintegros != null) {
-            stmt.setDouble(13, reintegros);
-          } else {
-            stmt.setNull(13, Types.DOUBLE);
-          }
-          stmt.setBoolean(14, okPayValue.equalsIgnoreCase("OK"));
-
-          stmt.execute();
-        } catch (Exception ex) {
-          logger.log(Level.SEVERE, null, ex);
-        } finally {
-          if (stmt != null) {
-            try {
-              stmt.close();
-            } catch (SQLException ex) {
-              logger.log(Level.WARNING, null, ex);
-            }
-          }
+        	});
         }
+    	if (branch == null) {
+    		branch = new Branch(client, idSucursal, direccionSucursal);
+    		branchRepository.save(branch);
+    		//client.addBranch(branch);
+    		//clientRepository.update(client);
+    	}
+
+    	Shopper shopper = shopperRepository.findByLogin(login);
+    	if (shopper == null) {
+    		throw new ShopperNotFoundException(login);
+    	}
+    	if (honorarios != null) {
+	        Debt debt = debtRepository.getByExternalId(surveyIdValue.longValue(), TipoItem.shopmetrics,
+	        		TipoPago.honorarios);
+	        if (debt == null) {
+	        	debt = new Debt(TipoItem.shopmetrics, TipoPago.honorarios, shopper.getDni(),
+	        			honorarios, fecha, null, client, branch, surveyIdValue.longValue());
+	        	debtRepository.save(debt);
+	        } else {
+	        	debt.update(TipoItem.shopmetrics, TipoPago.honorarios, shopper.getDni(),
+	        			honorarios, fecha, null, client, branch, surveyIdValue.longValue());
+	        	debtRepository.update(debt);
+	        }
+    	}
+    	if (reintegros != null) {
+	        Debt debt = debtRepository.getByExternalId(surveyIdValue.longValue(), TipoItem.shopmetrics,
+	        		TipoPago.reintegros);
+	        if (debt == null) {
+	        	debt = new Debt(TipoItem.shopmetrics, TipoPago.reintegros, shopper.getDni(),
+	        			reintegros, fecha, null, client, branch, surveyIdValue.longValue());
+	        	debtRepository.save(debt);
+	        } else {
+	        	debt.update(TipoItem.shopmetrics, TipoPago.reintegros, shopper.getDni(),
+	        			reintegros, fecha, null, client, branch, surveyIdValue.longValue());
+	        	debtRepository.update(debt);
+	        }
+    	}
       }
     }
     return end;
@@ -416,7 +405,7 @@ public class ImportService {
     Workbook workbook = new SXSSFWorkbook();
     Sheet sheet = workbook.createSheet("Ordenes");
 
-    CallableStatement cstmt = null;
+    /*CallableStatement cstmt = null;
     ResultSet rs = null;
     try {
       int currentRow = 1;
@@ -478,7 +467,7 @@ public class ImportService {
           logger.log(Level.WARNING, null, ex);
         }
       }
-    }
+    }*/
   }
 
   public void exportDeuda(final OutputStream outputStream,
@@ -491,7 +480,7 @@ public class ImportService {
     Workbook workbook = new SXSSFWorkbook();
     Sheet sheet = workbook.createSheet("Items Adeudados");
 
-    CallableStatement cstmt = null;
+    /*CallableStatement cstmt = null;
     ResultSet rs = null;
     try {
       int currentRow = 1;
@@ -556,7 +545,7 @@ public class ImportService {
           logger.log(Level.WARNING, null, ex);
         }
       }
-    }
+    }*/
   }
 
   public void reportDeuda(final OutputStream outputStream,
@@ -566,7 +555,7 @@ public class ImportService {
 	    Workbook workbook = new SXSSFWorkbook();
 	    Sheet sheet = workbook.createSheet("Items Adeudados");
 
-	    CallableStatement cstmt = null;
+	    /*CallableStatement cstmt = null;
 	    ResultSet rs = null;
 	    try {
 	      int currentRow = 1;
@@ -619,7 +608,7 @@ public class ImportService {
 	          logger.log(Level.WARNING, null, ex);
 	        }
 	      }
-	    }
+	    }*/
 	  }
 
   public void reportAdicionales(final OutputStream outputStream) {
@@ -628,21 +617,10 @@ public class ImportService {
 	    Workbook workbook = new SXSSFWorkbook();
 	    Sheet sheet = workbook.createSheet("Items Adeudados");
 
-	    PreparedStatement stmt = null;
+	    /*PreparedStatement stmt = null;
 	    ResultSet rs = null;
 	    try {
 	      int currentRow = 1;
-	      /*stmt = dataSource.getConnection().prepareStatement(
-	          "select mcdonalds.dbo.shoppers.apellido_y_nombre as shopper, "
-	    		  + "items_orden.orden_nro as numero, items_orden.cliente, items_orden.sucursal, "
-	        	  + "ordenes.fecha_pago as fecha, tipos_pago.descripcion as pago, items_orden.importe, items_adicionales_autorizados.observaciones "
-	    		  + "from items_orden "
-	    		  + "inner join ordenes on (ordenes.numero = items_orden.orden_nro) "
-	    		  + "inner join tipos_pago on (tipos_pago.id = items_orden.tipo_pago) "
-	        	  + "inner join items_adicionales_autorizados on (items_adicionales_autorizados.opnro = items_orden.orden_nro) "
-	        	  + "left join mcdonalds.dbo.shoppers on (mcdonalds.dbo.shoppers.nro_documento collate Modern_Spanish_CI_AS = items_adicionales_autorizados.shopper_dni) "
-	        	  + "where ordenes.fecha_pago >= ? "
-    	  		  + "order by ordenes.fecha_pago asc");*/
 	      stmt = dataSource.getConnection().prepareStatement(
 		          "select mcdonalds.dbo.shoppers.apellido_y_nombre as shopper, "
 		    		  + "items_adicionales_autorizados.opnro as numero, items_adicionales_autorizados.cliente_nombre as cliente, items_adicionales_autorizados.sucursal_nombre as sucursal, "
@@ -710,7 +688,7 @@ public class ImportService {
 	          logger.log(Level.WARNING, null, ex);
 	        }
 	      }
-	    }
+	    }*/
 	  }
 
   /** Creates a cell and writes into it the value received. It applies the style

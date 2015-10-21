@@ -16,6 +16,15 @@ public class DebtRepository extends HibernateDaoSupport {
 		return getHibernateTemplate().get(Debt.class, id);
 	}
 
+	public Debt getByExternalId(final long externalId, final TipoItem tipoItem,
+			final TipoPago tipoPago) {
+		Criteria criteria = getSession().createCriteria(Debt.class);
+		criteria.add(Expression.eq("externalId", externalId));
+		criteria.add(Expression.eq("tipoItem", tipoItem));
+		criteria.add(Expression.eq("tipoPago", tipoPago));
+		return (Debt) criteria.uniqueResult();
+	}
+
 	public Long save(final Debt debt) {
 		return (Long) getHibernateTemplate().save(debt);
 	}

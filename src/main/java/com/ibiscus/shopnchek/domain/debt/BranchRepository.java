@@ -12,8 +12,8 @@ public class BranchRepository extends HibernateDaoSupport {
 		return getHibernateTemplate().get(Branch.class, id);
 	}
 
-	public Branch save(final Branch Branch) {
-		return (Branch) getHibernateTemplate().save(Branch);
+	public Long save(final Branch Branch) {
+		return (Long) getHibernateTemplate().save(Branch);
 	}
 
 	@SuppressWarnings("unchecked")

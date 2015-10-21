@@ -35,6 +35,20 @@ public class ShopperRepository extends HibernateDaoSupport {
     return shopper;
   }
 
+  @SuppressWarnings("unchecked")
+  public Shopper findByLogin(final String login) {
+    Validate.notNull(login, "The login id cannot be null");
+    Criteria criteria = getSession().createCriteria(Shopper.class);
+    criteria.add(Expression.eq("login", login));
+    Shopper shopper = null;
+    //TODO Volver a usar unique result cuando arreglen la base de shoppers
+    List<Shopper> shoppers = criteria.list();
+    if (shoppers.size() > 0) {
+    	shopper = shoppers.get(0);
+    }
+    return shopper;
+  }
+
   public Shopper get(final long id) {
     return (Shopper) getSession().get(Shopper.class, id);
   }
