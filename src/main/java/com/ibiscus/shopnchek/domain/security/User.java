@@ -1,83 +1,141 @@
 package com.ibiscus.shopnchek.domain.security;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 @Entity
-@Table(name="USUARIOS")
-public class User {
+@Table(name="users")
+public class User implements UserDetails {
 
-  @Id
-  @Column(name="ID")
-  private long id;
+	private static final long serialVersionUID = 6755708810467824702L;
 
-  @Column(name="DESCRIPCION")
-  private String username;
+	@Id
+	@Column(name="id")
+	private long id;
 
-  @Column(name="NOMBRE")
-  private String name;
+	@Column(name="username", nullable=false, length=100)
+	private String username;
 
-  @Column(name="PASSWORD")
-  private String password;
+	@Column(name="name", nullable=false, length=255)
+	private String name;
 
-  @Column(name="PERFIL")
-  private int perfil;
+	@Column(name="password", nullable=false, length=100)
+	private String password;
 
-  @Column(name="PERFIL_MODIF_ESTADO_ORDENES")
-  private int modificarEstadoOrdenes;
+	@Column(name="enabled", nullable=false)
+	private boolean enabled;
 
-  @Column(name="PERFIL_AUTORIZACION_ADICIONALES")
-  private int autorizarAdicionales;
+	@ManyToMany
+	@JoinTable(name="users_roles",
+			joinColumns=@JoinColumn(name="user_id"),
+			inverseJoinColumns=@JoinColumn(name="role_id"))  
+	private Set<Role> roles = new HashSet<Role>();
 
-  User() {
-  }
+	User() {
+	}
 
-  public User(final String theUsername, final String theName,
-      final int theProfile) {
-    username = theUsername;
-    name = theName;
-    password = theUsername;
-    perfil = theProfile;
-  }
+	public User(final String username, final String name,
+			final String password, final boolean enabled, final Set<Role> roles) {
+		this.username = username;
+		this.name = name;
+		this.password = password;
+		this.enabled = enabled;
+		this.roles.addAll(roles);
+	}
 
-  public void update(final String theUsername, final String theName,
-      final int theProfile) {
-    username = theUsername;
-    name = theName;
-    perfil = theProfile;
-  }
+	public void update(final String username, final String name,
+			final boolean enabled, final Set<Role> roles) {
+		this.username = username;
+		this.name = name;
+		this.enabled = enabled;
+		this.roles.clear();
+		this.roles.addAll(roles);
+	}
 
-  public void updateId(final long theId) {
-    id = theId;
-  }
+	public long getId() {
+		return id;
+	}
 
-  public long getId() {
-    return id;
-  }
+	public String getUsername() {
+		return username;
+	}
 
-  public String getUsername() {
-    return username;
-  }
+	public String getName() {
+		return name;
+	}
 
-  public String getName() {
-    return name;
-  }
+	public String getPassword() {
+		return password;
+	}
 
-  public String getPassword() {
-    return password;
-  }
+	public Set<Role> getRoles() {
+		return roles;
+	}
 
-  public int getPerfil() {
-    return perfil;
-  }
+	private boolean isAdministrator() {
+		boolean hasAdminRole = false;
+		Iterator<Role> rolesIterator = roles.iterator();
+		while (rolesIterator.hasNext() && !hasAdminRole) {
+			hasAdminRole = rolesIterator.next().getName().equals(Role.ADMINISTRATOR_ROLE_NAME);
+		}
+		return hasAdminRole;
+	}
 
-  public boolean isAditionalEnabled() {
-    return autorizarAdicionales == 2;
-  }
+	public boolean hasFeature(final String featureName) {
+		boolean featureFound = isAdministrator();
+		Iterator<Role> rolesIterator = roles.iterator();
+		while (rolesIterator.hasNext() && !featureFound) {
+			Role role = rolesIterator.next();
+			Iterator<Feature> featuresIterator = role.getFeatures().iterator();
+			while (featuresIterator.hasNext() && !featureFound) {
+				featureFound = featuresIterator.next().getName().equals(featureName);
+			}
+		}
+		return featureFound;
+	}
 
-  public boolean isModificacioOrdenesEnabled() {
-    return modificarEstadoOrdenes == 2;
-  }
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		Set<GrantedAuthority> authorities = new HashSet<GrantedAuthority>();
+		for (Role role : roles) {
+			for (Feature feature : role.getFeatures()) {
+				authorities.add(new SimpleGrantedAuthority(feature.getName()));
+			}
+		}
+		return authorities;
+	}
+
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
+
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return enabled;
+	}
 }

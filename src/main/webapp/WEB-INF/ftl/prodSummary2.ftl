@@ -63,8 +63,6 @@
   </head>
   <body>
     <#include "header.ftl" />
-    <#import "summaryTable.ftl" as summary/>
-    <#setting locale="es_AR">
 
     <div class="container-box-plantilla">
       <h2 class="container-tit">Reporte de producci&oacute;n</h2>
@@ -120,7 +118,91 @@
           <li><input type="submit" value="Buscar" class="btn-shop-small"></li>
         </ul>
       </form>
-      <@summary.renderTable model />
+      <table summary="Reporte" class="table-form">
+        <thead>
+          <tr>
+            <th scope="col">A&ntilde;o</th>
+            <th scope="col">Mes</th>
+
+          <#if model["includeEmpresa"]!false>
+            <th scope="col">Empresa</th>
+          </#if>
+            <!--th scope="col">Dia</th>
+            <th scope="col">Tipo item</th-->
+
+            <th scope="col">Honorarios</th>
+            <th scope="col">Reintegros</th>
+            <th scope="col">Otros gastos</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <#assign anioAnt = 0 />
+          <#assign honorariosAnio = 0 />
+          <#assign reintegrosAnio = 0 />
+          <#assign otrosAnio = 0 />
+          <#assign imprimirResto = false />
+          <#list model["rows"] as row>
+            <#assign imprimirResto = true />
+
+            <#if row.getValue("year") != anioAnt && anioAnt != 0>
+              <#assign imprimirResto = false />
+
+              <tr>
+                <td class="total">Total ${anioAnt?c}</td>
+                <td>&nbsp;</td>
+              <#if model["includeEmpresa"]!false>
+                <td>&nbsp;</td>
+              </#if>
+                <td>${honorariosAnio?string.currency}</td>
+                <td>${reintegrosAnio?string.currency}</td>
+                <td>${otrosAnio?string.currency}</td>
+                <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
+                <#assign honorariosAnio = 0 />
+                <#assign reintegrosAnio = 0 />
+                <#assign otrosAnio = 0 />
+              </tr>
+
+            </#if>
+
+            <tr>
+              <td>
+                <#if row.getValue("year") != anioAnt>
+                  ${row.getValue("year")?c}
+                  <#assign anioAnt = row.getValue("year") />
+                <#else>
+                  &nbsp;
+                </#if>
+              </td>
+              <td>${row.getValue("month")?c}</td>
+            <#if model["includeEmpresa"]!false>
+              <td>${row.getValue("empresa")!''}</td>
+            </#if>
+
+              <td>${row.getValue("honorarios")?string.currency}</td>
+              <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />
+              <td>${row.getValue("reintegros")?string.currency}</td>
+              <#assign reintegrosAnio = reintegrosAnio + row.getValue("reintegros") />
+              <td>${row.getValue("otros")?string.currency}</td>
+              <#assign otrosAnio = otrosAnio + row.getValue("otros") />
+              <td>${(row.getValue("honorarios") + row.getValue("reintegros") + row.getValue("otros"))?string.currency}</td>
+            </tr>
+          </#list>
+          <#if model["rows"]?size &gt; 0 && imprimirResto>
+            <tr>
+              <td class="total">Total ${anioAnt?c}</td>
+              <td>&nbsp;</td>
+            <#if model["includeEmpresa"]!false>
+              <td>&nbsp;</td>
+            </#if>
+              <td>${honorariosAnio?string.currency}</td>
+              <td>${reintegrosAnio?string.currency}</td>
+              <td>${otrosAnio?string.currency}</td>
+              <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
+            </tr>
+          </#if>
+        </tbody>
+      </table>
     </div>
     <div class="actions-form">
       <ul class="action-columns">

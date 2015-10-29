@@ -36,6 +36,8 @@ public class SaveDebtCommand implements Command<Debt> {
 
 	private String observaciones;
 
+	private String survey;
+
 	private long clientId;
 
 	private long branchId;
@@ -68,12 +70,12 @@ public class SaveDebtCommand implements Command<Debt> {
 		Debt debt;
 		if (debtId == null) {
 			debt = new Debt(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
-					client, branch, externalId);
+					survey, client, branch, externalId);
 			debtRepository.save(debt);
 		} else {
 			debt = debtRepository.get(debtId);
 			debt.update(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
-					client, branch, externalId);
+					survey, client, branch, externalId);
 			debtRepository.update(debt);
 		}
 		return debt;
@@ -101,6 +103,10 @@ public class SaveDebtCommand implements Command<Debt> {
 
 	public void setObservaciones(final String observaciones) {
 		this.observaciones = observaciones;
+	}
+
+	public void setSurvey(final String survey) {
+		this.survey = survey;
 	}
 
 	public void setClientId(final long clientId) {

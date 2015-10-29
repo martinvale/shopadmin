@@ -18,7 +18,6 @@ import org.springframework.format.annotation.NumberFormat;
 import org.springframework.format.annotation.NumberFormat.Style;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -39,6 +38,7 @@ import com.ibiscus.shopnchek.domain.admin.Proveedor;
 import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
+import com.ibiscus.shopnchek.domain.security.User;
 
 @Controller
 @RequestMapping("/orden")

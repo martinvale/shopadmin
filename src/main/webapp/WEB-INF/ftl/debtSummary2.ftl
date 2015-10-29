@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
+    <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
 
     <link rel="stylesheet" href="../css/jquery-ui/jquery-ui.css">
 
@@ -32,7 +33,7 @@
           var mesHasta = jQuery("select[name='mesHasta']");
           var anioHasta = jQuery("select[name='anioHasta']");
           var includeEmpresa = jQuery("input[name='includeEmpresa']").prop("checked");
-          var url = "printProdSummary?mesDesde=" + mesDesde.val() + '&anioDesde='
+          var url = "printDebtSummary?mesDesde=" + mesDesde.val() + '&anioDesde='
               + anioDesde.val() + '&mesHasta=' + mesHasta.val() + '&anioHasta='
               + anioHasta.val() + '&includeEmpresa=' + includeEmpresa;
           window.open(url, "", "width=1000, height=600");
@@ -48,6 +49,7 @@
     </script>
 
     <script src="../script/LoadingIndicator.js"></script>
+
 <style>
 
 .table-form td {
@@ -63,12 +65,10 @@
   </head>
   <body>
     <#include "header.ftl" />
-    <#import "summaryTable.ftl" as summary/>
-    <#setting locale="es_AR">
 
     <div class="container-box-plantilla">
-      <h2 class="container-tit">Reporte de producci&oacute;n</h2>
-      <form class="form-shop form-shop-big" action="prodSummary" method="GET">
+      <h2 class="container-tit">Resumen de deuda</h2>
+      <form class="form-shop form-shop-big" action="debtSummary2" method="GET">
           <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
                   <div class="ch-popover-content">
                       Revisa los datos. Debes completar campos "Número" y "Factura".
@@ -120,7 +120,106 @@
           <li><input type="submit" value="Buscar" class="btn-shop-small"></li>
         </ul>
       </form>
-      <@summary.renderTable model />
+      <table summary="Reporte" class="table-form">
+        <thead>
+          <tr>
+            <th scope="col">A&ntilde;o</th>
+            <th scope="col">Mes</th>
+          <#if model["includeEmpresa"]!false>
+            <th scope="col">Empresa</th>
+          </#if>
+            <!--th scope="col">Dia</th>
+            <th scope="col">Tipo item</th-->
+            <th scope="col">Honorarios</th>
+            <th scope="col">Reintegros</th>
+            <th scope="col">Otros gastos</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <#assign anioAnt = 0 />
+          <#assign honorariosAnio = 0 />
+          <#assign reintegrosAnio = 0 />
+          <#assign otrosAnio = 0 />
+          <#assign honorariosTotal = 0 />
+          <#assign reintegrosTotal = 0 />
+          <#assign otrosTotal = 0 />
+          <#assign imprimirResto = false />
+          <#list model["rows"] as row>
+            <#assign imprimirResto = true />
+            <tr>
+              <td>
+                <#if row.getValue("year") != anioAnt>
+                  ${row.getValue("year")?c}
+                  <#assign anioAnt = row.getValue("year") />
+                <#else>
+                  &nbsp;
+                </#if>
+              </td>
+              <td>${row.getValue("month")?c}</td>
+            <#if model["includeEmpresa"]!false>
+              <td>${row.getValue("empresa")!''}</td>
+            </#if>
+              <td>${row.getValue("honorarios")?string.currency}</td>
+              <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />
+              <td>${row.getValue("reintegros")?string.currency}</td>
+              <#assign reintegrosAnio = reintegrosAnio + row.getValue("reintegros") />
+              <td>${row.getValue("otros")?string.currency}</td>
+              <#assign otrosAnio = otrosAnio + row.getValue("otros") />
+              <td>${(row.getValue("honorarios") + row.getValue("reintegros") + row.getValue("otros"))?string.currency}</td>
+            </tr>
+            <#if row.getValue("month") == 12>
+              <#assign imprimirResto = false />
+
+            <tr>
+              <td class="total">Total ${row.getValue("year")?c}</td>
+              <td>&nbsp;</td>
+            <#if model["includeEmpresa"]!false>
+              <td>&nbsp;</td>
+            </#if>
+              <td>${honorariosAnio?string.currency}</td>
+              <#assign honorariosTotal = honorariosTotal + honorariosAnio />
+              <td>${reintegrosAnio?string.currency}</td>
+              <#assign reintegrosTotal = reintegrosTotal + reintegrosAnio />
+              <td>${otrosAnio?string.currency}</td>
+              <#assign otrosTotal = otrosTotal + otrosAnio />
+              <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
+              <#assign honorariosAnio = 0 />
+              <#assign reintegrosAnio = 0 />
+              <#assign otrosAnio = 0 />
+            </tr>
+
+            </#if>
+          </#list>
+          <#if model["rows"]?size &gt; 0 && imprimirResto>
+            <tr>
+              <td class="total">Total ${anioAnt?c}</td>
+              <td>&nbsp;</td>
+            <#if model["includeEmpresa"]!false>
+              <td>&nbsp;</td>
+            </#if>
+              <td>${honorariosAnio?string.currency}</td>
+              <#assign honorariosTotal = honorariosTotal + honorariosAnio />
+              <td>${reintegrosAnio?string.currency}</td>
+              <#assign reintegrosTotal = reintegrosTotal + reintegrosAnio />
+              <td>${otrosAnio?string.currency}</td>
+              <#assign otrosTotal = otrosTotal + otrosAnio />
+              <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
+            </tr>
+          </#if>
+          <tr>
+            <td class="total">Total</td>
+            <td>&nbsp;</td>
+          <#if model["includeEmpresa"]!false>
+            <td>&nbsp;</td>
+          </#if>
+            <td>${honorariosTotal?string.currency}</td>
+            <td>${reintegrosTotal?string.currency}</td>
+            <td>${otrosTotal?string.currency}</td>
+            <td>${(honorariosTotal + reintegrosTotal + otrosTotal)?string.currency}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div class="actions-form">
       <ul class="action-columns">

@@ -67,6 +67,10 @@
     <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
 
+  <bean id="roleRepository" class="com.ibiscus.shopnchek.domain.security.RoleRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
   <bean id="orderRepository" class="com.ibiscus.shopnchek.domain.admin.OrderRepository">
     <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
@@ -111,6 +115,10 @@
     <property name="sessionFactory" ref="sessionFactory2"></property>
   </bean>
 
+  <bean id="feedRepository" class="com.ibiscus.shopnchek.domain.debt.FeedRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
   <!-- Services -->
   <bean id="itemsOrdenService" class="com.ibiscus.shopnchek.application.orden.ItemsOrdenService">
     <constructor-arg index="0" ref="dataSource" />
@@ -127,6 +135,37 @@
     <constructor-arg index="3" ref="shopperRepository" />
   </bean>
 
+  <!-- Commands -->
+  <bean id="getMcdPendingDebtCommand" class="com.ibiscus.shopnchek.application.debt.GetMcdPendingDebtCommand" scope="prototype">
+    <property name="dataSource" ref="dataSource" />
+    <property name="debtRepository" ref="debtRepository" />
+    <property name="branchRepository" ref="branchRepository" />
+    <property name="clientRepository" ref="clientRepository" />
+    <property name="feedRepository" ref="feedRepository" />
+  </bean>
+
+  <bean id="getIngematicaPendingDebtCommand" class="com.ibiscus.shopnchek.application.debt.GetIngematicaPendingDebtCommand" scope="prototype">
+    <property name="dataSource" ref="dataSource" />
+    <property name="debtRepository" ref="debtRepository" />
+    <property name="branchRepository" ref="branchRepository" />
+    <property name="clientRepository" ref="clientRepository" />
+    <property name="feedRepository" ref="feedRepository" />
+  </bean>
+
+  <bean id="getUserCommand" class="com.ibiscus.shopnchek.application.security.GetUserCommand" scope="prototype">
+    <property name="userRepository" ref="userRepository" />
+  </bean>
+
+  <bean id="searchUserCommand" class="com.ibiscus.shopnchek.application.security.SearchUserCommand" scope="prototype">
+    <property name="userRepository" ref="userRepository" />
+  </bean>
+
+  <bean id="saveUserCommand" class="com.ibiscus.shopnchek.application.security.SaveUserCommand" scope="prototype">
+    <property name="userRepository" ref="userRepository" />
+    <property name="roleRepository" ref="roleRepository" />
+    </bean>
+
+  <!-- Properties -->
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="/WEB-INF/shopnchek.properties" />
   </bean>
@@ -201,7 +240,7 @@
   </bean>
 
   <context:component-scan base-package="com.ibiscus.shopnchek.web.controller" />
-  <context:component-scan base-package="com.ibiscus.shopnchek.application.shopmetrics" />
+  <context:component-scan base-package="com.ibiscus.shopnchek.application" />
 
   <tx:annotation-driven proxy-target-class="true" />
 
@@ -209,4 +248,55 @@
     <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
 
+  <!-- Quartz -->
+  <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+    <!-- property name="configLocation" value="classpath:quartz.properties" /-->
+    <property name="quartzProperties">
+      <map>
+        <entry key="org.quartz.scheduler.instanceName" value="Pending Debt Scheduler" />
+        <entry key="org.quartz.threadPool.threadCount" value="3" />
+        <!-- entry key="org.quartz.jobStore.class" value="org.quartz.simpl.RAMJobStore" /-->
+      </map>
+    </property>
+    <property name="triggers">
+      <list>
+        <ref bean="getMcdPendingDebtTrigger" />
+        <ref bean="getIngematicaPendingDebtTrigger" />
+      </list>
+    </property>
+  </bean>
+
+  <bean name="getMcdPendingDebtJobDetail"
+      class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+    <property name="jobClass" value="com.ibiscus.shopnchek.application.jobs.GetPendingDebtJob" />
+    <property name="durability" value="true" />
+    <property name="jobDataAsMap">
+      <map>
+        <entry key="command" value-ref="getMcdPendingDebtCommand" />
+      </map>
+    </property>
+  </bean>
+
+  <bean id="getMcdPendingDebtTrigger"
+      class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+    <property name="jobDetail" ref="getMcdPendingDebtJobDetail" />
+    <property name="cronExpression" value="0 0 0/1 * * ?" /><!-- every hour -->
+  </bean>
+
+  <bean name="getIngematicaPendingDebtJobDetail"
+      class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+    <property name="jobClass" value="com.ibiscus.shopnchek.application.jobs.GetPendingDebtJob" />
+    <property name="durability" value="true" />
+    <property name="jobDataAsMap">
+      <map>
+        <entry key="command" value-ref="getIngematicaPendingDebtCommand" />
+      </map>
+    </property>
+  </bean>
+
+  <bean id="getIngematicaPendingDebtTrigger"
+      class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+    <property name="jobDetail" ref="getIngematicaPendingDebtJobDetail" />
+    <property name="cronExpression" value="0 41 0/1 * * ?" /><!-- every hour -->
+  </bean>
 </beans>

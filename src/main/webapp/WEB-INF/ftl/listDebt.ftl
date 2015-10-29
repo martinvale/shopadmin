@@ -96,9 +96,9 @@
           </div>
           <div class="field">
             <label for="from">Desde: </label>
-            <input type="text" id="from" name="from" value="${model['from']!''}" class="js-date js-date-from" />
+            <input type="text" id="from" name="from" value="${(model['from']?string('dd/MM/yyyy'))!''}" class="js-date js-date-from" />
             <label for="to">Hasta: </label>
-            <input type="text" id="to" name="to" value="${model['to']!''}" class="js-date js-date-to" />
+            <input type="text" id="to" name="to" value="${(model['to']?string('dd/MM/yyyy'))!''}" class="js-date js-date-to" />
           </div>
         </div>
         <ul class="action-columns">
@@ -136,11 +136,7 @@
       </table>
 
       <div class="paginator">
-        <#assign anioVisita = ""/>
-        <#if model['anioVisita']??>
-          <#assign anioVisita = "${model['anioVisita']?c}" />
-        </#if>
-        <#assign parameters = "shopperDni=${model['shopperDni']!''}&mes=${model['mesVisita']!''}&anio=${anioVisita}&usuarioId=${model['usuarioId']!''}" />
+        <#assign parameters = "shopperDni=${model['shopperDni']!''}&from=${model['from']?string('dd/MM/yyyy')!''}&to=${model['to']?string('dd/MM/yyyy')!''}" />
 
         <#if model["page"] &gt; 1>
           <a href="?page=${(model['page'] - 1)}&${parameters}">&lt;&lt;</a>
@@ -161,6 +157,7 @@
           <#assign start = ((model["page"] - 1) * model["pageSize"]) + 1 />
         </#if>
         <span class="resultset">Adicionales de ${(start)?c} a ${maxIndex} de ${resultSet.count}</span>
+        <a class="tool" href="export?${parameters}">descargar</a>
       </div>
 
     </div>

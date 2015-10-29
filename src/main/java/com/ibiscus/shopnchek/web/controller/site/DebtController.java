@@ -1,7 +1,11 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
+import java.io.IOException;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.ibiscus.shopnchek.application.ResultSet;
+import com.ibiscus.shopnchek.application.debt.ExportDebtCommand;
 import com.ibiscus.shopnchek.application.debt.GetDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SaveDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SearchDebtCommand;
@@ -65,6 +70,35 @@ public class DebtController {
 		return "listDebt";
 	}
 
+	@RequestMapping(value="/export")
+	public void exportDebt(final HttpServletResponse response,
+			String shopperDni,
+			@DateTimeFormat(pattern="dd/MM/yyyy") Date from,
+			@DateTimeFormat(pattern="dd/MM/yyyy") Date to) {
+		ExportDebtCommand exportDebtCommand = new ExportDebtCommand(debtRepository);
+		exportDebtCommand.setShopperDni(shopperDni);
+		exportDebtCommand.setFrom(from);
+		exportDebtCommand.setTo(to);
+		Workbook workbook = exportDebtCommand.execute();
+
+		String fileName = "deuda.xlsx";
+		response.setContentType("application/vnd.openxmlformats-officedocument."
+				+ "spreadsheetml.sheet");
+		String headerKey = "Content-Disposition";
+		String headerValue = String.format("attachment; filename=\"%s\"",
+				fileName);
+		response.setHeader(headerKey, headerValue);
+		try {
+			workbook.write(response.getOutputStream());
+		} catch (IOException e) {
+			try {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "Cannot write the Excel file");
+			} catch (IOException e2) {
+				//cannot write a response
+			}
+		}
+	}
+
 	@RequestMapping(value="/view/{id}")
 	public String viewDebt(@ModelAttribute("model") final ModelMap model,
 			@PathVariable long id) {
@@ -101,13 +135,14 @@ public class DebtController {
 				.getPrincipal();
 		model.addAttribute("user", user);
 		model.addAttribute("tiposPago", TipoPago.values());
-		return "createDebt";
+		model.addAttribute("readOnly", false);
+		return "debt";
 	}
 
 	@RequestMapping(value="/create", method = RequestMethod.POST)
 	public String createDebt(@ModelAttribute("model") final ModelMap model, String shopperDni,
 			long clientId, long branchId, String tipoItem, String tipoPago, Date fecha,
-			double importe, String observaciones) {
+			double importe, String observaciones, String survey) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		SaveDebtCommand createDebtCommand = new SaveDebtCommand(debtRepository,
@@ -120,18 +155,20 @@ public class DebtController {
 		createDebtCommand.setFecha(fecha);
 		createDebtCommand.setImporte(importe);
 		createDebtCommand.setObservaciones(observaciones);
+		createDebtCommand.setSurvey(survey);
 		Debt debt = createDebtCommand.execute();
 
 		model.addAttribute("user", user);
 		model.addAttribute("tiposPago", TipoPago.values());
 		model.addAttribute("item", debt);
-		return "createDebt";
+		return "debt";
 	}
 
 	@RequestMapping(value="/update/{id}", method = RequestMethod.POST)
 	public String updateDebt(@ModelAttribute("model") final ModelMap model, @PathVariable long id,
 			String shopperDni, long clientId, long branchId, String tipoItem,
-			String tipoPago, Date fecha, double importe, String observaciones) {
+			String tipoPago, Date fecha, double importe, String observaciones,
+			String survey) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		SaveDebtCommand createDebtCommand = new SaveDebtCommand(debtRepository,
@@ -144,6 +181,7 @@ public class DebtController {
 		createDebtCommand.setFecha(fecha);
 		createDebtCommand.setImporte(importe);
 		createDebtCommand.setObservaciones(observaciones);
+		createDebtCommand.setSurvey(survey);
 		Debt debt = createDebtCommand.execute();
 
 		model.addAttribute("user", user);

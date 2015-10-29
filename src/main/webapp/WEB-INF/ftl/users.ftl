@@ -116,7 +116,8 @@ App.widget.Users = function (container, users) {
           </tr>
         </thead>
         <tbody>
-          <#list model["users"].data as user>
+          <#assign resultSet = model["result"] />
+          <#list resultSet.items as user>
           <tr id="user-${user.id?c}">
             <td><a href="${user.id?c}">${user.username}</a> <a class="js-delete-${user.id?c}" href="#">borrar</a></td>
             <td>${user.name!''}</td>

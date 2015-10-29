@@ -27,8 +27,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
@@ -216,7 +214,6 @@ public class ImportService {
     return users;
   }
 
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   private boolean addRow(final Map<Integer, Integer> headers, final Row row) {
     boolean end = false;
     Cell cell = row.getCell(headers.get(ColSurveyID));
@@ -313,11 +310,11 @@ public class ImportService {
 	        		TipoPago.honorarios);
 	        if (debt == null) {
 	        	debt = new Debt(TipoItem.shopmetrics, TipoPago.honorarios, shopper.getDni(),
-	        			honorarios, fecha, null, client, branch, surveyIdValue.longValue());
+	        			honorarios, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue());
 	        	debtRepository.save(debt);
 	        } else {
 	        	debt.update(TipoItem.shopmetrics, TipoPago.honorarios, shopper.getDni(),
-	        			honorarios, fecha, null, client, branch, surveyIdValue.longValue());
+	        			honorarios, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue());
 	        	debtRepository.update(debt);
 	        }
     	}
@@ -326,11 +323,11 @@ public class ImportService {
 	        		TipoPago.reintegros);
 	        if (debt == null) {
 	        	debt = new Debt(TipoItem.shopmetrics, TipoPago.reintegros, shopper.getDni(),
-	        			reintegros, fecha, null, client, branch, surveyIdValue.longValue());
+	        			reintegros, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue());
 	        	debtRepository.save(debt);
 	        } else {
 	        	debt.update(TipoItem.shopmetrics, TipoPago.reintegros, shopper.getDni(),
-	        			reintegros, fecha, null, client, branch, surveyIdValue.longValue());
+	        			reintegros, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue());
 	        	debtRepository.update(debt);
 	        }
     	}

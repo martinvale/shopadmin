@@ -1,3 +1,92 @@
+create table users (
+  id bigint not null identity,
+  username varchar(100) not null,
+  password varchar(100) not null,
+  name varchar(255) not null,
+  enabled bit not null,
+  constraint pk_user primary key (id),
+  constraint ak_username unique (username)
+);
+GO
+
+create table roles (
+  id bigint not null identity,
+  name varchar(100) not null,
+  constraint pk_role primary key (id),
+);
+GO
+
+create table users_roles (
+  user_id bigint not null,
+  role_id bigint not null,
+  constraint pk_users_roles primary key (user_id, role_id),
+  constraint fk_users_roles_user_id foreign key (user_id) references users(id),
+  constraint fk_users_roles_role_id foreign key (role_id) references roles(id)
+);
+GO
+
+create table features (
+  id bigint not null identity,
+  name varchar(100) not null,
+  constraint pk_features primary key (id),
+);
+GO
+
+create table roles_features (
+  feature_id bigint not null,
+  role_id bigint not null,
+  constraint pk_roles_features primary key (feature_id, role_id),
+  constraint fk_roles_features_feature_id foreign key (feature_id) references features(id),
+  constraint fk_roles_features_role_id foreign key (role_id) references roles(id)
+);
+GO
+
+insert into users (username, password, name, enabled)
+  select descripcion, password, nombre, 1s from usuarios where nombre is not null;
+GO
+
+insert into roles (name) values ('Administrador');
+insert into roles (name) values ('Editor');
+insert into roles (name) values ('Auditor');
+insert into roles (name) values ('Invitado');
+GO
+
+insert into users_roles (user_id, role_id)
+  select users.id, (select roles.id from roles where name = 'Administrador')
+  from users inner join usuarios on (users.username = usuarios.descripcion)
+  where perfil = 2;
+insert into users_roles (user_id, role_id)
+  select users.id, (select roles.id from roles where name = 'Auditor')
+  from users inner join usuarios on (users.username = usuarios.descripcion)
+  where perfil_autorizacion_adicionales = 2;
+insert into users_roles (user_id, role_id)
+  select users.id, (select roles.id from roles where name = 'Editor')
+  from users inner join usuarios on (users.username = usuarios.descripcion)
+  where perfil_modif_estado_ordenes = 2;
+insert into users_roles (user_id, role_id)
+  select users.id, (select roles.id from roles where name = 'Invitado')
+  from users
+    inner join usuarios on (users.username = usuarios.descripcion)
+    left join users_roles on (users.id = users_roles.user_id)
+  where users_roles.user_id is null;
+GO
+
+insert into features (name) values ('create_aditional');
+insert into features (name) values ('list_aditional');
+insert into features (name) values ('edit_order');
+GO
+
+insert into roles_features (feature_id, role_id)
+  select (select features.id from features where features.name = 'create_aditional'),
+    (select roles.id from roles where roles.name = 'Auditor');
+insert into roles_features (feature_id, role_id)
+  select (select features.id from features where features.name = 'list_aditional'),
+    (select roles.id from roles where roles.name = 'Auditor');
+insert into roles_features (feature_id, role_id)
+  select (select features.id from features where features.name = 'edit_order'),
+    (select roles.id from roles where roles.name = 'Editor');
+GO
+
 create table clients (
   id bigint not null identity,
   name varchar(255) not null,
@@ -116,6 +205,7 @@ create table deuda (
   branch_id bigint null,
   usuario varchar(50) null,
   observaciones nvarchar(200) null,
+  survey nvarchar(100) null,
   external_id bigint null,
   fecha_creacion datetime null,
   fecha_modificacion datetime null,
@@ -275,4 +365,17 @@ from ImportacionShopmetrics
   inner join clients on (clients.name = ImportacionShopmetrics.CLIENTE)
   left join items_orden on (ImportacionShopmetrics.InstanceID = items_orden.asignacion and items_orden.tipo_pago = 3 and items_orden.tipo_item = 5)
 where items_orden.id is null and ImportacionShopmetrics.OtrosGastos is not null and ImportacionShopmetrics.OtrosGastos > 0 and ImportacionShopmetrics.OK_PAY = 1;
+GO
+
+create table feed(
+  id bigint not null identity,
+  code varchar(50) not null,
+  active bit not null,
+  last_processed_date datetime null,
+  constraint pk_feed primary key (id)  
+);
+GO
+
+insert into feed (code, active) values ('mcd_items_debt', 1);
+insert into feed (code, active) values ('ingematica_items_debt', 1);
 GO

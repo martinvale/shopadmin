@@ -200,11 +200,12 @@ public class ReportService {
       }
       statement = dataSource.getConnection().prepareStatement(sql);*/
       cstmt = dataSource.getConnection().prepareCall(
-	          "{call deudaGeneral2(?,?,?)}");
+	          "{call deudaGeneral2(?,?,?,?)}");
 
       cstmt.setDate(1, new java.sql.Date(desde.getTime()));
       cstmt.setDate(2, new java.sql.Date(hasta.getTime()));
-      cstmt.setBoolean(3, includeEmpresa);
+      cstmt.setBoolean(3, true);
+      cstmt.setBoolean(4, includeEmpresa);
 
       resulset = cstmt.executeQuery();
       while (resulset.next()) {

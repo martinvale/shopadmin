@@ -1,3 +1,4 @@
+    <#import "/spring.ftl" as spring />
     <#assign user = model["user"] />
     <header>
       <div class="header-box">
@@ -25,11 +26,19 @@
                 <li><a href="../adicional/search">Buscar adicional</a></li>
               </ul>
             </li>
+            <li><a href="#"><i class="icon-user"></i>Deuda</a>
+              <ul class="sub-menu">
+                <li><a href="<@spring.url '/debt/list'/>">Buscar deuda</a></li>
+                <li><a href="<@spring.url '/debt/create'/>">Crear adicional</a></li>
+              </ul>
+            </li>
             <li><a href="#"><i class="icon-home"></i>Reportes</a>
               <ul class="sub-menu">
                 <li><a href="../report/debtSummary">Resumen de deuda</a></li>
+                <li><a href="../report/debtSummary2">Resumen de deuda (ant)</a></li>
                 <li><a href="../report/paySummary">Resumen de pagos</a></li>
                 <li><a href="../report/prodSummary">Resumen de producci&oacute;n</a></li>
+                <li><a href="../report/prodSummary2">Resumen de producci&oacute;n (ant)</a></li>
               </ul>
             </li>
             <li><a href="#"><i class="icon-home"></i>Importaci&oacute;n</a>
@@ -39,7 +48,7 @@
             </li>
             <li><a href="#"><i class="icon-user"></i>Administraci&oacute;n</a>
               <ul class="sub-menu">
-                <li><a href="../users/">Usuarios</a></li>
+                <li><a href="../users/list">Usuarios</a></li>
                 <li><a href="../proveedores/">Proveedores</a></li>
               </ul>
             </li>

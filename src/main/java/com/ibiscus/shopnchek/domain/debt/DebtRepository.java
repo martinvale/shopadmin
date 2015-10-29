@@ -5,10 +5,14 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import com.ibiscus.shopnchek.domain.debt.Debt.State;
+import com.ibiscus.shopnchek.domain.util.Row;
 
 public class DebtRepository extends HibernateDaoSupport {
 
@@ -48,17 +52,81 @@ public class DebtRepository extends HibernateDaoSupport {
 		return criteria;
 	}
 
+	public List<Debt> find(final String shopperDni, final Date from, final Date to) {
+		return find(null, null, null, true, shopperDni, from, to);
+	}
+
 	@SuppressWarnings("unchecked")
-	public List<Debt> find(final int start, final int count,
+	public List<Row> getSummary(final String shopperDni, final State state,
+			final Date from, final Date to, List<String> groupBy) {
+		/*Criteria criteria = getCriteria(shopperDni, from, to);
+		ProjectionList projectionList = Projections.projectionList();
+		projectionList.add(Projections.sqlGroupProjection("YEAR(fecha) as year, MONTH(fecha) as month",
+				"YEAR(fecha), MONTH(fecha)", new String[] {"year", "month"},
+				new Type[] { Hibernate.INTEGER, Hibernate.INTEGER }));
+		for (String propertyName : groupBy) {
+			projectionList.add(Projections.groupProperty(propertyName));
+		}
+		criteria.setProjection(projectionList);
+		//criteria.addOrder(Order.asc("year"));
+		//criteria.addOrder(Order.asc("month"));
+		for (String propertyName : groupBy) {
+			criteria.addOrder(Order.asc(propertyName));
+		}
+		criteria.setResultTransformer(new RowResultTransformer());*/
+		StringBuilder builder = new StringBuilder("select year(fecha) as year, month(fecha) as month, ");
+		for (String columnName : groupBy) {
+			builder.append(columnName);
+			builder.append(", ");
+		}
+		builder.append("sum(case when deuda.tipo_pago = 'honorarios' then deuda.importe else 0 end) as honorarios, ");
+		builder.append("sum(case when deuda.tipo_pago = 'reintegros' then deuda.importe else 0 end) as reintegros, ");
+		builder.append("sum(case when deuda.tipo_pago = 'otrosgastos' then deuda.importe else 0 end) as otros ");
+		builder.append("from deuda, clients ");
+		builder.append("where deuda.client_id = clients.id ");
+		if (state != null) {
+			builder.append("and deuda.estado = :state ");
+		}
+		builder.append("and deuda.fecha >= :from and deuda.fecha <= :to ");
+		builder.append("group by year(fecha), month(fecha) ");
+		for (String columnName : groupBy) {
+			builder.append(", ");
+			builder.append(columnName);
+			builder.append(" ");
+		}
+		builder.append("order by year(fecha), month(fecha)");
+		for (String columnName : groupBy) {
+			builder.append(", ");
+			builder.append(columnName);
+		}
+		SQLQuery query = getSession().createSQLQuery(builder.toString());
+		query.setDate("from", from);
+		query.setDate("to", to);
+		if (state != null) {
+			query.setString("state", state.toString());
+		}
+		query.setResultTransformer(new RowResultTransformer());
+		return query.list();
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Debt> find(final Integer start, final Integer count,
 			final String orderBy, final boolean asc,
 			final String shopperDni, final Date from,
 			final Date to) {
-		Criteria criteria = getCriteria(shopperDni, from, to)
-				.setFirstResult(start).setMaxResults(count);
-		if (asc) {
-			criteria.addOrder(Order.asc(orderBy));
-		} else {
-			criteria.addOrder(Order.desc(orderBy));
+		Criteria criteria = getCriteria(shopperDni, from, to);
+		if (start != null) {
+			criteria.setFirstResult(start);
+		}
+		if (count != null) {
+			criteria.setMaxResults(count);
+		}
+		if (orderBy != null) {
+			if (asc) {
+				criteria.addOrder(Order.asc(orderBy));
+			} else {
+				criteria.addOrder(Order.desc(orderBy));
+			}
 		}
 		return criteria.list();
 	}

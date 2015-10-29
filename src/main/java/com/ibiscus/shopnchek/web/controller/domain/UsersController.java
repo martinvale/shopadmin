@@ -1,6 +1,6 @@
 package com.ibiscus.shopnchek.web.controller.domain;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -10,62 +10,52 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ibiscus.shopnchek.application.ResultSet;
+import com.ibiscus.shopnchek.application.security.GetUserCommand;
+import com.ibiscus.shopnchek.application.security.SaveUserCommand;
+import com.ibiscus.shopnchek.application.security.SearchUserCommand;
 import com.ibiscus.shopnchek.domain.security.User;
-import com.ibiscus.shopnchek.domain.security.UserRepository;
-import com.ibiscus.shopnchek.domain.util.ResultSet;
 
 @Controller
 @RequestMapping(value="/users")
 public class UsersController {
 
-  /** The maximum users to retrieve per page. */
-  private final static int PAGE_SIZE = 20;
+  @Autowired
+  private SearchUserCommand searchUserCommand;
 
   @Autowired
-  private UserRepository userRepository;
+  private GetUserCommand getUserCommand;
 
-  @RequestMapping(value = "/", method = RequestMethod.GET)
-  public String list(@ModelAttribute("model") final ModelMap model) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+  @Autowired
+  private SaveUserCommand saveUserCommand;
+
+  @RequestMapping(value = "/list")
+  public String list(@ModelAttribute("model") final ModelMap model,
+			@RequestParam(required = false, defaultValue = "1") Integer page,
+			@RequestParam(required = false, defaultValue = "name") String orderBy,
+			@RequestParam(required = false, defaultValue = "true") Boolean ascending,
+			String name) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
-    List<User> users = userRepository.find(1, PAGE_SIZE, null);
-    int size = userRepository.getUsersCount(null);
-    model.addAttribute("users", new ResultSet<User>(users, size));
-    model.addAttribute("start", 1);
-    model.addAttribute("page", 1);
-    model.addAttribute("pageSize", PAGE_SIZE);
-    return "users";
-  }
+	searchUserCommand.setPage(page);
+	searchUserCommand.setOrderBy(orderBy, ascending);
+	searchUserCommand.setName(name);
+	ResultSet<User> resultSet = searchUserCommand.execute();
+	model.put("result", resultSet);
+	model.put("page", page);
+	model.put("pageSize", 25);
+	model.put("name", name);
 
-  @RequestMapping(value = "/search")
-  public String search(@ModelAttribute("model") final ModelMap model,
-      int page, String name) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
-    model.addAttribute("user", user);
-
-    model.addAttribute("name", name);
-    int start = ((page - 1) * PAGE_SIZE) + 1;
-    List<User> users = userRepository.find(start, PAGE_SIZE, name);
-    int size = userRepository.getUsersCount(name);
-    model.addAttribute("users", new ResultSet<User>(users, size));
-    model.addAttribute("start", start);
-    model.addAttribute("page", page);
-    model.addAttribute("pageSize", PAGE_SIZE);
     return "users";
   }
 
   @RequestMapping(value = "/new", method = RequestMethod.GET)
   public String get(@ModelAttribute("model") final ModelMap model) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     return "user";
@@ -74,12 +64,11 @@ public class UsersController {
   @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
   public String get(@ModelAttribute("model") final ModelMap model,
       @PathVariable long userId) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
-    User editionUser = userRepository.get(userId);
+    getUserCommand.setUserId(userId);
+    User editionUser = getUserCommand.execute();
     model.addAttribute("editionUser", editionUser);
     return "user";
   }
@@ -87,36 +76,42 @@ public class UsersController {
   @RequestMapping(value = "/user/{userId}", method = RequestMethod.DELETE)
   public @ResponseBody boolean delete(@ModelAttribute("model") final ModelMap model,
       @PathVariable long userId) {
-    userRepository.delete(userId);
+    //userRepository.delete(userId);
     return true;
   }
 
   @RequestMapping(value = "/create", method = RequestMethod.POST)
   public String create(@ModelAttribute("model") final ModelMap model,
-      String username, String name, int profile) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+      String username, String name, String password, boolean enabled,
+      Set<Long> roleIds) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
-    User newUser = new User(username, name, profile);
-    long id = userRepository.save(newUser);
+    saveUserCommand.setUserId(null);
+    saveUserCommand.setUsername(username);
+    saveUserCommand.setName(name);
+    saveUserCommand.setPassword(password);
+    saveUserCommand.setEnabled(enabled);
+    saveUserCommand.setRoleIds(roleIds);
+    User newUser = saveUserCommand.execute();
     model.addAttribute("editionUser", newUser);
-    return "redirect:" + id;
+    return "redirect:../list";
   }
 
   @RequestMapping(value = "/update", method = RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
-      long id, String username, String name, int profile) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+      long id, String username, String name, boolean enabled, Set<Long> roleIds) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
-    User editionUser = userRepository.get(id);
-    editionUser.update(username, name, profile);
-    userRepository.update(editionUser);
-    model.addAttribute("editionUser", editionUser);
-    return "redirect:" + id;
+    saveUserCommand.setUserId(id);
+    saveUserCommand.setUsername(username);
+    saveUserCommand.setName(name);
+    //saveUserCommand.setPassword(password);
+    saveUserCommand.setEnabled(enabled);
+    saveUserCommand.setRoleIds(roleIds);
+    User newUser = saveUserCommand.execute();
+    model.addAttribute("editionUser", newUser);
+    return "redirect:../list";
   }
 }

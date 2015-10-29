@@ -1,11 +1,6 @@
 package com.ibiscus.shopnchek.application.security;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.lang.Validate;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,20 +24,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     if (user == null) {
       throw new UsernameNotFoundException("The user does not exists");
     }
-    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-    if (user.getPerfil() == 2) {
-      authorities.add(new SimpleGrantedAuthority("ADMIN"));
-    } else {
-      authorities.add(new SimpleGrantedAuthority("GUEST"));
-    }
-    if (user.isAditionalEnabled()) {
-      authorities.add(new SimpleGrantedAuthority("ADITIONAL"));
-    }
-    if (user.isModificacioOrdenesEnabled()) {
-      authorities.add(new SimpleGrantedAuthority("EDITOR"));
-    }
-    return new org.springframework.security.core.userdetails.User(
-        username, user.getPassword(), authorities);
+    return user;
   }
 
 }

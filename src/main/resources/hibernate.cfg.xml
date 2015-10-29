@@ -6,6 +6,10 @@
 <hibernate-configuration>
   <session-factory>
     <mapping class="com.ibiscus.shopnchek.domain.security.User"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.security.Role"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.security.Feature"></mapping>
+    
+    <mapping class="com.ibiscus.shopnchek.domain.debt.Feed"></mapping>
 
     <mapping class="com.ibiscus.shopnchek.domain.debt.Client"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.debt.Branch"></mapping>

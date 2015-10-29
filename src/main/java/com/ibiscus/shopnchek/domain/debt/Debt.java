@@ -48,6 +48,9 @@ public class Debt {
 	@Column(name = "observaciones", length = 200)
 	private String observaciones;
 
+	@Column(name = "survey", length = 100)
+	private String survey;
+
 	@ManyToOne
 	@JoinColumn(name = "client_id", nullable = false)
 	private Client client;
@@ -75,13 +78,14 @@ public class Debt {
 
 	public Debt(final TipoItem tipoItem, final TipoPago tipoPago, final String shopperDni,
 			final double importe, final Date fecha, final String observaciones,
-			final Client client, final Branch branch, final Long externalId) {
+			final String survey, final Client client, final Branch branch, final Long externalId) {
 		this.tipoItem = tipoItem;
 		this.tipoPago = tipoPago;
 		this.shopperDni = shopperDni;
 		this.importe = importe;
 		this.fecha = fecha;
 		this.observaciones = observaciones;
+		this.survey = survey;
 		this.client = client;
 		this.branch = branch;
 		this.externalId = externalId;
@@ -91,13 +95,14 @@ public class Debt {
 
 	public void update(final TipoItem tipoItem, final TipoPago tipoPago, final String shopperDni,
 			final double importe, final Date fecha, final String observaciones,
-			final Client client, final Branch branch, final Long externalId) {
+			final String survey, final Client client, final Branch branch, final Long externalId) {
 		this.tipoItem = tipoItem;
 		this.tipoPago = tipoPago;
 		this.shopperDni = shopperDni;
 		this.importe = importe;
 		this.fecha = fecha;
 		this.observaciones = observaciones;
+		this.survey = survey;
 		this.client = client;
 		this.branch = branch;
 		this.externalId = externalId;
@@ -130,6 +135,10 @@ public class Debt {
 
 	public String getObservaciones() {
 		return observaciones;
+	}
+
+	public String getSurvey() {
+		return survey;
 	}
 
 	public Client getClient() {

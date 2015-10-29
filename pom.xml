@@ -14,6 +14,7 @@
     <junit.version>4.11</junit.version>
     <jdk.version>1.6</jdk.version>
     <jetty.version>8.1.8.v20121106</jetty.version>
+    <quartz.version>2.2.2</quartz.version>
     <sql-jdbc.version>4.0</sql-jdbc.version>
   </properties>
 
@@ -137,6 +138,18 @@
       <groupId>org.freemarker</groupId>
       <artifactId>freemarker</artifactId>
       <version>2.3.20</version>
+    </dependency>
+
+    <!-- Quartz -->
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+      <version>${quartz.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz-jobs</artifactId>
+      <version>${quartz.version}</version>
     </dependency>
 
     <!-- Hibernate framework -->

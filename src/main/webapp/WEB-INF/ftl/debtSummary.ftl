@@ -65,6 +65,7 @@
   </head>
   <body>
     <#include "header.ftl" />
+    <#setting locale="es_AR">
 
     <div class="container-box-plantilla">
       <h2 class="container-tit">Resumen de deuda</h2>
@@ -158,7 +159,7 @@
               </td>
               <td>${row.getValue("month")?c}</td>
             <#if model["includeEmpresa"]!false>
-              <td>${row.getValue("empresa")!''}</td>
+              <td>${row.getValue("name")!''}</td>
             </#if>
               <td>${row.getValue("honorarios")?string.currency}</td>
               <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />
