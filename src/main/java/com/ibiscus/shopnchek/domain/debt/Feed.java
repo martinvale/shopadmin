@@ -1,7 +1,5 @@
 package com.ibiscus.shopnchek.domain.debt;
 
-import java.util.Date;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,14 +19,14 @@ public class Feed {
 	@Column(name = "code", nullable = false, length = 20)
 	private String code;
 
-	@Column(name = "last_processed_date")
-	private Date lastProcessedDate;
+	@Column(name = "last_processed_id")
+	private Long lastProcessedId;
 
 	Feed() {
 	}
 
-	public void update(final Date lastProcessedDate) {
-		this.lastProcessedDate = lastProcessedDate;
+	public void update(final Long lastProcessedId) {
+		this.lastProcessedId = lastProcessedId;
 	}
 
 	public long getId() {
@@ -39,7 +37,7 @@ public class Feed {
 		return code;
 	}
 
-	public Date getLastExecutionTime() {
-		return lastProcessedDate;
+	public Long getLastProcessedId() {
+		return lastProcessedId;
 	}
 }

@@ -310,11 +310,11 @@ public class ImportService {
 	        		TipoPago.honorarios);
 	        if (debt == null) {
 	        	debt = new Debt(TipoItem.shopmetrics, TipoPago.honorarios, shopper.getDni(),
-	        			honorarios, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue());
+	        			honorarios, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue(), null);
 	        	debtRepository.save(debt);
 	        } else {
 	        	debt.update(TipoItem.shopmetrics, TipoPago.honorarios, shopper.getDni(),
-	        			honorarios, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue());
+	        			honorarios, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue(), null);
 	        	debtRepository.update(debt);
 	        }
     	}
@@ -323,11 +323,11 @@ public class ImportService {
 	        		TipoPago.reintegros);
 	        if (debt == null) {
 	        	debt = new Debt(TipoItem.shopmetrics, TipoPago.reintegros, shopper.getDni(),
-	        			reintegros, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue());
+	        			reintegros, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue(), null);
 	        	debtRepository.save(debt);
 	        } else {
 	        	debt.update(TipoItem.shopmetrics, TipoPago.reintegros, shopper.getDni(),
-	        			reintegros, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue());
+	        			reintegros, fecha, null, subCuestionario, client, branch, surveyIdValue.longValue(), null);
 	        	debtRepository.update(debt);
 	        }
     	}

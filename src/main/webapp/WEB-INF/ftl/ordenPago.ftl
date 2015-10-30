@@ -266,8 +266,8 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
           url: "../debt/listjson",
           data: {
             'shopperDni': currentShopper.dni,
-            'desde': desdeField.val(),
-            'hasta': hastaField.val()
+            'from': desdeField.val(),
+            'to': hastaField.val()
           }
         }).done(function (data) {
           visitas = data;

@@ -3,7 +3,6 @@ package com.ibiscus.shopnchek.application.debt;
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
@@ -25,7 +24,7 @@ public class GetIngematicaPendingDebtCommand extends AbstractGetPendingDebtComma
 	}
 
 	@Override
-	protected List<Debt> getDebt(final Date lastProcessedDate) {
+	protected List<Debt> getDebt(final Long lastProcessedId) {
 		List<Debt> items = new LinkedList<Debt>();
 
 		CallableStatement cstmt = null;
@@ -34,15 +33,15 @@ public class GetIngematicaPendingDebtCommand extends AbstractGetPendingDebtComma
 			cstmt = getDataSource().getConnection().prepareCall(
 					"{call dbo.itemsDeudaIngematica(?)}");
 
-			cstmt.setDate(1, new java.sql.Date(lastProcessedDate.getTime()));
+			cstmt.setLong(1, lastProcessedId);
 			rs = cstmt.executeQuery();
 			while (rs.next()) {
 				TipoPago tipoPago = TipoPago.valueOf(rs.getString("tipoPago"));
 				Client client = getClient(rs.getString("client"));
 				Branch branch = getBranch(client, rs.getString("branch"));
-				Debt debt = new Debt(TipoItem.mcd, tipoPago, rs.getString("documento"),
+				Debt debt = new Debt(TipoItem.ingematica, tipoPago, rs.getString("documento"),
 						rs.getDouble("importe"), rs.getDate("fecha"), null,
-						rs.getString("survey"), client, branch, rs.getLong("externalId"));
+						rs.getString("survey"), client, branch, rs.getLong("externalId"), null);
 				items.add(debt);
 			}
 		} catch (Exception ex) {

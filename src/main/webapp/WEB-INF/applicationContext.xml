@@ -136,6 +136,22 @@
   </bean>
 
   <!-- Commands -->
+  <bean id="searchClientDtoCommand" class="com.ibiscus.shopnchek.application.debt.SearchClientDtoCommand" scope="prototype">
+    <property name="clientRepository" ref="clientRepository" />
+  </bean>
+
+  <bean id="getDebtCommand" class="com.ibiscus.shopnchek.application.debt.GetDebtCommand" scope="prototype">
+    <property name="debtRepository" ref="debtRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
+  <bean id="saveDebtCommand" class="com.ibiscus.shopnchek.application.debt.SaveDebtCommand" scope="prototype">
+    <property name="debtRepository" ref="debtRepository" />
+    <property name="clientRepository" ref="clientRepository" />
+    <property name="branchRepository" ref="branchRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    </bean>
+
   <bean id="assignDebtCommand" class="com.ibiscus.shopnchek.application.debt.AssignDebtCommand" scope="prototype">
     <property name="debtRepository" ref="debtRepository" />
     <property name="orderRepository" ref="orderRepository" />
@@ -304,6 +320,6 @@
   <bean id="getIngematicaPendingDebtTrigger"
       class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
     <property name="jobDetail" ref="getIngematicaPendingDebtJobDetail" />
-    <property name="cronExpression" value="0 41 0/1 * * ?" /><!-- every hour -->
+    <property name="cronExpression" value="0 02 0/1 * * ?" /><!-- every hour -->
   </bean>
 </beans>

@@ -8,15 +8,15 @@
           <#if model["user"].hasFeature('edit_order')>
             <li><a href="#"><i class="icon-home"></i>Orden de pago</a>
               <ul class="sub-menu">
-                <li><a href="../orden/">Nueva</a></li>
-                <li><a href="../orden/search">Buscar</a></li>
-                <li><a href="../item/debtSearch">Deuda por shopper</a></li>
-                <li><a href="../orden/export">Exportar &oacute;rdenes de pago</a></li>
+                <li><a href="<@spring.url '/orden/'/>">Nueva</a></li>
+                <li><a href="<@spring.url '/orden/search'/>">Buscar</a></li>
+                <li><a href="<@spring.url '/item/debtSearch'/>">Deuda por shopper</a></li>
+                <li><a href="<@spring.url '/orden/export'/>">Exportar &oacute;rdenes de pago</a></li>
               </ul>
             </li>
             <li><a href="#"><i class="icon-user"></i>Items de orden de pago</a>
               <ul class="sub-menu">
-                <li><a href="../item/search">Buscar items pagos</a></li>
+                <li><a href="<@spring.url '/item/search'/>">Buscar items pagos</a></li>
               </ul>
             </li>
           </#if>
@@ -35,24 +35,24 @@
           <#if model["user"].hasFeature('edit_order')>
             <li><a href="#"><i class="icon-home"></i>Reportes</a>
               <ul class="sub-menu">
-                <li><a href="../report/debtSummary">Resumen de deuda</a></li>
-                <li><a href="../report/debtSummary2">Resumen de deuda (ant)</a></li>
-                <li><a href="../report/paySummary">Resumen de pagos</a></li>
-                <li><a href="../report/prodSummary">Resumen de producci&oacute;n</a></li>
-                <li><a href="../report/prodSummary2">Resumen de producci&oacute;n (ant)</a></li>
+                <li><a href="<@spring.url '/orden/'/>../report/debtSummary">Resumen de deuda</a></li>
+                <!--li><a href="../report/debtSummary2">Resumen de deuda (ant)</a></li-->
+                <li><a href="<@spring.url '/orden/'/>../report/paySummary">Resumen de pagos</a></li>
+                <li><a href="<@spring.url '/orden/'/>../report/prodSummary">Resumen de producci&oacute;n</a></li>
+                <!--li><a href="../report/prodSummary2">Resumen de producci&oacute;n (ant)</a></li-->
               </ul>
             </li>
             <li><a href="#"><i class="icon-home"></i>Importaci&oacute;n</a>
               <ul class="sub-menu">
-                <li><a href="../import/shopmetrics">Shopmetrics</a></li>
+                <li><a href="<@spring.url '/orden/'/>../import/shopmetrics">Shopmetrics</a></li>
               </ul>
             </li>
           </#if>
           <#if model["user"].hasFeature('manage')>
             <li><a href="#"><i class="icon-user"></i>Administraci&oacute;n</a>
               <ul class="sub-menu">
-                <li><a href="../users/list">Usuarios</a></li>
-                <li><a href="../proveedores/">Proveedores</a></li>
+                <li><a href="<@spring.url '/users/list'/>">Usuarios</a></li>
+                <li><a href="<@spring.url '/proveedores/'/>">Proveedores</a></li>
               </ul>
             </li>
           </#if>

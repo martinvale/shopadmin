@@ -12,6 +12,10 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.ibiscus.shopnchek.domain.admin.Shopper;
+import com.ibiscus.shopnchek.domain.security.User;
 
 @Entity
 @Table(name="deuda")
@@ -75,13 +79,17 @@ public class Debt {
 	@Column(name = "usuario", length = 50)
 	private String usuario;
 
+	@Transient
+	private Shopper shopper;
+
 	/** Default constructor for Hibernate. */
 	Debt() {
 	}
 
 	public Debt(final TipoItem tipoItem, final TipoPago tipoPago, final String shopperDni,
 			final double importe, final Date fecha, final String observaciones,
-			final String survey, final Client client, final Branch branch, final Long externalId) {
+			final String survey, final Client client, final Branch branch, final Long externalId,
+			final String operator) {
 		this.tipoItem = tipoItem;
 		this.tipoPago = tipoPago;
 		this.shopperDni = shopperDni;
@@ -94,11 +102,13 @@ public class Debt {
 		this.externalId = externalId;
 		this.fechaCreacion = new Date();
 		this.fechaModificacion = new Date();
+		this.usuario = operator;
 	}
 
 	public void update(final TipoItem tipoItem, final TipoPago tipoPago, final String shopperDni,
 			final double importe, final Date fecha, final String observaciones,
-			final String survey, final Client client, final Branch branch, final Long externalId) {
+			final String survey, final Client client, final Branch branch, final Long externalId,
+			final String operator) {
 		this.tipoItem = tipoItem;
 		this.tipoPago = tipoPago;
 		this.shopperDni = shopperDni;
@@ -110,6 +120,11 @@ public class Debt {
 		this.branch = branch;
 		this.externalId = externalId;
 		this.fechaModificacion = new Date();
+		this.usuario = operator;
+	}
+
+	public void updateShopper(final Shopper shopper) {
+		this.shopper = shopper;
 	}
 
 	public long getId() {
@@ -170,6 +185,10 @@ public class Debt {
 
 	public String getUsuario() {
 		return usuario;
+	}
+
+	public Shopper getShopper() {
+		return shopper;
 	}
 
 	public void pagado() {

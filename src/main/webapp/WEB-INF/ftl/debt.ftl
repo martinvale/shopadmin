@@ -27,6 +27,9 @@ App.widget.AdicionalEditor = function (container) {
 
   var branchSelector = container.find(".js-sucursales");
 
+  var shopperSelector = new App.widget.ShopperSelector(
+      container.find(".js-shopper-selector"), false, "<@spring.url '/services/shoppers/suggest' />");
+
   var validations = [];
 
   var initValidations = function() {
@@ -91,6 +94,8 @@ App.widget.AdicionalEditor = function (container) {
 
   return {
     render: function() {
+      shopperSelector.render();
+
       var clientsSelector = container.find(".js-clients").autocomplete({
         source: "<@spring.url '/services/client/findByName' />",
         minLength: 2,
@@ -126,7 +131,7 @@ App.widget.AdicionalEditor = function (container) {
 
     </script>
 
-    <!--script src="../script/ShopperSelector.js"></script-->
+    <script src="<@spring.url '/script/ShopperSelector.js'/>"></script>
 
   </head>
   <body>
@@ -153,9 +158,12 @@ App.widget.AdicionalEditor = function (container) {
           <div class="box-gray">
             <fieldset>
               <input type="hidden" name="tipoItem" value="${(debt.tipoItem)!'manual'}" />
-              <div class="form-shop-row">
+              <div class="form-shop-row js-shopper-selector">
                 <label for="shopper">Shopper</label>
-                <input id="shopper" type="text" name="shopperDni" value="${(debt.shopperDni)!''}" class="item-field" <#if readOnly>disabled="true"</#if> />
+                <input id="shopper" type="text" value="${(debt.shopper.name)!''}" class="item-field js-shopper" <#if readOnly>disabled="true"</#if> />
+                <a id="clear-shopper" href="#" class="clear js-clear">limpiar</a>
+                <input type="hidden" name="shopperId" value="${(debt.shopper.id?c)!''}" class="js-shopper-id" />
+                <input type="hidden" name="shopperDni" value="${(debt.shopperDni)!''}" class="js-shopper-dni" />
               </div>
               <div class="form-shop-row">
                 <label for="client">Cliente</label>
@@ -188,14 +196,14 @@ App.widget.AdicionalEditor = function (container) {
               </div>
               <div class="form-shop-row">
                 <label for="observaciones">Observaciones:</label>
-                <textarea id="observaciones" name="observacion" class="item-field" <#if readOnly>disabled="true"</#if>>${(debt.observacion)!""}</textarea>
+                <textarea id="observaciones" name="observaciones" class="item-field" <#if readOnly>disabled="true"</#if>>${(debt.observaciones)!""}</textarea>
               </div>
             </fieldset>
           </div>
           <ul class="action-columns">
             <li>
               <#if debt?? && readOnly>
-                <a href="../edit/${debt.id?c}" class="btn-shop-small">Editar</a>
+                <a href="<@spring.url '/debt/edit/${debt.id?c}'/>" class="btn-shop-small">Editar</a>
               <#else>
                 <input type="button" class="btn-shop-small js-add" value="Guardar" />
               </#if>

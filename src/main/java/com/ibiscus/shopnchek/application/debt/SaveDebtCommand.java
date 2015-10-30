@@ -3,8 +3,12 @@ package com.ibiscus.shopnchek.application.debt;
 import java.util.Date;
 
 import org.apache.commons.lang.Validate;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ibiscus.shopnchek.application.Command;
+import com.ibiscus.shopnchek.domain.admin.Shopper;
+import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 import com.ibiscus.shopnchek.domain.debt.Branch;
 import com.ibiscus.shopnchek.domain.debt.BranchRepository;
 import com.ibiscus.shopnchek.domain.debt.Client;
@@ -13,16 +17,19 @@ import com.ibiscus.shopnchek.domain.debt.Debt;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 import com.ibiscus.shopnchek.domain.debt.TipoItem;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
+import com.ibiscus.shopnchek.domain.security.User;
 
 public class SaveDebtCommand implements Command<Debt> {
 
-	private final DebtRepository debtRepository;
+	private DebtRepository debtRepository;
 
-	private final BranchRepository branchRepository;
+	private BranchRepository branchRepository;
 
-	private final ClientRepository clientRepository;
+	private ClientRepository clientRepository;
 
-	private final Long debtId;
+	private ShopperRepository shopperRepository;
+
+	private Long debtId;
 
 	private String tipoItemValue;
 
@@ -44,23 +51,13 @@ public class SaveDebtCommand implements Command<Debt> {
 
 	private Long externalId;
 
-	public SaveDebtCommand(final DebtRepository debtRepository, final ClientRepository clientRepository,
-			final BranchRepository branchRepository) {
-		this(debtRepository, clientRepository, branchRepository, null);
-	}
+	private User operator;
 
-	public SaveDebtCommand(final DebtRepository debtRepository, final ClientRepository clientRepository,
-			final BranchRepository branchRepository, final Long debtId) {
-		Validate.notNull(debtRepository, "The debt repository cannot be null");
-		Validate.notNull(clientRepository, "The client repository cannot be null");
-		Validate.notNull(branchRepository, "The branch repository cannot be null");
-		this.debtRepository = debtRepository;
-		this.clientRepository = clientRepository;
-		this.branchRepository = branchRepository;
-		this.debtId = debtId;
+	public SaveDebtCommand() {
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Debt execute() {
 		Validate.notNull(shopperDni, "The shopper DNI cannot be null");
 		TipoItem tipoItem = TipoItem.valueOf(tipoItemValue);
@@ -70,15 +67,36 @@ public class SaveDebtCommand implements Command<Debt> {
 		Debt debt;
 		if (debtId == null) {
 			debt = new Debt(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
-					survey, client, branch, externalId);
+					survey, client, branch, externalId, operator.getUsername());
 			debtRepository.save(debt);
 		} else {
 			debt = debtRepository.get(debtId);
 			debt.update(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
-					survey, client, branch, externalId);
-			debtRepository.update(debt);
+					survey, client, branch, externalId, operator.getUsername());
 		}
+		Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());
+		debt.updateShopper(shopper);
 		return debt;
+	}
+
+	public void setDebtRepository(final DebtRepository debtRepository) {
+		this.debtRepository = debtRepository;
+	}
+
+	public void setClientRepository(final ClientRepository clientRepository) {
+		this.clientRepository = clientRepository;
+	}
+
+	public void setBranchRepository(final BranchRepository branchRepository) {
+		this.branchRepository = branchRepository;
+	}
+
+	public void setShopperRepository(final ShopperRepository shopperRepository) {
+		this.shopperRepository = shopperRepository;
+	}
+
+	public void setDebtId(final Long debtId) {
+		this.debtId = debtId;
 	}
 
 	public void setShopperDni(final String shopperDni) {
@@ -121,4 +139,7 @@ public class SaveDebtCommand implements Command<Debt> {
 		this.externalId = externalId;
 	}
 
+	public void setOperator(final User operator) {
+		this.operator = operator;
+	}
 }

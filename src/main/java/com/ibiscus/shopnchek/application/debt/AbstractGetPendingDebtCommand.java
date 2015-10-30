@@ -1,7 +1,5 @@
 package com.ibiscus.shopnchek.application.debt;
 
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -45,23 +43,21 @@ public abstract class AbstractGetPendingDebtCommand implements Command<Boolean> 
 		logger.info("Get pending debt for feed " + getCode());
 		boolean endReached = true;
 		Feed feed = feedRepository.getByCode(getCode());
-		Date lastProcessedDate = feed.getLastExecutionTime();
-		if (lastProcessedDate == null) {
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(Calendar.YEAR, 1900);
-			lastProcessedDate = calendar.getTime();
+		Long lastProcessedId = feed.getLastProcessedId();
+		if (lastProcessedId == null) {
+			lastProcessedId = 0L;
 		}
 
-		List<Debt> items = getDebt(lastProcessedDate);
+		List<Debt> items = getDebt(lastProcessedId);
 		if (!items.isEmpty()) {
 			endReached = false;
 			for (Debt debt : items) {
 				debtRepository.save(debt);
-				if (debt.getFecha().after(lastProcessedDate)) {
-					lastProcessedDate = debt.getFecha();
+				if (debt.getExternalId() > lastProcessedId) {
+					lastProcessedId = debt.getExternalId();
 				}
 			}
-			feed.update(lastProcessedDate);
+			feed.update(lastProcessedId);
 		}
 		return endReached;
 	}
@@ -98,7 +94,7 @@ public abstract class AbstractGetPendingDebtCommand implements Command<Boolean> 
 		return branch;
 	}
 
-	protected abstract List<Debt> getDebt(final Date lastProcessedDate);
+	protected abstract List<Debt> getDebt(final Long lastProcessedId);
 
 	protected DataSource getDataSource() {
 		return dataSource;

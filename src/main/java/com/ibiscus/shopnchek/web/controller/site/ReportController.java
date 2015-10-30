@@ -9,7 +9,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -20,6 +19,7 @@ import com.ibiscus.shopnchek.application.debt.GetDebtSummaryCommand;
 import com.ibiscus.shopnchek.application.report.ReportService;
 import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
+import com.ibiscus.shopnchek.domain.security.User;
 import com.ibiscus.shopnchek.domain.util.Row;
 
 @Controller

@@ -49,7 +49,13 @@ public class DebtController {
 	private BranchRepository branchRepository;
 
 	@Autowired
+	SaveDebtCommand saveDebtCommand;
+
+	@Autowired
 	private AssignDebtCommand assignDebtCommand;
+
+	@Autowired
+	private GetDebtCommand getDebtCommand;
 
 	@RequestMapping(value="/list")
 	public String searchDebt(@ModelAttribute("model") final ModelMap model,
@@ -164,9 +170,8 @@ public class DebtController {
 				.getPrincipal();
 		model.addAttribute("user", user);
 		model.addAttribute("tiposPago",TipoPago.values());
-		GetDebtCommand command = new GetDebtCommand(debtRepository);
-		command.setDebtId(id);
-		Debt debt = command.execute();
+		getDebtCommand.setDebtId(id);
+		Debt debt = getDebtCommand.execute();
 		model.addAttribute("debt", debt);
 		model.addAttribute("readOnly", true);
 		return "debt";
@@ -179,9 +184,8 @@ public class DebtController {
 				.getPrincipal();
 		model.addAttribute("user", user);
 		model.addAttribute("tiposPago",TipoPago.values());
-		GetDebtCommand command = new GetDebtCommand(debtRepository);
-		command.setDebtId(id);
-		Debt debt = command.execute();
+		getDebtCommand.setDebtId(id);
+		Debt debt = getDebtCommand.execute();
 		model.addAttribute("debt", debt);
 		model.addAttribute("readOnly", false);
 		return "debt";
@@ -199,52 +203,53 @@ public class DebtController {
 
 	@RequestMapping(value="/create", method = RequestMethod.POST)
 	public String createDebt(@ModelAttribute("model") final ModelMap model, String shopperDni,
-			long clientId, long branchId, String tipoItem, String tipoPago, Date fecha,
+			long clientId, long branchId, String tipoItem, String tipoPago,
+			@DateTimeFormat(pattern="dd/MM/yyyy") Date fecha,
 			double importe, String observaciones, String survey) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
-		SaveDebtCommand createDebtCommand = new SaveDebtCommand(debtRepository,
-				clientRepository, branchRepository);
-		createDebtCommand.setShopperDni(shopperDni);
-		createDebtCommand.setClientId(clientId);
-		createDebtCommand.setBranchId(branchId);
-		createDebtCommand.setTipoItemValue(tipoItem);
-		createDebtCommand.setTipoPagoValue(tipoPago);
-		createDebtCommand.setFecha(fecha);
-		createDebtCommand.setImporte(importe);
-		createDebtCommand.setObservaciones(observaciones);
-		createDebtCommand.setSurvey(survey);
-		Debt debt = createDebtCommand.execute();
+		saveDebtCommand.setDebtId(null);
+		saveDebtCommand.setShopperDni(shopperDni);
+		saveDebtCommand.setClientId(clientId);
+		saveDebtCommand.setBranchId(branchId);
+		saveDebtCommand.setTipoItemValue(tipoItem);
+		saveDebtCommand.setTipoPagoValue(tipoPago);
+		saveDebtCommand.setFecha(fecha);
+		saveDebtCommand.setImporte(importe);
+		saveDebtCommand.setObservaciones(observaciones);
+		saveDebtCommand.setSurvey(survey);
+		saveDebtCommand.setOperator(user);
+		Debt debt = saveDebtCommand.execute();
 
 		model.addAttribute("user", user);
 		model.addAttribute("tiposPago", TipoPago.values());
-		model.addAttribute("item", debt);
+		model.addAttribute("debt", debt);
 		return "debt";
 	}
 
 	@RequestMapping(value="/update/{id}", method = RequestMethod.POST)
 	public String updateDebt(@ModelAttribute("model") final ModelMap model, @PathVariable long id,
 			String shopperDni, long clientId, long branchId, String tipoItem,
-			String tipoPago, Date fecha, double importe, String observaciones,
-			String survey) {
+			String tipoPago, @DateTimeFormat(pattern="dd/MM/yyyy") Date fecha,
+			double importe, String observaciones, String survey) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
-		SaveDebtCommand createDebtCommand = new SaveDebtCommand(debtRepository,
-				clientRepository, branchRepository, id);
-		createDebtCommand.setShopperDni(shopperDni);
-		createDebtCommand.setClientId(clientId);
-		createDebtCommand.setBranchId(branchId);
-		createDebtCommand.setTipoItemValue(tipoItem);
-		createDebtCommand.setTipoPagoValue(tipoPago);
-		createDebtCommand.setFecha(fecha);
-		createDebtCommand.setImporte(importe);
-		createDebtCommand.setObservaciones(observaciones);
-		createDebtCommand.setSurvey(survey);
-		Debt debt = createDebtCommand.execute();
+		saveDebtCommand.setDebtId(id);
+		saveDebtCommand.setShopperDni(shopperDni);
+		saveDebtCommand.setClientId(clientId);
+		saveDebtCommand.setBranchId(branchId);
+		saveDebtCommand.setTipoItemValue(tipoItem);
+		saveDebtCommand.setTipoPagoValue(tipoPago);
+		saveDebtCommand.setFecha(fecha);
+		saveDebtCommand.setImporte(importe);
+		saveDebtCommand.setObservaciones(observaciones);
+		saveDebtCommand.setSurvey(survey);
+		saveDebtCommand.setOperator(user);
+		Debt debt = saveDebtCommand.execute();
 
 		model.addAttribute("user", user);
 		model.addAttribute("tiposPago", TipoPago.values());
-		model.addAttribute("item", debt);
+		model.addAttribute("debt", debt);
 		return "redirect:../list";
 	}
 }

@@ -1,8 +1,10 @@
-App.widget.ShopperSelector = function (container, skipValidation) {
+App.widget.ShopperSelector = function (container, skipValidation, url) {
 
   var selector = container.find(".js-shopper");
 
   var clearButton = container.find('.js-clear');
+
+  var serviceUrl = url || "../services/shoppers/suggest";
 
   var currentShopper = null;
 
@@ -23,7 +25,7 @@ App.widget.ShopperSelector = function (container, skipValidation) {
 
   var initEventListeners = function () {
     var filter = selector.autocomplete({
-      source: "../services/shoppers/suggest",
+      source: serviceUrl,
       minLength: 1,
       select: function(event, ui) {
         currentShopper = ui.item;
