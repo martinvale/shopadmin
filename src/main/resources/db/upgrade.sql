@@ -306,9 +306,9 @@ where items_orden.asignacion in (
 GO
 
 -- Inserto los items pagos de Shopmetrics
-insert into deuda (external_id, tipo_item, tipo_pago, shopper_dni, importe, fecha, observaciones,
+insert into deuda (external_id, tipo_item, tipo_pago, survey, shopper_dni, importe, fecha, observaciones,
   usuario, client_id, branch_id, estado, fecha_creacion, fecha_modificacion)
-select ImportacionShopmetrics.instanceid, 'shopmetrics', 'honorarios', Tax_iD, Honorarios, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
+select ImportacionShopmetrics.instanceid, 'shopmetrics', 'honorarios', Survey, Tax_iD, Honorarios, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
   'pagada', Date_Time, Date_Time
 from ImportacionShopmetrics
   inner join clients on (clients.name = ImportacionShopmetrics.CLIENTE)
@@ -316,9 +316,9 @@ from ImportacionShopmetrics
 where items_orden.id is not null and ImportacionShopmetrics.Honorarios is not null and ImportacionShopmetrics.Honorarios > 0 and ImportacionShopmetrics.OK_PAY = 1;
 GO
 
-insert into deuda (external_id, tipo_item, tipo_pago, shopper_dni, importe, fecha, observaciones,
+insert into deuda (external_id, tipo_item, tipo_pago, survey, shopper_dni, importe, fecha, observaciones,
   usuario, client_id, branch_id, estado, fecha_creacion, fecha_modificacion)
-select ImportacionShopmetrics.instanceid, 'shopmetrics', 'reintegros', Tax_iD, Reintegros, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
+select ImportacionShopmetrics.instanceid, 'shopmetrics', 'reintegros', Survey, Tax_iD, Reintegros, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
   'pagada', Date_Time, Date_Time
 from ImportacionShopmetrics
   inner join clients on (clients.name = ImportacionShopmetrics.CLIENTE)
@@ -326,9 +326,9 @@ from ImportacionShopmetrics
 where items_orden.id is not null and ImportacionShopmetrics.Reintegros is not null and ImportacionShopmetrics.Reintegros > 0 and ImportacionShopmetrics.OK_PAY = 1;
 GO
 
-insert into deuda (external_id, tipo_item, tipo_pago, shopper_dni, importe, fecha, observaciones,
+insert into deuda (external_id, tipo_item, tipo_pago, survey, shopper_dni, importe, fecha, observaciones,
   usuario, client_id, branch_id, estado, fecha_creacion, fecha_modificacion)
-select ImportacionShopmetrics.instanceid, 'shopmetrics', 'otrosgastos', Tax_iD, OtrosGastos, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
+select ImportacionShopmetrics.instanceid, 'shopmetrics', 'otrosgastos', Survey, Tax_iD, OtrosGastos, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
   'pagada', Date_Time, Date_Time
 from ImportacionShopmetrics
   inner join clients on (clients.name = ImportacionShopmetrics.CLIENTE)
@@ -337,9 +337,9 @@ where items_orden.id is not null and ImportacionShopmetrics.OtrosGastos is not n
 GO
 
 -- Inserto la deuda de Shopmetrics
-insert into deuda (external_id, tipo_item, tipo_pago, shopper_dni, importe, fecha, observaciones,
+insert into deuda (external_id, tipo_item, tipo_pago, survey, shopper_dni, importe, fecha, observaciones,
   usuario, client_id, branch_id, estado, fecha_creacion, fecha_modificacion)
-select ImportacionShopmetrics.instanceid, 'shopmetrics', 'honorarios', Tax_iD, Honorarios, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
+select ImportacionShopmetrics.instanceid, 'shopmetrics', 'honorarios', Survey, Tax_iD, Honorarios, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
   'pendiente', Date_Time, Date_Time
 from ImportacionShopmetrics
   inner join clients on (clients.name = ImportacionShopmetrics.CLIENTE)
@@ -347,9 +347,9 @@ from ImportacionShopmetrics
 where items_orden.id is null and ImportacionShopmetrics.Honorarios is not null and ImportacionShopmetrics.Honorarios > 0 and ImportacionShopmetrics.OK_PAY = 1;
 GO
 
-insert into deuda (external_id, tipo_item, tipo_pago, shopper_dni, importe, fecha, observaciones,
+insert into deuda (external_id, tipo_item, tipo_pago, survey, shopper_dni, importe, fecha, observaciones,
   usuario, client_id, branch_id, estado, fecha_creacion, fecha_modificacion)
-select ImportacionShopmetrics.instanceid, 'shopmetrics', 'reintegros', Tax_iD, Reintegros, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
+select ImportacionShopmetrics.instanceid, 'shopmetrics', 'reintegros', Survey, Tax_iD, Reintegros, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
   'pendiente', Date_Time, Date_Time
 from ImportacionShopmetrics
   inner join clients on (clients.name = ImportacionShopmetrics.CLIENTE)
@@ -357,9 +357,9 @@ from ImportacionShopmetrics
 where items_orden.id is null and ImportacionShopmetrics.Reintegros is not null and ImportacionShopmetrics.Reintegros > 0 and ImportacionShopmetrics.OK_PAY = 1;
 GO
 
-insert into deuda (external_id, tipo_item, tipo_pago, shopper_dni, importe, fecha, observaciones,
+insert into deuda (external_id, tipo_item, tipo_pago, survey, shopper_dni, importe, fecha, observaciones,
   usuario, client_id, branch_id, estado, fecha_creacion, fecha_modificacion)
-select ImportacionShopmetrics.instanceid, 'shopmetrics', 'otrosgastos', Tax_iD, OtrosGastos, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
+select ImportacionShopmetrics.instanceid, 'shopmetrics', 'otrosgastos', Survey, Tax_iD, OtrosGastos, Date_Time, null, null, clients.id as client_id, (select top 1 branchs.id from branchs where branchs.code = ImportacionShopmetrics.Location) as branch_id,
   'pendiente', Date_Time, Date_Time
 from ImportacionShopmetrics
   inner join clients on (clients.name = ImportacionShopmetrics.CLIENTE)
