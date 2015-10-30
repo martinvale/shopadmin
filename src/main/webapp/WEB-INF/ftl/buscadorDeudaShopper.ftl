@@ -10,29 +10,7 @@
               <input type="hidden" name="shopperId" value="" class="js-shopper-id" />
               <input type="hidden" name="shopperDni" value="" class="js-shopper-dni" />
             </div>
-            <ul class="options">
-              <li>
-                <input type="checkbox" name="gac" id="gac" value="1" checked="checked">
-                <label for="gac">GAC</label>
-              </li>
-              <li>
-                <input type="checkbox" name="mcd" id="mcd" value="1" checked="checked">
-                <label for="gac">MCD</label>
-              </li>
-              <li>
-                <input type="checkbox" name="adicionales" id="adicionales" value="1" checked="checked">
-                <label for="adicionales">ADICIONALES</label>
-              </li>
-              <li>
-                <input type="checkbox" name="shopmetrics" id="shopmetrics" value="1" checked="checked">
-                <label for="shopmetrics">SHOPMETRICS</label>
-              </li>
-            </ul>
             <ul class="date">
-              <li class="check">
-                <input type="checkbox" name="applyDate" id="applyDate" value="1" checked="checked">
-                <label for="applyDate">Filtrar fecha</label>
-              </li>
               <li>
                 <label for="desde">Desde</label>
                 <input type="text" name="desde" id="desde" class="js-date" value="${model['fechaDesde']?string('dd/MM/yyyy')}">

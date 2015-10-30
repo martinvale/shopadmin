@@ -5,6 +5,7 @@
         <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
         <nav>
           <ul class="menu">
+          <#if model["user"].hasFeature('edit_order')>
             <li><a href="#"><i class="icon-home"></i>Orden de pago</a>
               <ul class="sub-menu">
                 <li><a href="../orden/">Nueva</a></li>
@@ -16,22 +17,22 @@
             <li><a href="#"><i class="icon-user"></i>Items de orden de pago</a>
               <ul class="sub-menu">
                 <li><a href="../item/search">Buscar items pagos</a></li>
-                <#assign puedeAutorizarAdicional = false />
-                <#list model["user"].authorities as role>
-                  <#assign puedeAutorizarAdicional = puedeAutorizarAdicional || (role.authority == 'ADITIONAL') />
-                </#list>
-                <#if puedeAutorizarAdicional>
-                  <li><a href="../adicional/new">Autorizar adicional</a></li>
-                </#if>
-                <li><a href="../adicional/search">Buscar adicional</a></li>
               </ul>
             </li>
+          </#if>
+          <#if model["user"].hasFeature('create_aditional') || model["user"].hasFeature('list_aditional')>
             <li><a href="#"><i class="icon-user"></i>Deuda</a>
               <ul class="sub-menu">
+              <#if model["user"].hasFeature('list_aditional')>
                 <li><a href="<@spring.url '/debt/list'/>">Buscar deuda</a></li>
+              </#if>
+              <#if model["user"].hasFeature('create_aditional')>
                 <li><a href="<@spring.url '/debt/create'/>">Crear adicional</a></li>
+              </#if>
               </ul>
             </li>
+          </#if>
+          <#if model["user"].hasFeature('edit_order')>
             <li><a href="#"><i class="icon-home"></i>Reportes</a>
               <ul class="sub-menu">
                 <li><a href="../report/debtSummary">Resumen de deuda</a></li>
@@ -46,12 +47,15 @@
                 <li><a href="../import/shopmetrics">Shopmetrics</a></li>
               </ul>
             </li>
+          </#if>
+          <#if model["user"].hasFeature('manage')>
             <li><a href="#"><i class="icon-user"></i>Administraci&oacute;n</a>
               <ul class="sub-menu">
                 <li><a href="../users/list">Usuarios</a></li>
                 <li><a href="../proveedores/">Proveedores</a></li>
               </ul>
             </li>
+          </#if>
           </ul>
         </nav>
         <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>

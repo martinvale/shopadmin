@@ -22,7 +22,7 @@
 
       App.widget = App.widget || {};
 
-App.widget.Users = function (container, users) {
+App.widget.Users = function (container) {
 
   var deleteConfirmDialog = jQuery("#confirm-delete-user").dialog({
     resizable: false,
@@ -65,16 +65,7 @@ App.widget.Users = function (container, users) {
 };
 
       jQuery(document).ready(function() {
-        var users = [
-        <#list model["users"].data as user>
-          {
-            id: ${user.id?c},
-            name: '${user.name!''}',
-          }
-        <#if user_has_next>,</#if></#list>
-        ];
-
-        var users = new App.widget.Users(jQuery(".js-users"), users);
+        var users = new App.widget.Users(jQuery(".js-users"));
         users.render();
       });
 
@@ -85,10 +76,11 @@ App.widget.Users = function (container, users) {
   </head>
   <body>
     <#include "header.ftl" />
+    <#import "tables.ftl" as tables />
 
     <div class="container-box-plantilla">
       <h2 class="container-tit">Usuarios</h2>
-      <form class="form-shop form-shop-big" action="search" method="GET">
+      <form class="form-shop form-shop-big" action="list" method="GET">
           <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
                   <div class="ch-popover-content">
                       Revisa los datos. Debes completar campos "Número" y "Factura".
@@ -126,24 +118,7 @@ App.widget.Users = function (container, users) {
         </tbody>
       </table>
       <div class="paginator">
-        <a href="search?page=1&name=${model["name"]!''}">&lt;&lt;</a>
-        <#list 1..model["users"].size as i>
-          <#assign page = (i - 1) / model["pageSize"] />
-          <#if (i - 1) % model["pageSize"] == 0>
-            <a href="search?page=${page + 1}&name=${model["name"]!''}">${page + 1}</a>
-          </#if>
-        </#list>
-        <#assign lastPage = (model["users"].size / model["pageSize"])?int />
-        <#if model["users"].size % model["pageSize"] &gt; 0>
-          <#assign lastPage = lastPage + 1 />
-        </#if>
-        <a href="search?page=${lastPage}&name=${model["name"]!''}">&gt;&gt;</a>
-
-        <#assign maxIndex = model["page"] * model["pageSize"] />
-        <#if maxIndex &gt; model["users"].size>
-          <#assign maxIndex = model["users"].size />
-        </#if>
-        <span class="resultset">Usuarios de ${model["start"]?c} a ${maxIndex} de ${model["users"].size}</span>
+        <@tables.paginator page=model["page"] pageSize=model["pageSize"] count=resultSet.count title="Usuarios" parameters="name=${model['name']!''}"/>
       </div>
     </div>
     <div id="confirm-delete-user" title="Borrar usuario">

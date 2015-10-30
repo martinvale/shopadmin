@@ -4,15 +4,15 @@ import java.util.List;
 
 public class ResultSet<T> {
 
-	private final int page;
+	private final Integer page;
 
-	private final int pageSize;
+	private final Integer pageSize;
 
 	private final List<T> items;
 
 	private final int count;
 
-	public ResultSet(final int page, final int pageSize, final List<T> items,
+	public ResultSet(final Integer page, final Integer pageSize, final List<T> items,
 			final int count) {
 		this.page = page;
 		this.pageSize = pageSize;
@@ -20,11 +20,11 @@ public class ResultSet<T> {
 		this.count = count;
 	}
 
-	public int getPage() {
+	public Integer getPage() {
 		return page;
 	}
 
-	public int getPageSize() {
+	public Integer getPageSize() {
 		return pageSize;
 	}
 

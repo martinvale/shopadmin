@@ -31,29 +31,15 @@
 
   </head>
   <body>
-    <#assign user = model["user"] />
-    <header>
-      <div class="header-box">
-        <h1>Shopnchek<span class="tag-intranet">intranet</span></h1>
-        <#include "header.ftl" />
-        <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>
-      </div>
-    </header>
+    <#include "header.ftl" />
+
+    <#assign endpoint = "create"/>
     <#if model["editionUser"]??>
       <#assign editionUser = model["editionUser"] />
+      <#assign endpoint = "update"/>
     </#if>
     <div class="container-box-plantilla">
       <h2 class="container-tit">Usuario</h2>
-      <#assign username = ""/>
-      <#assign name = ""/>
-      <#assign profile = 2 />
-      <#assign endpoint = "create"/>
-      <#if editionUser??>
-        <#assign username = "${editionUser.username}"/>
-        <#assign name = "${editionUser.name}"/>
-        <#assign profile = editionUser.perfil />
-        <#assign endpoint = "update"/>
-      </#if>
       <form class="form-shop form-shop-big" action="${endpoint}" method="POST">
           <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
                   <div class="ch-popover-content">
@@ -67,23 +53,30 @@
           <div class="box-green">
             <div class="field">
               <label class="field-name" for="username">Usuario: </label>
-              <input type="text" id="username" name="username" value="${username}" />
+              <input type="text" id="username" name="username" value="${(editionUser.username)!''}" />
+              <input type="checkbox" id="state-enabled" name="enabled" value="true" <#if editionUser?? && editionUser.enabled>checked="checked"</#if>/>
+              <label for="state-enabled">Habilitado</label>
             </div>
             <div class="field">
               <label class="field-name" for="name">Nombre: </label>
-              <input type="text" id="name" name="name" value="${name}" />
+              <input type="text" id="name" name="name" value="${(editionUser.name)!''}" />
             </div>
             <div class="field">
-              <label class="field-name">Tipo de usuario:</label>
-              <input type="radio" id="profile-standard" name="profile" value="1" <#if profile == 1>checked=checked</#if>/>
-              <label for="profile-standard">Standard</label>
-              <input type="radio" id="profile-admin" name="profile" value="2" <#if profile == 2>checked=checked</#if>/>
-              <label for="profile-admin">Administrador</label>
+              <label class="field-name" for="password">Password: </label>
+              <input type="password" id="password" name="password" value="${(editionUser.password)!''}" />
+            </div>
+            <div class="field">
+              <label class="field-name">Roles:</label>
+              <select name="roles" multiple="multiple">
+              <#list model["roles"] as role>
+                <option value="${role.id?c}" <#if editionUser?? && editionUser.hasRole(role)>selected="selected"</#if>>${role.name}</option>
+              </#list>
+              <select>
             </div>
           </div>
         </div>
         <ul class="action-columns">
-          <li><a href="." class="btn-shop-small">Volver a la lista</a></li>
+          <li><a href="list" class="btn-shop-small">Cancelar</a></li>
           <li><input type="submit" value="Guardar" class="btn-shop-small"></li>
         </ul>
       </form>

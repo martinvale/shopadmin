@@ -69,8 +69,11 @@ public class Debt {
 	@Column(name = "fecha_creacion", nullable = false)
 	private Date fechaCreacion;
 
-	@Column(name="fecha_modificacion", nullable = false)
+	@Column(name = "fecha_modificacion", nullable = false)
 	private Date fechaModificacion;
+
+	@Column(name = "usuario", length = 50)
+	private String usuario;
 
 	/** Default constructor for Hibernate. */
 	Debt() {
@@ -165,4 +168,11 @@ public class Debt {
 		return fechaModificacion;
 	}
 
+	public String getUsuario() {
+		return usuario;
+	}
+
+	public void pagado() {
+		estado = State.pagada;
+	}
 }

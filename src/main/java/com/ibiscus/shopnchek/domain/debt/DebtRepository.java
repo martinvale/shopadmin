@@ -37,11 +37,14 @@ public class DebtRepository extends HibernateDaoSupport {
 		getHibernateTemplate().update(debt);
 	}
 
-	public Criteria getCriteria(final String shopperDni, final Date from,
-			final Date to) {
+	public Criteria getCriteria(final String shopperDni, final State state,
+			final Date from, final Date to) {
 		Criteria criteria = getSession().createCriteria(Debt.class);
 		if (!StringUtils.isBlank(shopperDni)) {
 			criteria.add(Expression.eq("shopperDni", shopperDni));
+		}
+		if (state != null) {
+			criteria.add(Expression.eq("estado", state));
 		}
 		if (from != null) {
 			criteria.add(Expression.ge("fecha", from));
@@ -52,8 +55,9 @@ public class DebtRepository extends HibernateDaoSupport {
 		return criteria;
 	}
 
-	public List<Debt> find(final String shopperDni, final Date from, final Date to) {
-		return find(null, null, null, true, shopperDni, from, to);
+	public List<Debt> find(final String shopperDni, final State state,
+			final Date from, final Date to) {
+		return find(null, null, null, true, shopperDni, state, from, to);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -111,10 +115,9 @@ public class DebtRepository extends HibernateDaoSupport {
 
 	@SuppressWarnings("unchecked")
 	public List<Debt> find(final Integer start, final Integer count,
-			final String orderBy, final boolean asc,
-			final String shopperDni, final Date from,
-			final Date to) {
-		Criteria criteria = getCriteria(shopperDni, from, to);
+			final String orderBy, final boolean asc, final String shopperDni,
+			final State state, final Date from, final Date to) {
+		Criteria criteria = getCriteria(shopperDni, state, from, to);
 		if (start != null) {
 			criteria.setFirstResult(start);
 		}
@@ -131,9 +134,9 @@ public class DebtRepository extends HibernateDaoSupport {
 		return criteria.list();
 	}
 
-	public Integer getCount(final String shopperDni, final Date from,
+	public Integer getCount(final String shopperDni, final State state, final Date from,
 			final Date to) {
-		Criteria criteria = getCriteria(shopperDni, from, to);
+		Criteria criteria = getCriteria(shopperDni, state, from, to);
 		return (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
 	}
 }

@@ -20,7 +20,7 @@ public class UserRepository extends HibernateDaoSupport {
 	public Criteria getCriteria(final String name) {
 		Criteria criteria = getSession().createCriteria(User.class);
 		if (!StringUtils.isBlank(name)) {
-			criteria.add(Expression.like("name", name + "%"));
+			criteria.add(Expression.like("name", "%" + name + "%"));
 		}
 		return criteria;
 	}

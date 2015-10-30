@@ -1,5 +1,6 @@
 package com.ibiscus.shopnchek.web.controller.domain;
 
+import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import com.ibiscus.shopnchek.application.ResultSet;
 import com.ibiscus.shopnchek.application.security.GetUserCommand;
 import com.ibiscus.shopnchek.application.security.SaveUserCommand;
 import com.ibiscus.shopnchek.application.security.SearchUserCommand;
+import com.ibiscus.shopnchek.domain.security.Role;
+import com.ibiscus.shopnchek.domain.security.RoleRepository;
 import com.ibiscus.shopnchek.domain.security.User;
 
 @Controller
@@ -32,6 +35,9 @@ public class UsersController {
   @Autowired
   private SaveUserCommand saveUserCommand;
 
+  @Autowired
+  private RoleRepository roleRepository;
+
   @RequestMapping(value = "/list")
   public String list(@ModelAttribute("model") final ModelMap model,
 			@RequestParam(required = false, defaultValue = "1") Integer page,
@@ -42,6 +48,7 @@ public class UsersController {
     model.addAttribute("user", user);
 
 	searchUserCommand.setPage(page);
+	searchUserCommand.setPageSize(25);
 	searchUserCommand.setOrderBy(orderBy, ascending);
 	searchUserCommand.setName(name);
 	ResultSet<User> resultSet = searchUserCommand.execute();
@@ -58,6 +65,8 @@ public class UsersController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
+    List<Role> roles = roleRepository.find();
+    model.addAttribute("roles", roles);
     return "user";
   }
 
@@ -70,6 +79,9 @@ public class UsersController {
     getUserCommand.setUserId(userId);
     User editionUser = getUserCommand.execute();
     model.addAttribute("editionUser", editionUser);
+
+    List<Role> roles = roleRepository.find();
+    model.addAttribute("roles", roles);
     return "user";
   }
 
@@ -83,7 +95,7 @@ public class UsersController {
   @RequestMapping(value = "/create", method = RequestMethod.POST)
   public String create(@ModelAttribute("model") final ModelMap model,
       String username, String name, String password, boolean enabled,
-      Set<Long> roleIds) {
+      @RequestParam("roles") Set<Long> roleIds) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
@@ -95,12 +107,12 @@ public class UsersController {
     saveUserCommand.setRoleIds(roleIds);
     User newUser = saveUserCommand.execute();
     model.addAttribute("editionUser", newUser);
-    return "redirect:../list";
+    return "redirect:list";
   }
 
   @RequestMapping(value = "/update", method = RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
-      long id, String username, String name, boolean enabled, Set<Long> roleIds) {
+      long id, String username, String name, boolean enabled, @RequestParam("roles") Set<Long> roleIds) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
@@ -112,6 +124,6 @@ public class UsersController {
     saveUserCommand.setRoleIds(roleIds);
     User newUser = saveUserCommand.execute();
     model.addAttribute("editionUser", newUser);
-    return "redirect:../list";
+    return "redirect:list";
   }
 }

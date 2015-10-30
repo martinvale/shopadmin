@@ -3,6 +3,9 @@ package com.ibiscus.shopnchek.application.security;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.ibiscus.shopnchek.application.Command;
 import com.ibiscus.shopnchek.domain.security.Role;
 import com.ibiscus.shopnchek.domain.security.RoleRepository;
@@ -31,6 +34,7 @@ public class SaveUserCommand implements Command<User> {
 	}
 
 	@Override
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public User execute() {
 		Set<Role> roles = new HashSet<Role>();
 		for (Long roleId : roleIds) {
@@ -78,4 +82,5 @@ public class SaveUserCommand implements Command<User> {
 	public void setRoleIds(Set<Long> roleIds) {
 		this.roleIds = roleIds;
 	}
+
 }

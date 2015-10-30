@@ -136,6 +136,13 @@
   </bean>
 
   <!-- Commands -->
+  <bean id="assignDebtCommand" class="com.ibiscus.shopnchek.application.debt.AssignDebtCommand" scope="prototype">
+    <property name="debtRepository" ref="debtRepository" />
+    <property name="orderRepository" ref="orderRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="itemsOrdenService" ref="itemsOrdenService" />
+  </bean>
+
   <bean id="getMcdPendingDebtCommand" class="com.ibiscus.shopnchek.application.debt.GetMcdPendingDebtCommand" scope="prototype">
     <property name="dataSource" ref="dataSource" />
     <property name="debtRepository" ref="debtRepository" />

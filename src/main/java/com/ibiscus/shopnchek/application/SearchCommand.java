@@ -11,9 +11,9 @@ public abstract class SearchCommand<T> implements Command<ResultSet<T>> {
 
 	private boolean ascending;
 
-	private int page;
+	private Integer page;
 
-	private int pageSize = 25;
+	private Integer pageSize;
 
 	@Override
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED)
@@ -27,19 +27,23 @@ public abstract class SearchCommand<T> implements Command<ResultSet<T>> {
 
 	protected abstract int getCount();
 
-	public void setPage(int page) {
+	public void setPage(Integer page) {
 		this.page = page;
 	}
 
-	protected int getStart() {
-		return (page - 1) * pageSize;
+	protected Integer getStart() {
+		Integer start = null;
+		if (page != null && pageSize != null) {
+			start = (page - 1) * pageSize;
+		}
+		return start;
 	}
 
-	public void setPageSize(int pageSize) {
+	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
 	}
 
-	protected int getPageSize() {
+	protected Integer getPageSize() {
 		return pageSize;
 	}
 

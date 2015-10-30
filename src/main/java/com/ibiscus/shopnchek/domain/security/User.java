@@ -7,6 +7,8 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
@@ -25,6 +27,7 @@ public class User implements UserDetails {
 
 	@Id
 	@Column(name="id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long id;
 
 	@Column(name="username", nullable=false, length=100)
@@ -36,7 +39,7 @@ public class User implements UserDetails {
 	@Column(name="password", nullable=false, length=100)
 	private String password;
 
-	@Column(name="enabled", nullable=false)
+	@Column(name="enabled")
 	private boolean enabled;
 
 	@ManyToMany
@@ -84,6 +87,16 @@ public class User implements UserDetails {
 
 	public Set<Role> getRoles() {
 		return roles;
+	}
+
+	public boolean hasRole(final Role role) {
+		boolean roleFound = false;
+		Iterator<Role> rolesIterator = roles.iterator();
+		while (rolesIterator.hasNext() && !roleFound) {
+			Role currentRole = rolesIterator.next();
+			roleFound = currentRole.getId() == role.getId();
+		}
+		return roleFound;
 	}
 
 	private boolean isAdministrator() {
