@@ -86,12 +86,12 @@ public class DebtRepository extends HibernateDaoSupport {
 		builder.append("sum(case when deuda.tipo_pago = 'honorarios' then deuda.importe else 0 end) as honorarios, ");
 		builder.append("sum(case when deuda.tipo_pago = 'reintegros' then deuda.importe else 0 end) as reintegros, ");
 		builder.append("sum(case when deuda.tipo_pago = 'otrosgastos' then deuda.importe else 0 end) as otros ");
-		builder.append("from deuda, clients ");
-		builder.append("where deuda.client_id = clients.id ");
+		builder.append("from deuda ");
+		builder.append("left join clients on (deuda.client_id = clients.id) ");
+		builder.append("where deuda.fecha >= :from and deuda.fecha <= :to ");
 		if (state != null) {
 			builder.append("and deuda.estado = :state ");
 		}
-		builder.append("and deuda.fecha >= :from and deuda.fecha <= :to ");
 		builder.append("group by year(fecha), month(fecha) ");
 		for (String columnName : groupBy) {
 			builder.append(", ");

@@ -25,7 +25,11 @@
 
 App.widget.AdicionalEditor = function (container) {
 
+  var rowIndex = 1;
+
   var branchSelector = container.find(".js-sucursales");
+
+  var itemTemplate = container.find(".js-items tbody tr");
 
   var shopperSelector = new App.widget.ShopperSelector(
       container.find(".js-shopper-selector"), false, "<@spring.url '/services/shoppers/suggest' />");
@@ -39,7 +43,7 @@ App.widget.AdicionalEditor = function (container) {
     });
     validations.push(fechaValidation);
 
-    var importeValidation = new LiveValidation("importe");
+    /*var importeValidation = new LiveValidation("importe");
     importeValidation.add(Validate.Presence, {
       failureMessage: "El importe es obligatorio"
     });
@@ -48,7 +52,7 @@ App.widget.AdicionalEditor = function (container) {
       notANumberMessage: "El importe debe ser un numero mayor que 0",
       tooLowMessage: "El importe debe ser un numero mayor que 0"
     });
-    validations.push(importeValidation);
+    validations.push(importeValidation);*/
 
     /*var tipoPagoValidation = new LiveValidation("tipoPago");
     tipoPagoValidation.add(Validate.Custom, {
@@ -72,13 +76,26 @@ App.widget.AdicionalEditor = function (container) {
       }
     });
 
-    container.find(".js-add" ).click(function () {
+    container.find(".js-add").click(function () {
       //resetVisitaValidations();
       if (LiveValidation.massValidate(validations)) {
         container.submit();
       }
     });
 
+    container.find("#item-1 .js-remove-item").click(function (event) {
+      event.preventDefault();
+      jQuery('#item-1').remove();
+    });
+
+    container.find(".js-add-item").click(function () {
+      rowIndex++;
+      container.find('.js-items tr:last').after('<tr id="item-' + rowIndex + '">' + itemTemplate.html() + '</tr>');
+      container.find("#item-" + rowIndex + " .js-remove-item").click(function () {
+        event.preventDefault();
+        jQuery(this).parent('td').parent('tr').remove();
+      });
+    });
   };
 
   var updateBranchs = function (branchs) {
@@ -186,22 +203,35 @@ App.widget.AdicionalEditor = function (container) {
                 <label for="fecha">Fecha de la visita:</label>
                 <input type="text" id="fecha" name="fecha" value="${(debt.fecha?string('dd/MM/yyyy'))!""}" class="item-field js-date js-fecha-visita" <#if readOnly>disabled="true"</#if>/>
               </div>
-              <div class="form-shop-row">
-                <label for="tipoPago">Tipo de pago:</label>
-                <select id="tipoPago" name="tipoPago" class="item-field" <#if readOnly>disabled="true"</#if>>
-                <#list model["tiposPago"] as tipoPago>
-                  <option value="${tipoPago}" <#if debt?? && tipoPago == debt.tipoPago>selected="true"</#if>>${tipoPago.description}</option>
-                </#list>
-                </select>
-              </div>
-              <div class="form-shop-row">
-                <label for="importe">Importe ($):</label>
-                <input type="text" id="importe" name="importe" value="${(debt.importe?string['0.##']?replace(',', '.'))!""}" class="item-field js-importe" <#if readOnly>disabled="true"</#if>/>
-              </div>
-              <div class="form-shop-row">
-                <label for="observaciones">Observaciones:</label>
-                <textarea id="observaciones" name="observaciones" class="item-field" <#if readOnly>disabled="true"</#if>>${(debt.observaciones)!""}</textarea>
-              </div>
+              <table summary="Lista de items" class="table-form js-items">
+                <thead>
+                  <tr>
+                    <th scope="col" style="width: 20%">Tipo de pago</th>
+                    <th scope="col" style="width: 20%">Importe</th>
+                    <th scope="col" style="width: 55%">Observaciones</th>
+                    <th scope="col" style="width: 5%">&nbsp;</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr id="item-1">
+                    <td>
+                      <select name="tipoPago" class="item-field">
+                      <#list model["tiposPago"] as tipoPago>
+                        <option value="${tipoPago}">${tipoPago.description}</option>
+                      </#list>
+                      </select>
+                    </td>
+                    <td>
+                      <input type="text" name="importe" value="0" class="item-field" />
+                    </td>
+                    <td>
+                      <input type="text" name="observaciones" value="" class="item-field" />
+                    </td>
+                    <td><a href="#" class="js-remove-item">borrar</a></td>
+                  </tr>
+                </tbody>
+              </table>
+              <input type="button" class="btn-shop-small js-add-item" value="Agregar item" />
             </fieldset>
           </div>
           <ul class="action-columns">

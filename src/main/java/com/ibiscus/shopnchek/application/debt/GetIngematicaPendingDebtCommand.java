@@ -41,7 +41,7 @@ public class GetIngematicaPendingDebtCommand extends AbstractGetPendingDebtComma
 				Branch branch = getBranch(client, rs.getString("branch"));
 				Debt debt = new Debt(TipoItem.ingematica, tipoPago, rs.getString("documento"),
 						rs.getDouble("importe"), rs.getDate("fecha"), null,
-						rs.getString("survey"), client, branch, rs.getLong("externalId"), null);
+						rs.getString("survey"), client, null, branch, null, rs.getLong("externalId"), null);
 				items.add(debt);
 			}
 		} catch (Exception ex) {

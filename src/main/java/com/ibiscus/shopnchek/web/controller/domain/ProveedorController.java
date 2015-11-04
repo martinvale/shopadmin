@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.domain.admin.Proveedor;
 import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
+import com.ibiscus.shopnchek.domain.security.User;
 import com.ibiscus.shopnchek.domain.util.ResultSet;
 
 @Controller
@@ -35,9 +36,7 @@ public class ProveedorController {
 
   @RequestMapping(value = "/", method = RequestMethod.GET)
   public String list(@ModelAttribute("model") final ModelMap model) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     List<Proveedor> proveedores = proveedorRepository.find(1, PAGE_SIZE, null);
@@ -70,9 +69,7 @@ public class ProveedorController {
 
   @RequestMapping(value = "/new", method = RequestMethod.GET)
   public String get(@ModelAttribute("model") final ModelMap model) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     return "proveedor";
@@ -81,9 +78,7 @@ public class ProveedorController {
   @RequestMapping(value = "/{id}", method = RequestMethod.GET)
   public String get(@ModelAttribute("model") final ModelMap model,
       @PathVariable long id) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     Proveedor proveedor = proveedorRepository.get(id);
@@ -101,9 +96,7 @@ public class ProveedorController {
   @RequestMapping(value = "/create", method = RequestMethod.POST)
   public String create(@ModelAttribute("model") final ModelMap model,
       String cuit, String descripcion, String factura) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     Proveedor proveedor = new Proveedor(cuit, descripcion, factura);
@@ -115,9 +108,7 @@ public class ProveedorController {
   @RequestMapping(value = "/update", method = RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
       long id, String cuit, String descripcion, String factura) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     Proveedor proveedor = proveedorRepository.get(id);

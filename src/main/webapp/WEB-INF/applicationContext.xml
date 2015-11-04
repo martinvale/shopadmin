@@ -145,12 +145,19 @@
     <property name="shopperRepository" ref="shopperRepository" />
   </bean>
 
+  <bean id="createDebtCommand" class="com.ibiscus.shopnchek.application.debt.CreateDebtCommand" scope="prototype">
+    <property name="debtRepository" ref="debtRepository" />
+    <property name="clientRepository" ref="clientRepository" />
+    <property name="branchRepository" ref="branchRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+  
   <bean id="saveDebtCommand" class="com.ibiscus.shopnchek.application.debt.SaveDebtCommand" scope="prototype">
     <property name="debtRepository" ref="debtRepository" />
     <property name="clientRepository" ref="clientRepository" />
     <property name="branchRepository" ref="branchRepository" />
     <property name="shopperRepository" ref="shopperRepository" />
-    </bean>
+  </bean>
 
   <bean id="assignDebtCommand" class="com.ibiscus.shopnchek.application.debt.AssignDebtCommand" scope="prototype">
     <property name="debtRepository" ref="debtRepository" />

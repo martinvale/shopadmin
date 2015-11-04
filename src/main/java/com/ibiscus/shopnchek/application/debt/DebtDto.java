@@ -38,10 +38,16 @@ public class DebtDto {
 		id = debt.getId();
 		asignacion = debt.getExternalId();
 		shopperDni = debt.getShopperDni();
-		empresa = debt.getClient().getName();
+		if (debt.getClient() != null) {
+			empresa = debt.getClient().getName();
+		} else {
+			empresa = debt.getClientDescription();
+		}
 		programa = debt.getSurvey();
 		if (debt.getBranch() != null) {
 			local = debt.getBranch().getAddress();
+		} else {
+			local = debt.getBranchDescription();
 		}
 		//nombre = unNombre;
 		SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");

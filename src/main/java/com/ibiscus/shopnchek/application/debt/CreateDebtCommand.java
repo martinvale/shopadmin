@@ -1,6 +1,8 @@
 package com.ibiscus.shopnchek.application.debt;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.springframework.transaction.annotation.Propagation;
@@ -19,7 +21,7 @@ import com.ibiscus.shopnchek.domain.debt.TipoItem;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.security.User;
 
-public class SaveDebtCommand implements Command<Debt> {
+public class CreateDebtCommand implements Command<List<Debt>> {
 
 	private DebtRepository debtRepository;
 
@@ -29,21 +31,19 @@ public class SaveDebtCommand implements Command<Debt> {
 
 	private ShopperRepository shopperRepository;
 
-	private Long debtId;
-
 	private String tipoItemValue;
-
-	private String tipoPagoValue;
 
 	private String shopperDni;
 
-	private double importe;
-
 	private Date fecha;
 
-	private String observaciones;
-
 	private String survey;
+
+	private List<String> tiposPagoValue;
+
+	private List<Double> importes;
+
+	private List<String> observaciones;
 
 	private Long clientId;
 
@@ -57,15 +57,16 @@ public class SaveDebtCommand implements Command<Debt> {
 
 	private User operator;
 
-	public SaveDebtCommand() {
+	public CreateDebtCommand() {
 	}
 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	public Debt execute() {
+	public List<Debt> execute() {
 		Validate.notNull(shopperDni, "The shopper DNI cannot be null");
+		List<Debt> debts = new ArrayList<Debt>();
+
 		TipoItem tipoItem = TipoItem.valueOf(tipoItemValue);
-		TipoPago tipoPago = TipoPago.valueOf(tipoPagoValue);
 		Client client = null;
 		if (clientId != null) {
 			client = clientRepository.get(clientId);
@@ -74,21 +75,19 @@ public class SaveDebtCommand implements Command<Debt> {
 		if (branchId != null) {
 			branch = branchRepository.get(branchId);
 		}
-		Debt debt;
-		if (debtId == null) {
-			debt = new Debt(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
+		for (int i = 0; i < tiposPagoValue.size(); i++) {
+			TipoPago tipoPago = TipoPago.valueOf(tiposPagoValue.get(i));
+			Double importe = importes.get(i);
+			String observacion = observaciones.get(i);
+			Debt debt = new Debt(tipoItem, tipoPago, shopperDni, importe, fecha, observacion,
 					survey, client, clientDescription, branch, branchDescription,
 					externalId, operator.getUsername());
 			debtRepository.save(debt);
-		} else {
-			debt = debtRepository.get(debtId);
-			debt.update(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
-					survey, client, clientDescription, branch, branchDescription,
-					externalId, operator.getUsername());
+			Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());
+			debt.updateShopper(shopper);
+			debts.add(debt);
 		}
-		Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());
-		debt.updateShopper(shopper);
-		return debt;
+		return debts;
 	}
 
 	public void setDebtRepository(final DebtRepository debtRepository) {
@@ -107,10 +106,6 @@ public class SaveDebtCommand implements Command<Debt> {
 		this.shopperRepository = shopperRepository;
 	}
 
-	public void setDebtId(final Long debtId) {
-		this.debtId = debtId;
-	}
-
 	public void setShopperDni(final String shopperDni) {
 		this.shopperDni = shopperDni;
 	}
@@ -119,19 +114,19 @@ public class SaveDebtCommand implements Command<Debt> {
 		this.tipoItemValue = tipoItemValue;
 	}
 
-	public void setTipoPagoValue(final String tipoPagoValue) {
-		this.tipoPagoValue = tipoPagoValue;
+	public void setTiposPagoValue(final List<String> tiposPagoValue) {
+		this.tiposPagoValue = tiposPagoValue;
 	}
 
-	public void setImporte(final double importe) {
-		this.importe = importe;
+	public void setImportes(final List<Double> importes) {
+		this.importes = importes;
 	}
 
 	public void setFecha(final Date fecha) {
 		this.fecha = fecha;
 	}
 
-	public void setObservaciones(final String observaciones) {
+	public void setObservaciones(final List<String> observaciones) {
 		this.observaciones = observaciones;
 	}
 

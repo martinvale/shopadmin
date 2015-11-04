@@ -56,8 +56,16 @@ public class ExportDebtCommand implements Command<Workbook> {
 		for (Debt debt : items) {
 			List<Object> columns = new ArrayList<Object>();
 			columns.add(debt.getShopperDni());
-			columns.add(debt.getClient().getName());
-			columns.add(debt.getBranch().getAddress());
+			if (debt.getClient() != null) {
+				columns.add(debt.getClient().getName());
+			} else {
+				columns.add(debt.getClientDescription());
+			}
+			if (debt.getBranch() != null) {
+				columns.add(debt.getBranch().getAddress());
+			} else {
+				columns.add(debt.getBranchDescription());
+			}
 			columns.add(new Double(debt.getImporte()));
 			columns.add(debt.getFecha());
 			writer.write(columns);

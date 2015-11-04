@@ -123,8 +123,8 @@
           <#list resultSet.items as item>
           <tr>
             <td>${(item.shopperDni)!''} <a href="view/${item.id?c}">editar</a></td>
-            <td>${item.client.name!''}</td>
-            <td>${(item.branch.address)!''}</td>
+            <td>${(item.client.name)!(item.clientDescription)!''}</td>
+            <td>${(item.branch.address)!(item.branchDescription)!''}</td>
             <td>${item.tipoPago.description}</td>
             <td>$ ${item.importe?string["0.##"]?replace(',', '.')}</td>
             <td>${item.fecha?string('dd/MM/yyyy')}</td>

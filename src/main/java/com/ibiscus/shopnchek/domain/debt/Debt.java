@@ -15,7 +15,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.ibiscus.shopnchek.domain.admin.Shopper;
-import com.ibiscus.shopnchek.domain.security.User;
 
 @Entity
 @Table(name="deuda")
@@ -56,12 +55,18 @@ public class Debt {
 	private String survey;
 
 	@ManyToOne
-	@JoinColumn(name = "client_id", nullable = false)
+	@JoinColumn(name = "client_id")
 	private Client client;
+
+	@Column(name = "client_description", length = 255)
+	private String clientDescription;
 
 	@ManyToOne
 	@JoinColumn(name = "branch_id")
 	private Branch branch;
+
+	@Column(name = "branch_description", length = 255)
+	private String branchDescription;
 
 	@Column(name = "external_id")
 	private Long externalId;
@@ -88,7 +93,8 @@ public class Debt {
 
 	public Debt(final TipoItem tipoItem, final TipoPago tipoPago, final String shopperDni,
 			final double importe, final Date fecha, final String observaciones,
-			final String survey, final Client client, final Branch branch, final Long externalId,
+			final String survey, final Client client, final String clientDescription,
+			final Branch branch, final String branchDescription, final Long externalId,
 			final String operator) {
 		this.tipoItem = tipoItem;
 		this.tipoPago = tipoPago;
@@ -98,7 +104,9 @@ public class Debt {
 		this.observaciones = observaciones;
 		this.survey = survey;
 		this.client = client;
+		this.clientDescription = clientDescription;
 		this.branch = branch;
+		this.branchDescription = branchDescription;
 		this.externalId = externalId;
 		this.fechaCreacion = new Date();
 		this.fechaModificacion = new Date();
@@ -107,7 +115,8 @@ public class Debt {
 
 	public void update(final TipoItem tipoItem, final TipoPago tipoPago, final String shopperDni,
 			final double importe, final Date fecha, final String observaciones,
-			final String survey, final Client client, final Branch branch, final Long externalId,
+			final String survey, final Client client, final String clientDescription,
+			final Branch branch, final String branchDescription, final Long externalId,
 			final String operator) {
 		this.tipoItem = tipoItem;
 		this.tipoPago = tipoPago;
@@ -117,7 +126,9 @@ public class Debt {
 		this.observaciones = observaciones;
 		this.survey = survey;
 		this.client = client;
+		this.clientDescription = clientDescription;
 		this.branch = branch;
+		this.branchDescription = branchDescription;
 		this.externalId = externalId;
 		this.fechaModificacion = new Date();
 		this.usuario = operator;
@@ -163,8 +174,16 @@ public class Debt {
 		return client;
 	}
 
+	public String getClientDescription() {
+		return clientDescription;
+	}
+
 	public Branch getBranch() {
 		return branch;
+	}
+
+	public String getBranchDescription() {
+		return branchDescription;
 	}
 
 	public Long getExternalId() {

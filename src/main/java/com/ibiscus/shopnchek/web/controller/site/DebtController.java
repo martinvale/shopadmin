@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.application.ResultSet;
 import com.ibiscus.shopnchek.application.debt.AssignDebtCommand;
+import com.ibiscus.shopnchek.application.debt.CreateDebtCommand;
 import com.ibiscus.shopnchek.application.debt.DebtDto;
 import com.ibiscus.shopnchek.application.debt.ExportDebtCommand;
 import com.ibiscus.shopnchek.application.debt.GetDebtCommand;
@@ -47,6 +48,9 @@ public class DebtController {
 
 	@Autowired
 	private BranchRepository branchRepository;
+
+	@Autowired
+	CreateDebtCommand createDebtCommand;
 
 	@Autowired
 	SaveDebtCommand saveDebtCommand;
@@ -198,38 +202,46 @@ public class DebtController {
 		model.addAttribute("user", user);
 		model.addAttribute("tiposPago", TipoPago.values());
 		model.addAttribute("readOnly", false);
-		return "debt";
+		return "createDebt";
 	}
 
 	@RequestMapping(value="/create", method = RequestMethod.POST)
 	public String createDebt(@ModelAttribute("model") final ModelMap model, String shopperDni,
-			long clientId, long branchId, String tipoItem, String tipoPago,
+			@RequestParam(required = false) Long clientId,
+			@RequestParam(required = false) String clientDescription,
+			@RequestParam(required = false) Long branchId,
+			@RequestParam(required = false) String branchDescription,
+			String tipoItem,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date fecha,
-			double importe, String observaciones, String survey) {
+			@RequestParam("tipoPago") List<String> tiposPago,
+			@RequestParam("importe") List<Double> importes,
+			@RequestParam("observaciones") List<String> observaciones, String survey) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
-		saveDebtCommand.setDebtId(null);
-		saveDebtCommand.setShopperDni(shopperDni);
-		saveDebtCommand.setClientId(clientId);
-		saveDebtCommand.setBranchId(branchId);
-		saveDebtCommand.setTipoItemValue(tipoItem);
-		saveDebtCommand.setTipoPagoValue(tipoPago);
-		saveDebtCommand.setFecha(fecha);
-		saveDebtCommand.setImporte(importe);
-		saveDebtCommand.setObservaciones(observaciones);
-		saveDebtCommand.setSurvey(survey);
-		saveDebtCommand.setOperator(user);
-		Debt debt = saveDebtCommand.execute();
+		createDebtCommand.setShopperDni(shopperDni);
+		createDebtCommand.setClientId(clientId);
+		createDebtCommand.setClientDescription(clientDescription);
+		createDebtCommand.setBranchId(branchId);
+		createDebtCommand.setBranchDescription(branchDescription);
+		createDebtCommand.setTipoItemValue(tipoItem);
+		createDebtCommand.setTiposPagoValue(tiposPago);
+		createDebtCommand.setFecha(fecha);
+		createDebtCommand.setImportes(importes);
+		createDebtCommand.setObservaciones(observaciones);
+		createDebtCommand.setSurvey(survey);
+		createDebtCommand.setOperator(user);
+		createDebtCommand.execute();
 
-		model.addAttribute("user", user);
-		model.addAttribute("tiposPago", TipoPago.values());
-		model.addAttribute("debt", debt);
-		return "debt";
+		return "redirect:list";
 	}
 
 	@RequestMapping(value="/update/{id}", method = RequestMethod.POST)
-	public String updateDebt(@ModelAttribute("model") final ModelMap model, @PathVariable long id,
-			String shopperDni, long clientId, long branchId, String tipoItem,
+	public String updateDebt(@ModelAttribute("model") final ModelMap model,
+			@PathVariable long id, String shopperDni,
+			@RequestParam(required = false) Long clientId,
+			@RequestParam(required = false) String clientDescription,
+			@RequestParam(required = false) Long branchId,
+			@RequestParam(required = false) String branchDescription, String tipoItem,
 			String tipoPago, @DateTimeFormat(pattern="dd/MM/yyyy") Date fecha,
 			double importe, String observaciones, String survey) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
@@ -237,7 +249,9 @@ public class DebtController {
 		saveDebtCommand.setDebtId(id);
 		saveDebtCommand.setShopperDni(shopperDni);
 		saveDebtCommand.setClientId(clientId);
+		saveDebtCommand.setClientDescription(clientDescription);
 		saveDebtCommand.setBranchId(branchId);
+		saveDebtCommand.setBranchDescription(branchDescription);
 		saveDebtCommand.setTipoItemValue(tipoItem);
 		saveDebtCommand.setTipoPagoValue(tipoPago);
 		saveDebtCommand.setFecha(fecha);
