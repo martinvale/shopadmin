@@ -73,11 +73,17 @@ public class AssignDebtCommand implements Command<Boolean> {
 			}
 
 			Long newId = itemsOrdenService.getItemOrdenId();
-			String cliente = debt.getClient().getName();
+			String cliente = debt.getClientDescription();
+			if (debt.getClient() != null) {
+				cliente = debt.getClient().getName();
+			}
 			if (cliente != null && cliente.length() > ItemOrden.CLIENTE_FIELD_LENGTH) {
 				cliente = cliente.substring(0, ItemOrden.CLIENTE_FIELD_LENGTH);
 			}
-			String sucursal = debt.getBranch().getAddress();
+			String sucursal = debt.getBranchDescription();
+			if (debt.getBranch() != null) {
+				sucursal = debt.getBranch().getAddress();
+			}
 			if (sucursal != null && sucursal.length() > ItemOrden.SUCURSAL_FIELD_LENGTH) {
 				sucursal = sucursal.substring(0, ItemOrden.SUCURSAL_FIELD_LENGTH);
 			}
