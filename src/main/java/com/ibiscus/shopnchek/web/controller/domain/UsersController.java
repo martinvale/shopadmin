@@ -112,14 +112,15 @@ public class UsersController {
 
   @RequestMapping(value = "/update", method = RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
-      long id, String username, String name, boolean enabled, @RequestParam("roles") Set<Long> roleIds) {
+      long id, String username, String name, String password, boolean enabled,
+      @RequestParam("roles") Set<Long> roleIds) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     saveUserCommand.setUserId(id);
     saveUserCommand.setUsername(username);
     saveUserCommand.setName(name);
-    //saveUserCommand.setPassword(password);
+    saveUserCommand.setPassword(password);
     saveUserCommand.setEnabled(enabled);
     saveUserCommand.setRoleIds(roleIds);
     User newUser = saveUserCommand.execute();

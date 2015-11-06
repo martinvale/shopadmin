@@ -46,7 +46,7 @@ public class SaveUserCommand implements Command<User> {
 			userRepository.save(user);
 		} else {
 			user = userRepository.get(userId);
-			user.update(username, name, enabled, roles);
+			user.update(username, name, password, enabled, roles);
 		}
 		return user;
 	}

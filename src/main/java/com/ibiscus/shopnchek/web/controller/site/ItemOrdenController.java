@@ -11,7 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -35,6 +34,7 @@ import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 import com.ibiscus.shopnchek.domain.admin.TipoPago;
 import com.ibiscus.shopnchek.domain.admin.Visita;
+import com.ibiscus.shopnchek.domain.security.User;
 import com.ibiscus.shopnchek.domain.security.UserRepository;
 
 @Controller

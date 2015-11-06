@@ -61,7 +61,7 @@ public class DebtRepository extends HibernateDaoSupport {
 	}
 
 	@SuppressWarnings("unchecked")
-	public List<Row> getSummary(final String shopperDni, final State state,
+	public List<Row> getSummary(final String shopperDni, final List<State> states,
 			final Date from, final Date to, List<String> groupBy) {
 		/*Criteria criteria = getCriteria(shopperDni, from, to);
 		ProjectionList projectionList = Projections.projectionList();
@@ -89,8 +89,16 @@ public class DebtRepository extends HibernateDaoSupport {
 		builder.append("from deuda ");
 		builder.append("left join clients on (deuda.client_id = clients.id) ");
 		builder.append("where deuda.fecha >= :from and deuda.fecha <= :to ");
-		if (state != null) {
-			builder.append("and deuda.estado = :state ");
+		if (states != null && !states.isEmpty()) {
+			builder.append("and (");
+			for (int i = 0; i < states.size(); i++) {
+				if (i == 0) {
+					builder.append("deuda.estado = :state" + i + " ");
+				} else {
+					builder.append("OR deuda.estado = :state" + i + " ");
+				}
+			}
+			builder.append(") ");
 		}
 		builder.append("group by year(fecha), month(fecha) ");
 		for (String columnName : groupBy) {
@@ -106,8 +114,10 @@ public class DebtRepository extends HibernateDaoSupport {
 		SQLQuery query = getSession().createSQLQuery(builder.toString());
 		query.setDate("from", from);
 		query.setDate("to", to);
-		if (state != null) {
-			query.setString("state", state.toString());
+		if (states != null && !states.isEmpty()) {
+			for (int i = 0; i < states.size(); i++) {
+				query.setString("state" + i, states.get(i).toString());
+			}
 		}
 		query.setResultTransformer(new RowResultTransformer());
 		return query.list();

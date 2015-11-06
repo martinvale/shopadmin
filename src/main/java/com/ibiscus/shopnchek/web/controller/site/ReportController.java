@@ -2,6 +2,7 @@ package com.ibiscus.shopnchek.web.controller.site;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
@@ -118,7 +119,10 @@ public class ReportController {
       GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
       command.setFrom(desde);
       command.setTo(hasta);
-      command.setState(State.pendiente);
+      List<State> states = new ArrayList<State>();
+      states.add(State.pendiente);
+      states.add(State.asignada);
+      command.setStates(states);
       if (includeEmpresa) {
         command.addGroupBy("clients.name");
       }
@@ -157,7 +161,10 @@ public class ReportController {
       GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
       command.setFrom(desde);
       command.setTo(hasta);
-      command.setState(State.pendiente);
+      List<State> states = new ArrayList<State>();
+      states.add(State.pendiente);
+      states.add(State.asignada);
+      command.setStates(states);
       if (includeEmpresa) {
         command.addGroupBy("clients.name");
       }
@@ -209,7 +216,7 @@ public class ReportController {
       GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
       command.setFrom(desde);
       command.setTo(hasta);
-      command.setState(null);
+      command.setStates(null);
       if (includeEmpresa) {
         command.addGroupBy("clients.name");
       }
@@ -292,7 +299,7 @@ public class ReportController {
       GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
       command.setFrom(desde);
       command.setTo(hasta);
-      command.setState(null);
+      command.setStates(null);
       if (includeEmpresa) {
         command.addGroupBy("clients.name");
       }

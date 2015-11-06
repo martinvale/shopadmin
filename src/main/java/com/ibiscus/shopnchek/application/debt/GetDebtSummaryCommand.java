@@ -17,7 +17,7 @@ public class GetDebtSummaryCommand implements Command<List<Row>> {
 
 	private String shopperDni;
 
-	private State state;
+	private List<State> states;
 
 	private Date from;
 
@@ -34,8 +34,8 @@ public class GetDebtSummaryCommand implements Command<List<Row>> {
 		this.shopperDni = shopperDni;
 	}
 
-	public void setState(final State state) {
-		this.state = state;
+	public void setStates(final List<State> states) {
+		this.states = states;
 	}
 
 	public void setFrom(final Date from) {
@@ -56,6 +56,6 @@ public class GetDebtSummaryCommand implements Command<List<Row>> {
 			Validate.isTrue(from.before(to), "The FROM date must be before the TO date");
 		}
 
-		return debtRepository.getSummary(shopperDni, state, from, to, orderBy);
+		return debtRepository.getSummary(shopperDni, states, from, to, orderBy);
 	}
 }

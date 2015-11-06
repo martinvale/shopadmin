@@ -51,9 +51,7 @@ public class ProveedorController {
   @RequestMapping(value = "/search")
   public String search(@ModelAttribute("model") final ModelMap model,
       int page, String name) {
-    org.springframework.security.core.userdetails.User user;
-    user = (org.springframework.security.core.userdetails.User) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     model.addAttribute("name", name);

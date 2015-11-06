@@ -60,10 +60,11 @@ public class User implements UserDetails {
 		this.roles.addAll(roles);
 	}
 
-	public void update(final String username, final String name,
+	public void update(final String username, final String name, final String password,
 			final boolean enabled, final Set<Role> roles) {
 		this.username = username;
 		this.name = name;
+		this.password = password;
 		this.enabled = enabled;
 		this.roles.clear();
 		this.roles.addAll(roles);

@@ -8,7 +8,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -29,6 +28,7 @@ import com.ibiscus.shopnchek.domain.admin.SucursalMCDRepository;
 import com.ibiscus.shopnchek.domain.admin.SucursalShopmetrics;
 import com.ibiscus.shopnchek.domain.admin.SucursalShopmetricsRepository;
 import com.ibiscus.shopnchek.domain.admin.TipoPago;
+import com.ibiscus.shopnchek.domain.security.User;
 import com.ibiscus.shopnchek.domain.security.UserRepository;
 import com.ibiscus.shopnchek.domain.util.ResultSet;
 
