@@ -43,6 +43,9 @@ public abstract class AbstractGetPendingDebtCommand implements Command<Boolean> 
 		logger.info("Get pending debt for feed " + getCode());
 		boolean endReached = true;
 		Feed feed = feedRepository.getByCode(getCode());
+		if (!feed.isActive()) {
+			return true;
+		}
 		Long lastProcessedId = feed.getLastProcessedId();
 		if (lastProcessedId == null) {
 			lastProcessedId = 0L;

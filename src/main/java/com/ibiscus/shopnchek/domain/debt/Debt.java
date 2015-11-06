@@ -213,4 +213,8 @@ public class Debt {
 	public void pagado() {
 		estado = State.pagada;
 	}
+
+	public void asignada() {
+		estado = State.asignada;
+	}
 }

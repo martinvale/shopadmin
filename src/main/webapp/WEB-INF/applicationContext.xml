@@ -327,6 +327,6 @@
   <bean id="getIngematicaPendingDebtTrigger"
       class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
     <property name="jobDetail" ref="getIngematicaPendingDebtJobDetail" />
-    <property name="cronExpression" value="0 02 0/1 * * ?" /><!-- every hour -->
+    <property name="cronExpression" value="0 0 0/1 * * ?" /><!-- every hour -->
   </bean>
 </beans>

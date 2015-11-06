@@ -42,10 +42,12 @@ public class GetMcdPendingDebtCommand extends AbstractGetPendingDebtCommand {
 				Debt debt = new Debt(TipoItem.mcd, tipoPago, rs.getString("documento"),
 						rs.getDouble("importe"), rs.getDate("fecha"), null,
 						rs.getString("survey"), client, null, branch, null, rs.getLong("externalId"), null);
+
 				items.add(debt);
 			}
 		} catch (Exception ex) {
 			logger.log(Level.SEVERE, null, ex);
+			throw new RuntimeException("Cannot get import debt from MCD", ex);
 		} finally {
 			if (rs != null) {
 				try {

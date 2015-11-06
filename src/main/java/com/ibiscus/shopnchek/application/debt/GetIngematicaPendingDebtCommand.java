@@ -46,6 +46,7 @@ public class GetIngematicaPendingDebtCommand extends AbstractGetPendingDebtComma
 			}
 		} catch (Exception ex) {
 			logger.log(Level.SEVERE, null, ex);
+			throw new RuntimeException("Cannot get import debt from Ingematica", ex);
 		} finally {
 			if (rs != null) {
 				try {

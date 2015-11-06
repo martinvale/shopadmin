@@ -22,6 +22,9 @@ public class Feed {
 	@Column(name = "last_processed_id")
 	private Long lastProcessedId;
 
+	@Column(name = "active", nullable = false)
+	private boolean active;
+
 	Feed() {
 	}
 
@@ -39,5 +42,9 @@ public class Feed {
 
 	public Long getLastProcessedId() {
 		return lastProcessedId;
+	}
+
+	public boolean isActive() {
+		return active;
 	}
 }
