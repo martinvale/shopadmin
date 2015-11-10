@@ -91,24 +91,20 @@ public class AssignDebtCommand implements Command<Boolean> {
 			if (debt.getTipoItem() == TipoItem.manual && debt.getExternalId() != null) {
 				description = itemsOrdenService.getObservacionAdicional(debt.getExternalId());
 			}
-			Integer asignacion = null;
-			if (debt.getExternalId() != null) {
-				asignacion = debt.getExternalId().intValue();
-			}
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(debt.getFecha());
 			int mes = calendar.get(Calendar.MONTH) + 1;
 			int year = calendar.get(Calendar.YEAR);
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 			ItemOrden itemOrden = new ItemOrden(newId, order, operator.getId(),
-					debt.getShopperDni(), asignacion, tipoItem,
+					debt.getShopperDni(), new Long(debt.getId()).intValue(), tipoItem,
 					unTipoPago, cliente, sucursal, mes, year,
 					dateFormat.format(debt.getFecha()), debt.getImporte(), description, 1);
 			itemOrden.updateShopper(shopper);
 			orderRepository.saveItem(itemOrden);
-			if (debt.getTipoItem() == TipoItem.manual && asignacion != null) {
+			/*if (debt.getTipoItem() == TipoItem.manual && asignacion != null) {
 				itemsOrdenService.linkAdicional(asignacion, order.getNumero());
-			}
+			}*/
 			debt.pagado();
 		}
 		return true;
