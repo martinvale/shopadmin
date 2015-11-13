@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.NumberFormat;
 import org.springframework.format.annotation.NumberFormat.Style;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -24,9 +23,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.order.AsociarMedioPagoCommand;
+import com.ibiscus.shopnchek.application.order.GetOrderCommand;
+import com.ibiscus.shopnchek.application.order.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.order.PayOrderCommand;
+import com.ibiscus.shopnchek.application.order.RemoveItemOrderCommand;
+import com.ibiscus.shopnchek.application.order.SaveOrderCommand;
+import com.ibiscus.shopnchek.application.order.TransitionOrderCommand;
 import com.ibiscus.shopnchek.application.shopmetrics.ImportService;
 import com.ibiscus.shopnchek.domain.admin.AsociacionMedioPago;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
@@ -64,6 +70,24 @@ public class OrdenPagoController {
   @Autowired
   private ImportService importService;
 
+  @Autowired
+  private SaveOrderCommand saveOrderCommand;
+
+  @Autowired
+  private GetOrderCommand getOrderCommand;
+
+  @Autowired
+  private PayOrderCommand payOrderCommand;
+
+  @Autowired
+  private TransitionOrderCommand transitionOrderCommand;
+
+  @Autowired
+  private RemoveItemOrderCommand removeItemOrderCommand;
+
+  @Autowired
+  private AsociarMedioPagoCommand asociarMedioPagoCommand;
+
   @RequestMapping(value="/")
   public String index(@ModelAttribute("model") final ModelMap model) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
@@ -77,22 +101,25 @@ public class OrdenPagoController {
     return "ordenPago";
   }
 
+  @RequestMapping(value="/create")
+  public String create(@ModelAttribute("model") final ModelMap model) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+    return "createOrder";
+  }
+
   @RequestMapping(value="/{orderId}")
   public String get(@ModelAttribute("model") final ModelMap model,
       @PathVariable long orderId) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
-    model.addAttribute("mediosPago", orderRepository.findMediosPago());
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.MONTH, -4);
-    model.addAttribute("fechaDesde", calendar.getTime());
-    OrdenPago ordenPago = orderRepository.get(orderId);
-    for (ItemOrden itemOrden : ordenPago.getItems()) {
-      Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
-      itemOrden.updateShopper(itemShopper);
-    }
+
+    getOrderCommand.setNumero(orderId);
+    OrdenPago ordenPago = getOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
+
     if (ordenPago.getTipoProveedor() == 1) {
       Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
       model.addAttribute("titularNombre", shopper.getName());
@@ -101,56 +128,69 @@ public class OrdenPagoController {
       model.addAttribute("titularNombre", proveedor.getDescription());
     }
 
-    Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-    model.addAttribute("titular", shopper);
-    AsociacionMedioPago asociacion = orderRepository.findAsociacion(
-        ordenPago.getTipoProveedor(), ordenPago.getProveedor());
-    if (asociacion != null) {
-      MedioPago medioPago = orderRepository.getMedioPago(
-          asociacion.getMedioPago());
-      model.addAttribute("medioPagoPredeterminado", medioPago.getDescription());
-    }
-    List<OrderState> states = new ArrayList<OrderState>();
-    List<OrderState> availableStates = orderRepository.findOrderStates();
-    if (!user.getAuthorities().contains(new SimpleGrantedAuthority("EDITOR"))) {
-      if (ordenPago.getEstado().getId() == 3
-          || ordenPago.getEstado().getId() == 4) {
-        for (OrderState state : availableStates) {
-          if (state.getId() == 3 || state.getId() == 4) {
-            states.add(state);
-          }
-        }
-      } else if (ordenPago.getEstado().getId() == 5) {
-        for (OrderState state : availableStates) {
-          if (state.getId() == 1 || state.getId() == 5) {
-            states.add(state);
-          }
-        }
-      } else if (ordenPago.getEstado().getId() == 2) {
-        for (OrderState state : availableStates) {
-          if (state.getId() > 1 && state.getId() < 5) {
-            states.add(state);
-          }
-        }
-      } else if (ordenPago.getEstado().getId() == 6) {
-        for (OrderState state : availableStates) {
-          if (state.getId() == 6) {
-            states.add(state);
-          }
-        }
-      } else {
-        states.addAll(availableStates);
-      }
+    if (ordenPago.getEstado().getId() == OrderState.ABIERTA) {
+      return "redirect:items/" + orderId;
     } else {
-      states.addAll(availableStates);
+      return "redirect:view/" + orderId;
     }
-    model.addAttribute("orderStates", states);
+  }
 
-    return "ordenPago";
+  @RequestMapping(value="/items/{orderId}")
+  public String editItems(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    getOrderCommand.setNumero(orderId);
+    OrdenPago ordenPago = getOrderCommand.execute();
+    model.addAttribute("ordenPago", ordenPago);
+
+    if (ordenPago.getTipoProveedor() == 1) {
+      Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
+      model.addAttribute("titularNombre", shopper.getName());
+    } else {
+      Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
+      model.addAttribute("titularNombre", proveedor.getDescription());
+    }
+
+    Calendar calendar = Calendar.getInstance();
+    calendar.add(Calendar.MONTH, -4);
+    model.addAttribute("fechaDesde", calendar.getTime());
+    return "orderItems";
   }
 
   @RequestMapping(value="create", method=RequestMethod.POST)
   public String createOrden(@ModelAttribute("model") final ModelMap model,
+      int tipoTitular, int titularId, String tipoFactura,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
+      @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva, String numeroFactura,
+      String localidad, String observaciones, String observacionesShopper) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    saveOrderCommand.setNumero(null);
+    saveOrderCommand.setTipoProveedor(tipoTitular);
+    saveOrderCommand.setProveedor(titularId);
+    saveOrderCommand.setTipoFactura(tipoFactura);
+    saveOrderCommand.setFechaPago(fechaPago);
+    saveOrderCommand.setIva(iva);
+    saveOrderCommand.setNumeroFactura(numeroFactura);
+    saveOrderCommand.setLocalidad(localidad);
+    saveOrderCommand.setObservaciones(observaciones);
+    saveOrderCommand.setObservacionesShopper(observacionesShopper);
+
+    OrdenPago ordenPago = saveOrderCommand.execute();
+    model.addAttribute("ordenPago", ordenPago);
+
+    Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
+    model.addAttribute("titular", shopper);
+    return "redirect:items/" + ordenPago.getNumero();
+  }
+
+  @RequestMapping(value="createAnt", method=RequestMethod.POST)
+  public String createOrdenAnt(@ModelAttribute("model") final ModelMap model,
       int tipoTitular, int titularId, String tipoFactura,
       @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
       long estadoId, long medioPagoId,
@@ -171,8 +211,7 @@ public class OrdenPagoController {
 
     OrderState state = orderRepository.getOrderState(estadoId);
     MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
-    OrdenPago ordenPago = new OrdenPago(tipoTitular, titularId,
-        tipoFactura, fechaPago, state, medioPago, iva);
+    OrdenPago ordenPago = null;
     Date fechaChequeValue = null;
     if (fechaCheque != null && !fechaCheque.isEmpty()) {
       SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
@@ -183,10 +222,10 @@ public class OrdenPagoController {
             + fechaCheque, e);
       }
     }
-    ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago, state,
+    /*ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago, state,
         medioPago, iva, numeroFactura, fechaChequeValue, chequeraNumero,
         chequeNumero, transferId, localidad, observaciones,
-        observacionesShopper);
+        observacionesShopper);*/
 
     long numeroOrden = orderRepository.save(ordenPago);
     ordenPago = orderRepository.get(numeroOrden);
@@ -198,79 +237,132 @@ public class OrdenPagoController {
 
   @RequestMapping(value="save", method=RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
-      int numeroOrden, int tipoTitular, int titularId, String tipoFactura,
-      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago, long estadoId,
-      long medioPagoId,
+      long numeroOrden, int tipoTitular, int titularId, String tipoFactura,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
       @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva,
-      String numeroFactura, String fechaCheque,
-      String numeroChequera, String numeroCheque, String transferId,
-      String localidad, String observaciones, String observacionesShopper) {
+      String numeroFactura, String localidad, String observaciones,
+      String observacionesShopper) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
-    model.addAttribute("orderStates", orderRepository.findOrderStates());
-    model.addAttribute("mediosPago", orderRepository.findMediosPago());
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.MONTH, -4);
-    model.addAttribute("fechaDesde", calendar.getTime());
 
-    OrderState state = orderRepository.getOrderState(estadoId);
-    MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
+    saveOrderCommand.setNumero(numeroOrden);
+    saveOrderCommand.setTipoProveedor(tipoTitular);
+    saveOrderCommand.setProveedor(titularId);
+    saveOrderCommand.setTipoFactura(tipoFactura);
+    saveOrderCommand.setFechaPago(fechaPago);
+    saveOrderCommand.setIva(iva);
+    saveOrderCommand.setNumeroFactura(numeroFactura);
+    saveOrderCommand.setLocalidad(localidad);
+    saveOrderCommand.setObservaciones(observaciones);
+    saveOrderCommand.setObservacionesShopper(observacionesShopper);
 
-    OrdenPago ordenPago = orderRepository.get(numeroOrden);
-    Date fechaChequeValue = null;
-    if (fechaCheque != null && !fechaCheque.isEmpty()) {
-      SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-      try {
-        fechaChequeValue = dateFormat.parse(fechaCheque);
-      } catch (ParseException e) {
-        throw new RuntimeException("Cannot parse the following date: "
-            + fechaCheque, e);
-      }
-    }
-    ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago,
-        state, medioPago, iva, numeroFactura, fechaChequeValue, numeroChequera,
-        numeroCheque, transferId, localidad, observaciones,
-        observacionesShopper);
-    orderRepository.update(ordenPago);
-
+    OrdenPago ordenPago = saveOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
-    Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-    model.addAttribute("titular", shopper);
-    return "redirect:" + numeroOrden;
+
+    return "redirect:items/" + numeroOrden;
   }
 
   @RequestMapping(value="/{orderId}/item/{itemId}", method=RequestMethod.DELETE)
   public @ResponseBody boolean deleteItem(@PathVariable long orderId, @PathVariable long itemId) {
-    OrdenPago ordenPago = orderRepository.get(orderId);
-    ItemOrden itemToRemove = null;
-    for (ItemOrden itemOrden : ordenPago.getItems()) {
-      if (itemOrden.getId() == itemId) {
-        itemToRemove = itemOrden;
-      }
-    }
-    ordenPago.getItems().remove(itemToRemove);
-    orderRepository.removeItem(itemToRemove);
-    return true;
+    removeItemOrderCommand.setNumero(orderId);
+    removeItemOrderCommand.setItemId(itemId);
+    return removeItemOrderCommand.execute();
   }
 
   @RequestMapping(value="asociarMedioPago", method=RequestMethod.POST)
-  public @ResponseBody String asociarMedioPago(
-      @ModelAttribute("model") final ModelMap model,
-      int tipoProveedor, int titularId, int medioPagoId) {
+  public @ResponseBody String asociarMedioPago(@ModelAttribute("model") final ModelMap model,
+      long numeroOrden, int medioPagoId) {
 
-    MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
-    AsociacionMedioPago asociacion = orderRepository.findAsociacion(
-        tipoProveedor, titularId);
-    if (asociacion == null) {
-      asociacion = new AsociacionMedioPago(tipoProveedor, titularId,
-          medioPagoId);
-      orderRepository.save(asociacion);
-    } else {
-      asociacion.update(medioPagoId);
-      orderRepository.update(asociacion);
-    }
+    asociarMedioPagoCommand.setNumeroOrden(numeroOrden);
+    asociarMedioPagoCommand.setMedioPagoId(medioPagoId);
+    MedioPago medioPago = asociarMedioPagoCommand.execute();
     return medioPago.getDescription();
+  }
+
+  @RequestMapping(value="/pay/{orderId}")
+  public String toPay(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    getOrderCommand.setNumero(orderId);
+    OrdenPago ordenPago = getOrderCommand.execute();
+    model.addAttribute("ordenPago", ordenPago);
+
+    if (ordenPago.getTipoProveedor() == 1) {
+      Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
+      model.addAttribute("titularNombre", shopper.getName());
+    } else {
+      Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
+      model.addAttribute("titularNombre", proveedor.getDescription());
+    }
+
+    model.addAttribute("mediosPago", orderRepository.findMediosPago());
+    return "payOrder";
+  }
+
+  @RequestMapping(value="/pay/{orderId}", method = RequestMethod.POST)
+  public String payOrder(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId, long medioPagoId,
+      @RequestParam(required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaCheque,
+      @RequestParam(required = false) String numeroChequera,
+      @RequestParam(required = false) String numeroCheque,
+      @RequestParam(required = false) String transferId,
+      String observaciones, String observacionesShopper) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    payOrderCommand.setNumero(orderId);
+    payOrderCommand.setMedioPagoId(medioPagoId);
+    payOrderCommand.setNumeroChequera(numeroChequera);
+    payOrderCommand.setNumeroCheque(numeroCheque);
+    payOrderCommand.setFechaCheque(fechaCheque);
+    payOrderCommand.setIdTransferencia(transferId);
+    payOrderCommand.setObservaciones(observaciones);
+    payOrderCommand.setObservacionesShopper(observacionesShopper);
+    OrdenPago ordenPago = payOrderCommand.execute();
+    model.addAttribute("ordenPago", ordenPago);
+
+    return "redirect:../view/" + orderId;
+  }
+
+  @RequestMapping(value="/transition/{orderId}", method = RequestMethod.POST)
+  public @ResponseBody boolean transition(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId, long stateId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    transitionOrderCommand.setNumero(orderId);
+    transitionOrderCommand.setStateId(stateId);
+    transitionOrderCommand.execute();
+
+    return true;
+  }
+
+  @RequestMapping(value="/view/{numeroOrden}")
+  public String viewOrder(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long numeroOrden) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    getOrderCommand.setNumero(numeroOrden);
+    OrdenPago ordenPago = getOrderCommand.execute();
+    model.addAttribute("ordenPago", ordenPago);
+
+    if (ordenPago.getTipoProveedor() == 1) {
+      Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
+      model.addAttribute("titularNombre", shopper.getName());
+    } else {
+      Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
+      model.addAttribute("titularNombre", proveedor.getDescription());
+    }
+
+    return "orderDetail";
   }
 
   @RequestMapping(value="getAsociacionMedioPago")

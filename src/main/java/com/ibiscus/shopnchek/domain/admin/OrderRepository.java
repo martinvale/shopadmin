@@ -3,47 +3,22 @@ package com.ibiscus.shopnchek.domain.admin;
 import java.util.List;
 
 import org.hibernate.Criteria;
-import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
 public class OrderRepository extends HibernateDaoSupport {
 
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-  public Integer getOrdenNumero() {
-    Query query = getSession().createSQLQuery("SELECT orden_nro FROM parametros");
-    Integer newId = (Integer) query.uniqueResult();
-    newId++;
-
-    query = getSession().createSQLQuery("UPDATE parametros SET orden_nro = orden_nro + 1");
-    query.executeUpdate();
-
-    return newId;
+  public Long save(final OrdenPago order) {
+    return (Long) getHibernateTemplate().save(order);
   }
 
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-  public long save(final OrdenPago ordenPago) {
-    int numeroOrden = getOrdenNumero();
-    ordenPago.updateNumero(numeroOrden);
-    getSession().save(ordenPago);
-    return numeroOrden;
-  }
-
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-  public void update(final OrdenPago ordenPago) {
-    getSession().update(ordenPago);
-  }
-
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public void updateItem(final ItemOrden itemOrden) {
     getSession().update(itemOrden);
   }
 
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public long saveItem(final ItemOrden itemOrden) {
     long numeroItem = (Long) getSession().save(itemOrden);
     return numeroItem;
@@ -79,7 +54,6 @@ public class OrderRepository extends HibernateDaoSupport {
     return (List<MedioPago>) criteria.list();
   }
 
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public boolean removeItem(final ItemOrden itemOrden) {
     getSession().delete(itemOrden);
     return true;
@@ -97,12 +71,10 @@ public class OrderRepository extends HibernateDaoSupport {
     return (AsociacionMedioPago) criteria.uniqueResult();
   }
 
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public void save(final AsociacionMedioPago asociacionMedioPago) {
     getSession().save(asociacionMedioPago);
   }
 
-  @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public void update(final AsociacionMedioPago asociacionMedioPago) {
     getSession().merge(asociacionMedioPago);
   }

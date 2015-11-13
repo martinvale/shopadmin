@@ -17,6 +17,13 @@
     <script src="<@spring.url '/script/pure.min.js'/>"></script>
     <script src="<@spring.url '/script/livevalidation.js'/>"></script>
 
+    <#assign actionUrl = "create" />
+    <#assign readOnly = model["readOnly"]!true />
+    <#if model["debt"]??>
+      <#assign debt = model["debt"] />
+      <#assign actionUrl = "../update/${debt.id?c}" />
+    </#if>
+
     <script type="text/javascript">
 
       window.App = window.App || {};
@@ -79,7 +86,35 @@ App.widget.AdicionalEditor = function (container) {
     container.find(".js-add").click(function () {
       //resetVisitaValidations();
       if (LiveValidation.massValidate(validations)) {
-        container.submit();
+        var items = [];
+        container.find(".js-items tbody tr").each(function (index) {
+          var row = jQuery(this);
+          items.push({
+            tipoPago: row.find("[name='tipoPago']").val(),
+            importe: row.find("[name='importe']").val(),
+            observacion: row.find("[name='observaciones']").val()
+          });
+        });
+        jQuery.ajax({
+          headers: { 
+            'Accept': 'application/json',
+            'Content-Type': 'application/json' 
+          },
+          url: "${actionUrl}",
+          dataType: 'json',
+          data: JSON.stringify({
+            "shopperDni": container.find(".js-shopper-dni").val(),
+            "clientId": container.find(".js-client-id").val(),
+            "clientDescription": container.find(".js-clients").val(),
+            "branchId": container.find(".js-sucursales").val(),
+            "branchDescription": container.find(".js-sucursal-description").val(),
+            "fecha": container.find(".js-fecha-visita").val(),
+            "items": items
+          }),
+          method: 'POST'
+        }).done(function (data) {
+          location.href = 'list';
+        })
       }
     });
 
@@ -157,12 +192,6 @@ App.widget.AdicionalEditor = function (container) {
     <div class="container-box-plantilla">
       <h2 class="container-tit">Autorizaci&oacute;n de adicionales</h2>
 
-      <#assign actionUrl = "create" />
-      <#assign readOnly = model["readOnly"]!true />
-      <#if model["debt"]??>
-        <#assign debt = model["debt"] />
-        <#assign actionUrl = "../update/${debt.id?c}" />
-      </#if>
       <form action="${actionUrl}" method="POST" class="form-shop form-shop-big js-editor-adicional">
        <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
           <div class="ch-popover-content">
@@ -197,7 +226,7 @@ App.widget.AdicionalEditor = function (container) {
               </div>
               <div class="form-shop-row">
                 <label>&nbsp;</label>
-                <input type="text" name="branchDescription" value="${(debt.branchDescription)!''}" class="item-field" <#if readOnly>disabled="true"</#if>/>
+                <input type="text" name="branchDescription" value="${(debt.branchDescription)!''}" class="item-field js-sucursal-description" <#if readOnly>disabled="true"</#if>/>
               </div>
               <div class="form-shop-row">
                 <label for="fecha">Fecha de la visita:</label>

@@ -7,6 +7,8 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -21,10 +23,11 @@ import org.hibernate.annotations.FetchMode;
 public class OrdenPago {
 
   @Id
-  @Column(name="numero")
+  @Column(name="numero", nullable=false)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private long numero;
 
-  @Column(name="proveedor_tipo")
+  @Column(name="proveedor_tipo", nullable=false)
   private Integer tipoProveedor;
 
   @Column(name="proveedor")
@@ -84,24 +87,25 @@ public class OrdenPago {
   }
 
   public OrdenPago(final int theTipoProveedor, final int theProveedor,
-      final String theTipoFactura, final Date thePayDate,
-      final OrderState theState, final MedioPago theMedioPago,
-      final double theIva) {
-    tipoProveedor = theTipoProveedor;
-    proveedor = theProveedor;
-    tipoFactura = theTipoFactura;
-    fechaPago = thePayDate;
-    estado = theState;
-    medioPago = theMedioPago;
-    iva = theIva;
+      final String theTipoFactura, final MedioPago medioPago, final Date thePayDate,
+      final OrderState theState, final double theIva, final String numeroFactura,
+      final String localidad, final String observaciones, final String observacionesShopper) {
+    this.tipoProveedor = theTipoProveedor;
+    this.proveedor = theProveedor;
+    this.tipoFactura = theTipoFactura;
+    this.medioPago = medioPago;
+    this.fechaPago = thePayDate;
+    this.estado = theState;
+    this.iva = theIva;
+    this.numeroFactura = numeroFactura;
+    this.localidad = localidad;
+    this.observaciones = observaciones;
+    this.observacionesShopper = observacionesShopper;
   }
 
   public void update(final int theTipoProveedor, final int theProveedor,
       final String theTipoFactura, final Date thePayDate,
-      final OrderState theState, final MedioPago theMedioPago,
-      final double theIva, final String unNumeroFactura,
-      final Date unaFechaCheque, final String unNumeroChequera,
-      final String unChequeNumero, final String unTransferId,
+      final OrderState theState, final double theIva, final String unNumeroFactura,
       final String unaLocalidad, final String unaObservacion,
       final String unaObservacionShopper) {
     tipoProveedor = theTipoProveedor;
@@ -109,16 +113,28 @@ public class OrdenPago {
     tipoFactura = theTipoFactura;
     fechaPago = thePayDate;
     estado = theState;
-    medioPago = theMedioPago;
     iva = theIva;
     numeroFactura = unNumeroFactura;
-    fechaCheque = unaFechaCheque;
-    numeroChequera = unNumeroChequera;
-    numeroCheque = unChequeNumero;
-    idTransferencia = unTransferId;
     localidad = unaLocalidad;
     observaciones = unaObservacion;
     observacionesShopper = unaObservacionShopper;
+  }
+
+  public void pagar(final OrderState state, final MedioPago medioPago, final String idTransferencia,
+        final String numeroChequera, final String numeroCheque, final Date fechaCheque,
+        final String observacion, final String observacionShopper) {
+    this.estado = state;
+    this.medioPago = medioPago;
+    this.idTransferencia = idTransferencia;
+    this.numeroChequera = numeroChequera;
+    this.numeroCheque = numeroCheque;
+    this.fechaCheque = fechaCheque;
+    this.observaciones = observacion;
+    this.observacionesShopper = observacionShopper;
+  }
+
+  public void transition(final OrderState state) {
+    this.estado = state;
   }
 
   public void updateNumero(final long unNumero) {

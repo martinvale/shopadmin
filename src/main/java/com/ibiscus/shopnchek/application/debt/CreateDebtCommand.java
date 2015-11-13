@@ -1,5 +1,7 @@
 package com.ibiscus.shopnchek.application.debt;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -31,29 +33,7 @@ public class CreateDebtCommand implements Command<List<Debt>> {
 
 	private ShopperRepository shopperRepository;
 
-	private String tipoItemValue;
-
-	private String shopperDni;
-
-	private Date fecha;
-
-	private String survey;
-
-	private List<String> tiposPagoValue;
-
-	private List<Double> importes;
-
-	private List<String> observaciones;
-
-	private Long clientId;
-
-	private String clientDescription;
-
-	private Long branchId;
-
-	private String branchDescription;
-
-	private Long externalId;
+	private VisitaDto visitaDto;
 
 	private User operator;
 
@@ -63,25 +43,32 @@ public class CreateDebtCommand implements Command<List<Debt>> {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public List<Debt> execute() {
-		Validate.notNull(shopperDni, "The shopper DNI cannot be null");
+		Validate.notNull(visitaDto, "The visit DTO cannot be null");
 		List<Debt> debts = new ArrayList<Debt>();
 
-		TipoItem tipoItem = TipoItem.valueOf(tipoItemValue);
+		TipoItem tipoItem = TipoItem.manual;
 		Client client = null;
-		if (clientId != null) {
-			client = clientRepository.get(clientId);
+		if (visitaDto.getClientId() != null) {
+			client = clientRepository.get(visitaDto.getClientId());
 		}
 		Branch branch = null;
-		if (branchId != null) {
-			branch = branchRepository.get(branchId);
+		if (visitaDto.getBranchId() != null) {
+			branch = branchRepository.get(visitaDto.getBranchId());
 		}
-		for (int i = 0; i < tiposPagoValue.size(); i++) {
-			TipoPago tipoPago = TipoPago.valueOf(tiposPagoValue.get(i));
-			Double importe = importes.get(i);
-			String observacion = observaciones.get(i);
-			Debt debt = new Debt(tipoItem, tipoPago, shopperDni, importe, fecha, observacion,
-					survey, client, clientDescription, branch, branchDescription,
-					externalId, operator.getUsername());
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		Date fecha;
+		try {
+			fecha = dateFormat.parse(visitaDto.getFecha());
+		} catch (ParseException e) {
+			throw new RuntimeException("Cannot parse visit date", e);
+		}
+		for (DebtDto debtDto : visitaDto.getItems()) {
+			TipoPago tipoPago = TipoPago.valueOf(debtDto.getTipoPago());
+			Debt debt = new Debt(tipoItem, tipoPago, visitaDto.getShopperDni(),
+					debtDto.getImporte(), fecha, debtDto.getObservacion(),
+					null, client, visitaDto.getClientDescription(), branch,
+					visitaDto.getBranchDescription(),
+					null, operator.getUsername());
 			debtRepository.save(debt);
 			Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());
 			debt.updateShopper(shopper);
@@ -106,52 +93,8 @@ public class CreateDebtCommand implements Command<List<Debt>> {
 		this.shopperRepository = shopperRepository;
 	}
 
-	public void setShopperDni(final String shopperDni) {
-		this.shopperDni = shopperDni;
-	}
-
-	public void setTipoItemValue(final String tipoItemValue) {
-		this.tipoItemValue = tipoItemValue;
-	}
-
-	public void setTiposPagoValue(final List<String> tiposPagoValue) {
-		this.tiposPagoValue = tiposPagoValue;
-	}
-
-	public void setImportes(final List<Double> importes) {
-		this.importes = importes;
-	}
-
-	public void setFecha(final Date fecha) {
-		this.fecha = fecha;
-	}
-
-	public void setObservaciones(final List<String> observaciones) {
-		this.observaciones = observaciones;
-	}
-
-	public void setSurvey(final String survey) {
-		this.survey = survey;
-	}
-
-	public void setClientId(final Long clientId) {
-		this.clientId = clientId;
-	}
-
-	public void setClientDescription(final String clientDescription) {
-		this.clientDescription = clientDescription;
-	}
-
-	public void setBranchId(final Long branchId) {
-		this.branchId = branchId;
-	}
-
-	public void setBranchDescription(final String branchDescription) {
-		this.branchDescription = branchDescription;
-	}
-
-	public void setExternalId(final Long externalId) {
-		this.externalId = externalId;
+	public void setVisitaDto(final VisitaDto visitaDto) {
+		this.visitaDto = visitaDto;
 	}
 
 	public void setOperator(final User operator) {

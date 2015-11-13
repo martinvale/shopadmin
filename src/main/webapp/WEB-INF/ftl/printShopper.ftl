@@ -4,6 +4,8 @@
     <meta charset="utf-8">
     <title>Shopnchek</title>
 
+    <#setting locale="es_AR">
+
 <style>
 @media print {
   #print-button {

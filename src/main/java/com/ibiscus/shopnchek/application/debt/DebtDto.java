@@ -28,11 +28,14 @@ public class DebtDto {
 
 	private int tipoItem;
 
-	private int tipoPago;
+	private String tipoPago;
 
 	private String usuario;
 
 	private String observacion;
+
+	public DebtDto() {
+	}
 
 	public DebtDto(final Debt debt) {
 		id = debt.getId();
@@ -56,6 +59,7 @@ public class DebtDto {
 		importe = debt.getImporte();
 		usuario = debt.getUsuario();
 		observacion = debt.getObservaciones();
+		tipoPago = debt.getTipoPago().toString();
 	}
 
 	public long getId() {
@@ -102,8 +106,16 @@ public class DebtDto {
 		return tipoItem;
 	}
 
-	public int getTipoPago() {
+	public void setImporte(final Double importe) {
+		this.importe = importe;
+	}
+
+	public String getTipoPago() {
 		return tipoPago;
+	}
+
+	public void setTipoPago(final String tipoPago) {
+		this.tipoPago = tipoPago;
 	}
 
 	public String getUsuario() {
@@ -112,5 +124,9 @@ public class DebtDto {
 
 	public String getObservacion() {
 		return observacion;
+	}
+
+	public void setObservacion(final String observacion) {
+		this.observacion = observacion;
 	}
 }

@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../css/shop.css">
     <link rel="stylesheet" href="../css/custom.css">
 
+    <#setting locale="es_AR">
+
 <style>
 @media print {
   #print-button {

@@ -21,9 +21,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
-import com.ibiscus.shopnchek.application.orden.VisitaDto;
-import com.ibiscus.shopnchek.application.orden.VisitasDto;
+import com.ibiscus.shopnchek.application.debt.VisitaDto;
+import com.ibiscus.shopnchek.application.debt.VisitasDto;
+import com.ibiscus.shopnchek.application.order.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.order.UpdateItemOrderCommand;
 import com.ibiscus.shopnchek.application.shopmetrics.ImportService;
 import com.ibiscus.shopnchek.domain.admin.Adicional;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
@@ -64,6 +65,9 @@ public class ItemOrdenController {
   /** Service to import external data. */
   @Autowired
   private ImportService importService;
+
+  @Autowired
+  private UpdateItemOrderCommand updateItemOrderCommand;
 
   @RequestMapping(value="/mdc/{dniShopper}")
   public @ResponseBody List<Visita> index(
@@ -269,7 +273,7 @@ public class ItemOrdenController {
   public @ResponseBody Boolean createVisitas(@RequestBody VisitasDto visitas) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
-    com.ibiscus.shopnchek.domain.security.User autorizador;
+    /*com.ibiscus.shopnchek.domain.security.User autorizador;
     autorizador = userRepository.findByUsername(user.getUsername());
     OrdenPago ordenPago = orderRepository.get(visitas.getNroOrden());
     for (VisitaDto visita : visitas.getItems()) {
@@ -300,7 +304,7 @@ public class ItemOrdenController {
         itemsOrdenService.linkAdicional(visita.getAsignacion(),
             ordenPago.getNumero());
       }
-    }
+    }*/
     return Boolean.TRUE;
   }
 
@@ -395,12 +399,10 @@ public class ItemOrdenController {
   }
 
   @RequestMapping(value="/updateImporte", method = RequestMethod.POST)
-  public @ResponseBody Boolean updateImporte(
-      @ModelAttribute("model") final ModelMap model,
+  public @ResponseBody Boolean updateImporte(@ModelAttribute("model") final ModelMap model,
       long itemId, double importe) {
-    ItemOrden itemOrden = orderRepository.getItem(itemId);
-    itemOrden.updateImporte(importe);
-    orderRepository.updateItem(itemOrden);
-    return Boolean.TRUE;
+    updateItemOrderCommand.setItemOrderId(itemId);
+    updateItemOrderCommand.setImporte(importe);
+    return updateItemOrderCommand.execute();
   }
 }

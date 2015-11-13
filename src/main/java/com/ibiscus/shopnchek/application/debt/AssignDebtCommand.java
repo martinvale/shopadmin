@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ibiscus.shopnchek.application.Command;
-import com.ibiscus.shopnchek.application.orden.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.order.ItemsOrdenService;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;

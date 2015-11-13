@@ -1,4 +1,4 @@
-package com.ibiscus.shopnchek.application.orden;
+package com.ibiscus.shopnchek.application.debt;
 
 import java.util.List;
 

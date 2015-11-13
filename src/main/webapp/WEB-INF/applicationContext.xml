@@ -120,7 +120,7 @@
   </bean>
 
   <!-- Services -->
-  <bean id="itemsOrdenService" class="com.ibiscus.shopnchek.application.orden.ItemsOrdenService">
+  <bean id="itemsOrdenService" class="com.ibiscus.shopnchek.application.order.ItemsOrdenService">
     <constructor-arg index="0" ref="dataSource" />
   </bean>
 
@@ -136,6 +136,37 @@
   </bean>
 
   <!-- Commands -->
+  <bean id="saveOrderCommand" class="com.ibiscus.shopnchek.application.order.SaveOrderCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+  </bean>
+
+  <bean id="getOrderCommand" class="com.ibiscus.shopnchek.application.order.GetOrderCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
+  <bean id="payOrderCommand" class="com.ibiscus.shopnchek.application.order.PayOrderCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+    <property name="debtRepository" ref="debtRepository" />
+  </bean>
+
+  <bean id="transitionOrderCommand" class="com.ibiscus.shopnchek.application.order.TransitionOrderCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+  </bean>
+
+  <bean id="removeItemOrderCommand" class="com.ibiscus.shopnchek.application.order.RemoveItemOrderCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+    <property name="debtRepository" ref="debtRepository" />
+  </bean>
+
+  <bean id="asociarMedioPagoCommand" class="com.ibiscus.shopnchek.application.order.AsociarMedioPagoCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+  </bean>
+
+  <bean id="updateItemOrderCommand" class="com.ibiscus.shopnchek.application.order.UpdateItemOrderCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+  </bean>
+
   <bean id="searchClientDtoCommand" class="com.ibiscus.shopnchek.application.debt.SearchClientDtoCommand" scope="prototype">
     <property name="clientRepository" ref="clientRepository" />
   </bean>

@@ -60,12 +60,4 @@
         </div>
       </form>
     </div>
-    <div class="js-confirmation" title="Importe">
-      <form>
-        <label for="importe-asignacion">Ingrese el importe de la asignaci&oacute;n seleccionada</label>
-        <input id="importe-asignacion" type="text" value="" class="js-importe" />
-        <input type="hidden" value="" class="js-index" />
-        <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" />
-      </form>
-    </div>
   </div>

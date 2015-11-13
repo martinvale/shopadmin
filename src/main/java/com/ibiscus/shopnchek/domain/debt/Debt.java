@@ -212,9 +212,16 @@ public class Debt {
 
 	public void pagado() {
 		estado = State.pagada;
+		fechaModificacion = new Date();
 	}
 
 	public void asignada() {
 		estado = State.asignada;
+		fechaModificacion = new Date();
+	}
+
+	public void release() {
+		estado = State.pendiente;
+		fechaModificacion = new Date();
 	}
 }

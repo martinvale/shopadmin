@@ -1,4 +1,4 @@
-package com.ibiscus.shopnchek.application.orden;
+package com.ibiscus.shopnchek.application.order;
 
 import java.sql.CallableStatement;
 import java.sql.ResultSet;

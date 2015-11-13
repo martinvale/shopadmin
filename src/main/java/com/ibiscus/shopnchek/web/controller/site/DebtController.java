@@ -15,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +30,7 @@ import com.ibiscus.shopnchek.application.debt.GetDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SaveDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SearchDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SearchDebtDtoCommand;
+import com.ibiscus.shopnchek.application.debt.VisitaDto;
 import com.ibiscus.shopnchek.domain.debt.BranchRepository;
 import com.ibiscus.shopnchek.domain.debt.ClientRepository;
 import com.ibiscus.shopnchek.domain.debt.Debt;
@@ -205,34 +207,15 @@ public class DebtController {
 		return "createDebt";
 	}
 
-	@RequestMapping(value="/create", method = RequestMethod.POST)
-	public String createDebt(@ModelAttribute("model") final ModelMap model, String shopperDni,
-			@RequestParam(required = false) Long clientId,
-			@RequestParam(required = false) String clientDescription,
-			@RequestParam(required = false) Long branchId,
-			@RequestParam(required = false) String branchDescription,
-			String tipoItem,
-			@DateTimeFormat(pattern="dd/MM/yyyy") Date fecha,
-			@RequestParam("tipoPago") List<String> tiposPago,
-			@RequestParam("importe") List<Double> importes,
-			@RequestParam("observaciones") List<String> observaciones, String survey) {
+	@RequestMapping(value="/create", method=RequestMethod.POST)
+	public @ResponseBody boolean createDebt(@RequestBody VisitaDto visitaDto) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
-		createDebtCommand.setShopperDni(shopperDni);
-		createDebtCommand.setClientId(clientId);
-		createDebtCommand.setClientDescription(clientDescription);
-		createDebtCommand.setBranchId(branchId);
-		createDebtCommand.setBranchDescription(branchDescription);
-		createDebtCommand.setTipoItemValue(tipoItem);
-		createDebtCommand.setTiposPagoValue(tiposPago);
-		createDebtCommand.setFecha(fecha);
-		createDebtCommand.setImportes(importes);
-		createDebtCommand.setObservaciones(observaciones);
-		createDebtCommand.setSurvey(survey);
+		createDebtCommand.setVisitaDto(visitaDto);
 		createDebtCommand.setOperator(user);
 		createDebtCommand.execute();
 
-		return "redirect:list";
+		return true;
 	}
 
 	@RequestMapping(value="/update/{id}", method = RequestMethod.POST)

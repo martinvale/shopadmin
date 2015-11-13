@@ -95,3 +95,40 @@ WHERE
 	when 3 then mcdonalds.dbo.Vista_Visitas_Adjuntos.OtrosGastos 
   end > 0)
 GO
+
+sp_rename ordenes, ordenesant
+GO
+
+CREATE TABLE ordenes (
+	numero bigint IDENTITY NOT NULL,
+	proveedor_tipo tinyint NOT NULL,
+	proveedor int NOT NULL,
+	chequera_nro nvarchar(30) NULL,
+	cheque_nro nvarchar(30) NULL,
+	fecha_cheque datetime NULL,
+	fecha_pago datetime NOT NULL,
+	estado tinyint NOT NULL,
+	factura nvarchar(3) NULL,
+	factura_nro nvarchar(50) NULL,
+	iva_honorarios real NULL,
+	localidad nvarchar(15) NULL,
+	transferenciap bit NOT NULL,
+	transferencia_id nvarchar(15) NULL,
+	observaciones nvarchar(max) NULL,
+	medio_pago smallint NULL,
+	obspshopper nvarchar(max) NULL,
+	CONSTRAINT pk_order_id PRIMARY KEY (numero)
+)
+GO
+
+SET IDENTITY_INSERT ordenes ON;
+
+insert into ordenes (numero, proveedor_tipo, proveedor, chequera_nro, cheque_nro, fecha_cheque,
+	fecha_pago, estado, factura, factura_nro, iva_honorarios, localidad, transferenciap,
+	transferencia_id, observaciones, medio_pago, obspshopper)
+select numero, proveedor_tipo, proveedor, chequera_nro, cheque_nro, fecha_cheque,
+	fecha_pago, estado, factura, factura_nro, iva_honorarios, localidad, transferenciap,
+	transferencia_id, observaciones, medio_pago, obspshopper from ordenesant;
+
+SET IDENTITY_INSERT ordenes OFF;
+GO

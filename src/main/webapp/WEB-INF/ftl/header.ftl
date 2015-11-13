@@ -8,7 +8,7 @@
           <#if model["user"].hasFeature('edit_order')>
             <li><a href="#"><i class="icon-home"></i>Orden de pago</a>
               <ul class="sub-menu">
-                <li><a href="<@spring.url '/orden/'/>">Nueva</a></li>
+                <li><a href="<@spring.url '/orden/create'/>">Nueva</a></li>
                 <li><a href="<@spring.url '/orden/search'/>">Buscar</a></li>
                 <li><a href="<@spring.url '/item/debtSearch'/>">Deuda por shopper</a></li>
                 <li><a href="<@spring.url '/orden/export'/>">Exportar &oacute;rdenes de pago</a></li>
