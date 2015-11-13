@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <#import "/spring.ftl" as spring />
     <meta charset="utf-8">
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
     <meta http-equiv='Content-Type' content='text/html; charset=UTF-8' />
 
-    <link rel="stylesheet" href="../css/jquery-ui/jquery-ui.css">
+    <link rel="stylesheet" href="<@spring.url '/css/jquery-ui/jquery-ui.css'/>">
 
-    <link rel="stylesheet" href="../css/base.css">
-    <link rel="stylesheet" href="../css/shop.css">
-    <link rel="stylesheet" href="../css/custom.css">
+    <link rel="stylesheet" href="<@spring.url '/css/base.css'/>">
+    <link rel="stylesheet" href="<@spring.url '/css/shop.css'/>">
+    <link rel="stylesheet" href="<@spring.url '/css/custom.css'/>">
 
-    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="<@spring.url '/font-awesome/css/font-awesome.min.css'/>">
 
-    <script src="../script/jquery.js"></script>
-    <script src="../script/jquery-ui.js"></script>
+    <script src="<@spring.url '/script/jquery.js'/>"></script>
+    <script src="<@spring.url '/script/jquery-ui.js'/>"></script>
 
-    <script src="../script/spin.js"></script>
-    <script src="../script/jquery.spin.js"></script>
+    <script src="<@spring.url '/script/spin.js'/>"></script>
+    <script src="<@spring.url '/script/jquery.spin.js'/>"></script>
 
-    <script src="../script/pure.min.js"></script>
-    <script src="../script/livevalidation.js"></script>
+    <script src="<@spring.url '/script/pure.min.js'/>"></script>
+    <script src="<@spring.url '/script/livevalidation.js'/>"></script>
 
     <#assign canEdit = model["user"].hasFeature('edit_order') />
 
@@ -211,7 +212,7 @@ textarea.LV_invalid_field:active {
         <#assign action = "create" />
         <#if model["ordenPago"]??>
           <#assign order = model["ordenPago"] />
-          <#assign action = "save" />
+          <#assign action = "../save" />
         </#if>
         <form action="${action}" method="POST" class="form-shop form-shop-big js-orden-pago">
           <!-- FILA 1 -->

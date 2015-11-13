@@ -34,6 +34,7 @@ import com.ibiscus.shopnchek.application.debt.VisitaDto;
 import com.ibiscus.shopnchek.domain.debt.BranchRepository;
 import com.ibiscus.shopnchek.domain.debt.ClientRepository;
 import com.ibiscus.shopnchek.domain.debt.Debt;
+import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.security.User;
@@ -91,6 +92,7 @@ public class DebtController {
 		searchDebtCommand.setShopperDni(shopperDni);
 		searchDebtCommand.setFrom(from);
 		searchDebtCommand.setTo(to);
+		searchDebtCommand.setState(State.pendiente);
 		ResultSet<Debt> resultSet = searchDebtCommand.execute();
 		model.put("result", resultSet);
 		model.put("page", page);

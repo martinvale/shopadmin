@@ -1,5 +1,8 @@
 package com.ibiscus.shopnchek.application.order;
 
+import java.util.Collections;
+import java.util.Comparator;
+
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +29,23 @@ public class GetOrderCommand implements Command<OrdenPago> {
 			Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
 			itemOrden.updateShopper(itemShopper);
 		}
+		Collections.sort(order.getItems(), new Comparator<ItemOrden>() {
+
+			@Override
+			public int compare(ItemOrden o1, ItemOrden o2) {
+				int result = 0;
+				if (o1.getShopper() != null) {
+					result = o1.getShopper().getName().compareTo(o2.getShopper().getName());
+					if (result == 0 && o1.getCliente() != null) {
+						result = o1.getCliente().compareTo(o2.getCliente());
+						if (result == 0 && o1.getSucursal() != null) {
+							result = o1.getSucursal().compareTo(o2.getSucursal());
+						}
+					}
+				}
+				return result;
+			}
+		});
 
 		return order;
 	}

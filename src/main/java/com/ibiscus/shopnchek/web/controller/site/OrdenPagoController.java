@@ -90,15 +90,15 @@ public class OrdenPagoController {
 
   @RequestMapping(value="/")
   public String index(@ModelAttribute("model") final ModelMap model) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+    /*User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
     model.addAttribute("orderStates", orderRepository.findOrderStates());
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
     Calendar calendar = Calendar.getInstance();
     calendar.add(Calendar.MONTH, -4);
-    model.addAttribute("fechaDesde", calendar.getTime());
-    return "ordenPago";
+    model.addAttribute("fechaDesde", calendar.getTime());*/
+    return "redirect:create";
   }
 
   @RequestMapping(value="/create")
@@ -106,6 +106,28 @@ public class OrdenPagoController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
+    return "createOrder";
+  }
+
+  @RequestMapping(value="/edit/{orderId}")
+  public String edit(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    getOrderCommand.setNumero(orderId);
+    OrdenPago ordenPago = getOrderCommand.execute();
+    model.addAttribute("ordenPago", ordenPago);
+
+    if (ordenPago.getTipoProveedor() == 1) {
+      Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
+      model.addAttribute("titularNombre", shopper.getName());
+    } else {
+      Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
+      model.addAttribute("titularNombre", proveedor.getDescription());
+    }
+
     return "createOrder";
   }
 

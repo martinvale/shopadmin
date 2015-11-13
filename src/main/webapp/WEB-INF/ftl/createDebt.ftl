@@ -135,6 +135,10 @@ App.widget.AdicionalEditor = function (container) {
 
   var updateBranchs = function (branchs) {
     branchSelector.empty();
+    branchSelector.append(jQuery("<option>", {
+      value: "",
+      text: "Seleccione una sucursal"
+    }));
     jQuery.each(branchs, function (index, branch) {
       branchSelector.append(jQuery("<option>", {
         value: branch.id,

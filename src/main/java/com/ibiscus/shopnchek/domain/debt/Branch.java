@@ -21,6 +21,9 @@ public class Branch {
 	@Column(name = "code", length = 50)
 	private String code;
 
+	@Column(name = "city", length = 255)
+	private String city;
+
 	@Column(name = "address", nullable = false, length = 255)
 	private String address;
 
@@ -43,6 +46,10 @@ public class Branch {
 
 	public String getCode() {
 		return code;
+	}
+
+	public String getCity() {
+		return city;
 	}
 
 	public String getAddress() {

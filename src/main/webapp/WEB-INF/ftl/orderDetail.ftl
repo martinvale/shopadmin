@@ -79,9 +79,6 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items) {
           },
           '.js-shopper': function (a) {
             var cellContent = a.item.shopper;
-            if (canEdit) {
-              cellContent += ' <a id="item-' + a.item.id + '" href="#" class="js-delete-item">borrar</a>';
-            }
             return cellContent;
           },
           '.js-cliente': 'itemOrden.cliente',

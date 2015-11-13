@@ -58,6 +58,6 @@
           </#if>
           </ul>
         </nav>
-        <p class="user"> ${user.username} <a href="../j_spring_security_logout">Salir</a></p>
+        <p class="user"> ${user.username} <a href="<@spring.url '/j_spring_security_logout'/>">Salir</a></p>
       </div>
     </header>

@@ -129,10 +129,11 @@
   </bean>
 
   <bean id="importerService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportService">
-    <constructor-arg index="0" ref="debtRepository" />
-    <constructor-arg index="1" ref="clientRepository" />
-    <constructor-arg index="2" ref="branchRepository" />
-    <constructor-arg index="3" ref="shopperRepository" />
+    <constructor-arg index="0" ref="dataSource" />
+    <constructor-arg index="1" ref="debtRepository" />
+    <constructor-arg index="2" ref="clientRepository" />
+    <constructor-arg index="3" ref="branchRepository" />
+    <constructor-arg index="4" ref="shopperRepository" />
   </bean>
 
   <!-- Commands -->

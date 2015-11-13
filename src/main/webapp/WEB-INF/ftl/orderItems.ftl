@@ -353,7 +353,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
   };
 }
 
-App.widget.OrderItemsEditor = function (container, numeroOrden, items) {
+App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) {
 
   var itemSelector;
 
@@ -681,7 +681,7 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items) {
         ];
 
         var orderItemsEditor = new App.widget.OrderItemsEditor(jQuery(".js-orden-pago"),
-            ${order.numero?c}, items);
+            ${order.numero?c}, items, ${canEdit?c});
         orderItemsEditor.render();
       });
     </script>
@@ -719,7 +719,7 @@ textarea.LV_invalid_field:active {
     <#include "header.ftl" />
 
     <div class="container-box-plantilla js-orden-pago">
-      <h2 class="container-tit">Orden de pago ${order.numero?c} <a href="../${order.numero?c}">editar</a></h2>
+      <h2 class="container-tit">Orden de pago ${order.numero?c} <a href="../edit/${order.numero?c}">editar</a></h2>
       <!-- FILA 1 -->
       <div class="cell">
         <div class="box-green">
@@ -732,8 +732,8 @@ textarea.LV_invalid_field:active {
               </tr>
               <tr>
                 <td width="33%"><label>IVA: </label>${order.iva?string['0.##']}%</td>
+                <td width="33%"><label>Factura Nro: </label>${order.numeroFactura!''}</td>
                 <td width="33%"><label>Localidad: </label>${order.localidad!''}</td>
-                <td width="33%">&nbsp;</td>
               </tr>
               <tr>
                 <td width="100%" colspan="2"><label>Observaciones: </label>${order.observaciones!''}</td>

@@ -2,6 +2,7 @@ package com.ibiscus.shopnchek.application.debt;
 
 import java.text.SimpleDateFormat;
 
+import com.ibiscus.shopnchek.domain.debt.Branch;
 import com.ibiscus.shopnchek.domain.debt.Debt;
 
 public class DebtDto {
@@ -48,7 +49,12 @@ public class DebtDto {
 		}
 		programa = debt.getSurvey();
 		if (debt.getBranch() != null) {
-			local = debt.getBranch().getAddress();
+			Branch branch = debt.getBranch();
+			if (branch.getCity() != null) {
+				local = branch.getCity() + " - " + branch.getAddress();
+			} else {
+				local = branch.getAddress();
+			}
 		} else {
 			local = debt.getBranchDescription();
 		}

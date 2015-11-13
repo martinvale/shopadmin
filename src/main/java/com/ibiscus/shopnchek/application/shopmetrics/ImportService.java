@@ -3,6 +3,9 @@ package com.ibiscus.shopnchek.application.shopmetrics;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.CallableStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.sql.DataSource;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
@@ -59,6 +64,8 @@ public class ImportService {
 
   private final Logger logger = Logger.getLogger(ImportService.class.getName());
 
+  private final DataSource dataSource;
+
   private final DebtRepository debtRepository;
 
   private final ClientRepository clientRepository;
@@ -67,8 +74,9 @@ public class ImportService {
 
   private final ShopperRepository shopperRepository;
 
-  public ImportService(final DebtRepository debtRepository, final ClientRepository clientRepository,
+  public ImportService(final DataSource dataSource, final DebtRepository debtRepository, final ClientRepository clientRepository,
 		  final BranchRepository branchRepository, final ShopperRepository shopperRepository) {
+    this.dataSource = dataSource;
     this.debtRepository = debtRepository;
     this.clientRepository = clientRepository;
     this.branchRepository = branchRepository;
@@ -406,7 +414,7 @@ public class ImportService {
     Workbook workbook = new SXSSFWorkbook();
     Sheet sheet = workbook.createSheet("Ordenes");
 
-    /*CallableStatement cstmt = null;
+    CallableStatement cstmt = null;
     ResultSet rs = null;
     try {
       int currentRow = 1;
@@ -468,7 +476,7 @@ public class ImportService {
           logger.log(Level.WARNING, null, ex);
         }
       }
-    }*/
+    }
   }
 
   public void exportDeuda(final OutputStream outputStream,
