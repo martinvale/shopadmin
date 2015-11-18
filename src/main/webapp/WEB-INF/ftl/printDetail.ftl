@@ -111,7 +111,7 @@ table td.value {
             <td>${item.cliente!''}</td>
             <td>${item.sucursal!''}</td>
             <td>${item.tipoPago.description}</td>
-            <td>${item.importe?string.currency}</td>
+            <td class="value">${item.importe?string.currency}</td>
           </tr>
         </#list>
           <tr class="header">
@@ -119,7 +119,8 @@ table td.value {
             <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
-            <td>${total?string.currency}</td>
+            <td>&nbsp;</td>
+            <td class="value">${total?string.currency}</td>
           </tr>
         </table>
       </div>

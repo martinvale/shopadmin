@@ -84,25 +84,57 @@ App.widget.EditorPagarOrden = function (container) {
       })
     });
 
-    container.find(".js-pay-order").click(function () {
+    container.find(".js-close-order").click(function () {
       var validations = [];
       validations.push(medioPagoValidation);
-      var tipoPagoSeleccionado = container.find(".js-medio-pago").val();
+      /*var tipoPagoSeleccionado = container.find(".js-medio-pago").val();
       if (tipoPagoSeleccionado == '1' || tipoPagoSeleccionado == '2') {
         validations.push(chequeraValidation);
         validations.push(chequeValidation);
         validations.push(fechaChequeValidation);
       } else {
         validations.push(transferIdValidation);
-      }
+      }*/
       if (LiveValidation.massValidate(validations)) {
         container.submit();
       }
     });
 
+    container.find(".js-detail" ).click(function () {
+      window.open('../printdetail/${order.numero?c}', "width=1000, height=600");
+    });
+
     container.find(".js-caratula" ).click(function () {
       window.open('../caratula/${order.numero?c}', "", "width=700, height=600");
     });
+
+    container.find(".js-reopen-order").click(function () {
+      jQuery.ajax({
+        url: "../open/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "../${order.numero?c}";
+      });
+    });
+
+    container.find(".js-anular-order").click(function () {
+      jQuery.ajax({
+        url: "../cancel/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "../${order.numero?c}";
+      });
+    });
+
+    container.find(".js-pausar-order").click(function () {
+      jQuery.ajax({
+        url: "../pause/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "../${order.numero?c}";
+      });
+    });
+
   };
 
   var initValidators = function () {
@@ -112,7 +144,7 @@ App.widget.EditorPagarOrden = function (container) {
         failureMessage: "El medio de pago es obligatorio"
     });
 
-    chequeraValidation = new LiveValidation("numeroChequera");
+    /*chequeraValidation = new LiveValidation("numeroChequera");
     chequeraValidation.add(Validate.Presence, {
         failureMessage: "El nro de la chequera es obligatorio"
     });
@@ -130,7 +162,7 @@ App.widget.EditorPagarOrden = function (container) {
     transferIdValidation = new LiveValidation("transferId");
     transferIdValidation.add(Validate.Presence, {
         failureMessage: "El ID de la transferencia es obligatorio"
-    });
+    });*/
   };
 
   return {
@@ -193,7 +225,7 @@ textarea.LV_invalid_field:active {
     <#include "header.ftl" />
 
     <div class="container-box-plantilla">
-        <h2 class="container-tit">Completar la forma de pago de la orden ${order.numero?c}</h2>
+        <h2 class="container-tit">Completar la forma de pago de la orden ${order.numero?c} (${order.estado.description})</h2>
 
         <form action="${order.numero?c}" method="POST" class="form-shop form-shop-big js-pagar-orden-editor">
           <!-- FILA 1 -->
@@ -253,9 +285,12 @@ textarea.LV_invalid_field:active {
             </fieldset>
           </div>
           <ul class="action-columns">
-            <li><input type="button" class="btn-shop-small js-pay-order" value="Pagar" <#if !canPay>disabled="true"</#if>></li>
-            <li><a href="../items/${order.numero?c}" class="btn-shop-small">Volver a editar los items</a></li>
+            <li><input type="button" class="btn-shop js-close-order" value="Cerrar" <#if !canPay>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop js-reopen-order" value="Reabrir" /></li>
+            <li><input type="button" class="btn-shop js-anular-order" value="Anular" /></li>
+            <li><input type="button" class="btn-shop js-pausar-order" value="En espera" /></li>
             <li><input type="button" class="btn-shop-small js-caratula" value="Car&aacute;tula" /></li>
+            <li><input type="button" class="btn-shop-small js-detail" value="Imprimir detalle" /></li>
           </ul>
       </form>
     </div>

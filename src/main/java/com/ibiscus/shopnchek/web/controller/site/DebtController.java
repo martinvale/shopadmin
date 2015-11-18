@@ -53,10 +53,10 @@ public class DebtController {
 	private BranchRepository branchRepository;
 
 	@Autowired
-	CreateDebtCommand createDebtCommand;
+	private CreateDebtCommand createDebtCommand;
 
 	@Autowired
-	SaveDebtCommand saveDebtCommand;
+	private SaveDebtCommand saveDebtCommand;
 
 	@Autowired
 	private AssignDebtCommand assignDebtCommand;
@@ -64,12 +64,18 @@ public class DebtController {
 	@Autowired
 	private GetDebtCommand getDebtCommand;
 
+	@Autowired
+	private SearchDebtCommand searchDebtCommand;
+
+	@Autowired
+	private SearchDebtDtoCommand searchDebtDtoCommand;
+
 	@RequestMapping(value="/list")
 	public String searchDebt(@ModelAttribute("model") final ModelMap model,
 			@RequestParam(required = false, defaultValue = "1") Integer page,
 			@RequestParam(required = false, defaultValue = "fechaCreacion") String orderBy,
 			@RequestParam(required = false, defaultValue = "false") Boolean ascending,
-			String shopperDni,
+			String shopperDni, String tipoPago,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date from,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date to) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
@@ -85,7 +91,6 @@ public class DebtController {
 		if (to == null) {
 			to = new Date();
 		}
-		SearchDebtCommand searchDebtCommand = new SearchDebtCommand(debtRepository);
 		searchDebtCommand.setPage(page);
 		searchDebtCommand.setPageSize(25);
 		searchDebtCommand.setOrderBy(orderBy, ascending);
@@ -93,6 +98,7 @@ public class DebtController {
 		searchDebtCommand.setFrom(from);
 		searchDebtCommand.setTo(to);
 		searchDebtCommand.setState(State.pendiente);
+		searchDebtCommand.setTipoPago(tipoPago);
 		ResultSet<Debt> resultSet = searchDebtCommand.execute();
 		model.put("result", resultSet);
 		model.put("page", page);
@@ -108,21 +114,21 @@ public class DebtController {
 			@RequestParam(required = false) Integer page,
 			@RequestParam(required = false, defaultValue = "fechaCreacion") String orderBy,
 			@RequestParam(required = false, defaultValue = "false") Boolean ascending,
-			String shopperDni,
+			String shopperDni, String tipoPago,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date from,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date to) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		model.addAttribute("user", user);
 
-		SearchDebtDtoCommand searchDebtCommand = new SearchDebtDtoCommand(debtRepository);
-		searchDebtCommand.setPage(null);
-		searchDebtCommand.setPageSize(null);
-		searchDebtCommand.setOrderBy(orderBy, ascending);
-		searchDebtCommand.setShopperDni(shopperDni);
-		searchDebtCommand.setFrom(from);
-		searchDebtCommand.setTo(to);
-		ResultSet<DebtDto> resultSet = searchDebtCommand.execute();
+		searchDebtDtoCommand.setPage(null);
+		searchDebtDtoCommand.setPageSize(null);
+		searchDebtDtoCommand.setOrderBy(orderBy, ascending);
+		searchDebtDtoCommand.setShopperDni(shopperDni);
+		searchDebtDtoCommand.setFrom(from);
+		searchDebtDtoCommand.setTo(to);
+		searchDebtDtoCommand.setTipoPago(tipoPago);
+		ResultSet<DebtDto> resultSet = searchDebtDtoCommand.execute();
 		model.put("result", resultSet);
 		model.put("shopperDni", shopperDni);
 		model.put("from", from);

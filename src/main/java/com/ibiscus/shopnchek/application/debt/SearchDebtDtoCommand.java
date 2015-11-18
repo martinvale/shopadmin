@@ -4,16 +4,18 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
 
 import com.ibiscus.shopnchek.application.SearchCommand;
 import com.ibiscus.shopnchek.domain.debt.Debt;
+import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 
 public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 
-	private final DebtRepository debtRepository;
+	private DebtRepository debtRepository;
 
 	private String shopperDni;
 
@@ -21,8 +23,12 @@ public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 
 	private Date to;
 
-	public SearchDebtDtoCommand(final DebtRepository debtRepository) {
-		Validate.notNull(debtRepository, "The debt repository cannot be null");
+	private String tipoPago;
+
+	public SearchDebtDtoCommand() {
+	}
+
+	public void setDebtRepository(final DebtRepository debtRepository) {
 		this.debtRepository = debtRepository;
 	}
 
@@ -38,14 +44,19 @@ public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 		this.to = to;
 	}
 
+	public void setTipoPago(final String tipoPago) {
+		this.tipoPago = tipoPago;
+	}
+
 	@Override
 	protected List<DebtDto> getItems() {
 		if (from != null && to != null) {
 			Validate.isTrue(from.before(to), "The FROM date must be before the TO date");
 		}
 		List<DebtDto> debtDtoItems = new LinkedList<DebtDto>();
-		List<Debt> debtItems = debtRepository.find(getStart(), getPageSize(), getOrderBy(), isAscending(),
-				shopperDni, State.pendiente, from, to);
+
+		List<Debt> debtItems = debtRepository.find(getStart(), getPageSize(), getOrderBy(),
+				isAscending(), shopperDni, State.pendiente, from, to, getTipoPago());
 		for (Debt debt : debtItems) {
 			debtDtoItems.add(new DebtDto(debt));
 		}
@@ -54,6 +65,15 @@ public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 
 	@Override
 	protected int getCount() {
-		return debtRepository.getCount(shopperDni, State.pendiente, from, to);
+		return debtRepository.getCount(shopperDni, State.pendiente, from, to,
+				getTipoPago());
+	}
+
+	private TipoPago getTipoPago() {
+		TipoPago tipoPagoDeuda = null;
+		if (!StringUtils.isBlank(tipoPago)) {
+			tipoPagoDeuda = TipoPago.valueOf(tipoPago);
+		}
+		return tipoPagoDeuda;
 	}
 }

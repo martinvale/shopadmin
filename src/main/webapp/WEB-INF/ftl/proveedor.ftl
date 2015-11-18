@@ -75,6 +75,10 @@
                 <option value="M" <#if tipoFactura = "M">selected="true"</#if>>Factura M</option>
               <select>
             </div>
+            <div class="field">
+              <label class="field-name" for="banco">Banco: </label>
+              <input type="text" id="banco" name="banco" value="${(proveedor.banco)!''}" />
+            </div>
           </div>
         </div>
         <ul class="action-columns">

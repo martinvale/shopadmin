@@ -6,12 +6,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ibiscus.shopnchek.application.Command;
-import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.MedioPago;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
 import com.ibiscus.shopnchek.domain.admin.OrderState;
-import com.ibiscus.shopnchek.domain.debt.Debt;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 
 public class PayOrderCommand implements Command<OrdenPago> {
@@ -39,8 +37,13 @@ public class PayOrderCommand implements Command<OrdenPago> {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public OrdenPago execute() {
-		OrderState state = orderRepository.getOrderState(OrderState.PAGADA);
 		MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
+		OrderState state = null;
+		if (medioPago.getId() == 3) {
+			state = orderRepository.getOrderState(OrderState.CERRADA);
+		} else {
+			state = orderRepository.getOrderState(OrderState.PAGADA);
+		}
 
 		OrdenPago order = orderRepository.get(numero);
 		order.pagar(state, medioPago, idTransferencia, numeroChequera, numeroCheque,

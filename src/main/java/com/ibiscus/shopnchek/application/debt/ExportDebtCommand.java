@@ -45,7 +45,7 @@ public class ExportDebtCommand implements Command<Workbook> {
 			Validate.isTrue(from.before(to), "The FROM date must be before the TO date");
 		}
 
-		List<Debt> items = debtRepository.find(shopperDni, null, from, to);
+		List<Debt> items = debtRepository.find(shopperDni, null, from, to, null);
 		List<String> header = new ArrayList<String>();
 		header.add("Shopper");
 		header.add("Empresa");

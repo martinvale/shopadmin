@@ -132,13 +132,10 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items) {
     });
     container.find(".js-reopen-order").click(function () {
       jQuery.ajax({
-        url: "../transition/${order.numero?c}",
-        type: 'POST',
-        data: {
-          'stateId': 1,
-        }
+        url: "../open/${order.numero?c}",
+        type: 'POST'
       }).done(function () {
-        location.href = "../items/${order.numero?c}";
+        location.href = "../${order.numero?c}";
       });
     });
 
@@ -409,10 +406,12 @@ textarea.LV_invalid_field:active {
           </table>
         </div>
         <ul class="action-columns">
+        <#if order.estado.id != 6 && order.estado.id != 5>
           <li><input type="button" class="btn-shop-small js-remito" value="Imprimir" <#if !canEdit>disabled="true"</#if> /></li>
           <li><input type="button" class="btn-shop-small js-detail" value="Imprimir Detalle" <#if !canEdit>disabled="true"</#if> /></li>
           <li><input type="button" class="btn-shop-small js-detail-shopper" value="Detalle Shopper" /></li>
           <li><input type="button" class="btn-shop-small js-caratula" value="Car&aacute;tula" /></li>
+        </#if>
         </ul>
         <!-- FIN FILA 3 -->
 
@@ -469,7 +468,10 @@ textarea.LV_invalid_field:active {
 
         <div class="actions-form">
           <ul class="action-columns">
-          <#if model["user"].hasFeature("reopen_order")>
+          <#if order.estado.id == 5>
+            <li><input type="button" class="btn-shop js-reopen-order" value="Reabrir" /></li>
+          </#if>
+          <#if order.estado.id == 4 && model["user"].hasFeature("reopen_order")>
             <li><input type="button" class="btn-shop js-reopen-order" value="Reabrir" /></li>
           </#if>
           </ul>

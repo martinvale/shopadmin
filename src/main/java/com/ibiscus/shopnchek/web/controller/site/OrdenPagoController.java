@@ -44,6 +44,7 @@ import com.ibiscus.shopnchek.domain.admin.Proveedor;
 import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
+import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.security.User;
 
 @Controller
@@ -152,6 +153,8 @@ public class OrdenPagoController {
 
     if (ordenPago.getEstado().getId() == OrderState.ABIERTA) {
       return "redirect:items/" + orderId;
+    } else if (ordenPago.getEstado().getId() == OrderState.VERIFICADA) {
+      return "redirect:pay/" + orderId;
     } else {
       return "redirect:view/" + orderId;
     }
@@ -176,6 +179,7 @@ public class OrdenPagoController {
       model.addAttribute("titularNombre", proveedor.getDescription());
     }
 
+	model.addAttribute("tiposPago",TipoPago.values());
     Calendar calendar = Calendar.getInstance();
     calendar.add(Calendar.MONTH, -4);
     model.addAttribute("fechaDesde", calendar.getTime());
@@ -348,18 +352,60 @@ public class OrdenPagoController {
     OrdenPago ordenPago = payOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
-    return "redirect:../view/" + orderId;
+    return "redirect:../" + orderId;
   }
 
-  @RequestMapping(value="/transition/{orderId}", method = RequestMethod.POST)
-  public @ResponseBody boolean transition(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long orderId, long stateId) {
+  @RequestMapping(value="/cancel/{orderId}", method = RequestMethod.POST)
+  public @ResponseBody boolean cancel(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
 
     transitionOrderCommand.setNumero(orderId);
-    transitionOrderCommand.setStateId(stateId);
+    transitionOrderCommand.setStateId(OrderState.ANULADA);
+    transitionOrderCommand.execute();
+
+    return true;
+  }
+
+  @RequestMapping(value="/open/{orderId}", method = RequestMethod.POST)
+  public @ResponseBody boolean open(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    transitionOrderCommand.setNumero(orderId);
+    transitionOrderCommand.setStateId(OrderState.ABIERTA);
+    transitionOrderCommand.execute();
+
+    return true;
+  }
+
+  @RequestMapping(value="/verified/{orderId}", method = RequestMethod.POST)
+  public @ResponseBody boolean verified(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    transitionOrderCommand.setNumero(orderId);
+    transitionOrderCommand.setStateId(OrderState.VERIFICADA);
+    transitionOrderCommand.execute();
+
+    return true;
+  }
+
+  @RequestMapping(value="/pause/{orderId}", method = RequestMethod.POST)
+  public @ResponseBody boolean pause(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    transitionOrderCommand.setNumero(orderId);
+    transitionOrderCommand.setStateId(OrderState.EN_ESPERA);
     transitionOrderCommand.execute();
 
     return true;
@@ -482,7 +528,9 @@ public class OrdenPagoController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
-    OrdenPago ordenPago = orderRepository.get(orderId);
+
+    getOrderCommand.setNumero(orderId);
+    OrdenPago ordenPago = getOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
     if (ordenPago.getTipoProveedor() == 1) {
@@ -501,11 +549,9 @@ public class OrdenPagoController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
-    OrdenPago ordenPago = orderRepository.get(orderId);
-    for (ItemOrden itemOrden : ordenPago.getItems()) {
-      Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
-      itemOrden.updateShopper(itemShopper);
-    }
+
+    getOrderCommand.setNumero(orderId);
+    OrdenPago ordenPago = getOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
     if (ordenPago.getTipoProveedor() == 1) {
@@ -524,11 +570,9 @@ public class OrdenPagoController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
-    OrdenPago ordenPago = orderRepository.get(orderId);
-    for (ItemOrden itemOrden : ordenPago.getItems()) {
-      Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
-      itemOrden.updateShopper(itemShopper);
-    }
+
+    getOrderCommand.setNumero(orderId);
+    OrdenPago ordenPago = getOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
     return "printShopper";

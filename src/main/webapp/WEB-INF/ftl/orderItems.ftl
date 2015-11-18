@@ -181,6 +181,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
       var currentShopper = shopperSelector.getCurrentShopper();
       var desdeField = container.find("input[name='desde']");
       var hastaField = container.find("input[name='hasta']");
+      var tipoPagoField = container.find("select[name='tipoPago']");
 
       if (currentShopper) {
         loadingIndicator.start();
@@ -191,7 +192,8 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
           data: {
             'shopperDni': currentShopper.dni,
             'from': desdeField.val(),
-            'to': hastaField.val()
+            'to': hastaField.val(),
+            'tipoPago': tipoPagoField.val()
           }
         }).done(function (data) {
           visitas = data;
@@ -506,13 +508,28 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
 
     container.find(".js-anular-order").click(function () {
       jQuery.ajax({
-        url: "../transition/${order.numero?c}",
-        type: 'POST',
-        data: {
-          'stateId': 6,
-        }
+        url: "../cancel/${order.numero?c}",
+        type: 'POST'
       }).done(function () {
-        location.href = "../view/${order.numero?c}";
+        location.href = "../${order.numero?c}";
+      });
+    });
+
+    container.find(".js-pausar-order").click(function () {
+      jQuery.ajax({
+        url: "../pause/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "../${order.numero?c}";
+      });
+    });
+
+    container.find(".js-verified-order").click(function () {
+      jQuery.ajax({
+        url: "../verified/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "../${order.numero?c}";
       });
     });
 
@@ -784,9 +801,9 @@ textarea.LV_invalid_field:active {
         </div>
         <ul class="action-columns">
           <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit>disabled="true"</#if> /></li>
-          <!--li><input type="button" class="btn-shop-small js-remito" value="Imprimir" <#if !canEdit>disabled="true"</#if> /></li>
-          <li><input type="button" class="btn-shop-small js-detail" value="Imprimir Detalle" <#if !canEdit>disabled="true"</#if> /></li>
-          <li><input type="button" class="btn-shop-small js-detail-shopper" value="Detalle Shopper" /></li-->
+          <!--li><input type="button" class="btn-shop-small js-remito" value="Imprimir" <#if !canEdit>disabled="true"</#if> /></li-->
+          <li><input type="button" class="btn-shop-small js-detail" value="Imprimir Detalle" /></li>
+          <!--li><input type="button" class="btn-shop-small js-detail-shopper" value="Detalle Shopper" /></li-->
         </ul>
 
         <!-- FIN FILA 3 -->
@@ -844,7 +861,8 @@ textarea.LV_invalid_field:active {
         <div class="actions-form">
           <ul class="action-columns">
             <li><input type="button" class="btn-shop js-anular-order" value="Anular" /></li>
-            <li><a href="../pay/${order.numero?c}" class="btn-shop">Ir a pagar</a></li>
+            <li><input type="button" class="btn-shop js-pausar-order" value="En espera" /></li>
+            <li><input type="button" class="btn-shop js-verified-order" value="Verificada" /></li>
           </ul>
         </div>
         <div style="display:none">
@@ -855,7 +873,78 @@ textarea.LV_invalid_field:active {
         </div>
       </form>
     </div>
-    <#include "buscadorDeudaShopper.ftl" />
+    <div id="deuda-shopper" style="display:none;">
+      <div class="container-box-plantilla">
+        <form>
+          <div class="cell">
+            <div class="box-green">
+              <div class="form-shop-row-left shopper-widget js-shopper-selector">
+                <label for="shopper">Shooper: </label>
+                <input type="text" value="" id="shopper" class="shopper-name js-shopper" />
+                <a id="clear-shopper" href="#" class="clear js-clear">limpiar</a>
+                <input type="hidden" name="shopperId" value="" class="js-shopper-id" />
+                <input type="hidden" name="shopperDni" value="" class="js-shopper-dni" />
+              </div>
+              <div>
+                <label for="tipoPago">Tipo de pago:</label>
+                <select id="tipoPago" name="tipoPago">
+                  <option value="">Todos</option>
+                <#list model["tiposPago"] as tipoPago>
+                  <option value="${tipoPago}">${tipoPago.description}</option>
+                </#list>
+                </select>
+              </div>
+              <ul class="date">
+                <li>
+                  <label for="desde">Desde</label>
+                  <input type="text" name="desde" id="desde" class="js-date" value="${model['fechaDesde']?string('dd/MM/yyyy')}">
+                </li>
+                <li>
+                  <label for="hasta">Hasta</label>
+                  <#assign currentDate = .now />
+                  <input type="text" name="hasta" id="hasta" class="js-date" value="${currentDate?string('dd/MM/yyyy')}">
+                </li>
+              </ul>
+            </div>
+            <ul class="action-columns">
+              <li><input type="button" class="btn-shop-small js-buscar" value="Buscar"></li>
+            </ul>
+            <div class="items-container">
+              <table summary="Lista de items" class="table-form js-items">
+                <thead>
+                  <tr>
+                    <th scope="col" style="width:25%"><a id="order-empresa" href="#" class="js-order">Empresa <i class="fa fa-angle-down"></i></a></th>
+                    <th scope="col" style="width:25%"><a id="order-programa" href="#" class="js-order">Subcuestionario <i class="fa fa-angle-down"></i></a></th>
+                    <th scope="col" style="width:26%"><a id="order-local" href="#" class="js-order">Local <i class="fa fa-angle-down"></i></a></th>
+                    <th scope="col" style="width:8%"><a id="order-importe" href="#" class="js-order">Importe <i class="fa fa-angle-down"></i></a></th>
+                    <th scope="col" style="width:8%"><a id="order-fecha" href="#" class="js-order">Fecha <i class="fa fa-angle-down"></i></a></th>
+                    <th scope="col" style="width:8%"><a id="order-descripcion" href="#" class="js-order">Pago <i class="fa fa-angle-down"></i></a></th>
+                  </tr>
+                </thead>
+                <tbody class="items">
+                  <tr>
+                    <td class="empresa"></td>
+                    <td class="subcuestionario"></td>
+                    <td class="local"></td>
+                    <td class="importe"></td>
+                    <td class="fecha"></td>
+                    <td class="pago"></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="summary">
+              <label>Reintegros</label>
+              <input type="text" class="js-reintegros" />
+              <label>Honorarios</label>
+              <input type="text" class="js-honorarios" />
+              <label>Otros gastos</label>
+              <input type="text" class="js-otros-gastos" />
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
     <div id="confirm-delete-item" title="Borrar item de la orden de pago">
       <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>Esta seguro que desea borrar el item?</p>
     </div>

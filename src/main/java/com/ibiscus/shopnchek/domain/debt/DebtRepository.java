@@ -38,7 +38,7 @@ public class DebtRepository extends HibernateDaoSupport {
 	}
 
 	public Criteria getCriteria(final String shopperDni, final State state,
-			final Date from, final Date to) {
+			final Date from, final Date to, final TipoPago tipoPago) {
 		Criteria criteria = getSession().createCriteria(Debt.class);
 		if (!StringUtils.isBlank(shopperDni)) {
 			criteria.add(Expression.eq("shopperDni", shopperDni));
@@ -52,12 +52,15 @@ public class DebtRepository extends HibernateDaoSupport {
 		if (to != null) {
 			criteria.add(Expression.le("fecha", to));
 		}
+		if (tipoPago != null) {
+			criteria.add(Expression.eq("tipoPago", tipoPago));
+		}
 		return criteria;
 	}
 
 	public List<Debt> find(final String shopperDni, final State state,
-			final Date from, final Date to) {
-		return find(null, null, null, true, shopperDni, state, from, to);
+			final Date from, final Date to, final TipoPago tipoPago) {
+		return find(null, null, null, true, shopperDni, state, from, to, tipoPago);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -126,8 +129,8 @@ public class DebtRepository extends HibernateDaoSupport {
 	@SuppressWarnings("unchecked")
 	public List<Debt> find(final Integer start, final Integer count,
 			final String orderBy, final boolean asc, final String shopperDni,
-			final State state, final Date from, final Date to) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to);
+			final State state, final Date from, final Date to, final TipoPago tipoPago) {
+		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago);
 		if (start != null) {
 			criteria.setFirstResult(start);
 		}
@@ -145,8 +148,8 @@ public class DebtRepository extends HibernateDaoSupport {
 	}
 
 	public Integer getCount(final String shopperDni, final State state, final Date from,
-			final Date to) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to);
+			final Date to, final TipoPago tipoPago) {
+		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago);
 		return (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
 	}
 }

@@ -34,6 +34,8 @@
 
 App.widget.TitularSelector = function (container, callback) {
 
+  var currentTitular = null;
+
   var selector = container.find(".js-titulares");
 
   var endpoints = {
@@ -73,13 +75,14 @@ App.widget.TitularSelector = function (container, callback) {
         source: suggestEndpoint,
         minLength: 2,
         select: function(event, ui) {
+          currentTitular = ui.item;
           if (ui.item.name) {
             selector.val(ui.item.name);
           } else {
             selector.val(ui.item.description);
           }
           container.find(".js-titular-id").val(ui.item.id);
-          onSelect(me.getTitularSelected());
+          onSelect(me.getTitularSelected(), currentTitular);
           return false;
         }
       });
@@ -111,13 +114,30 @@ App.widget.OrdenPago = function (container) {
 
   var validations = [];
 
+  var currentTitular = null;
+
   var initEventListeners = function () {
+    container.find("select[name=tipoFactura]").change(function() {
+      var tipoFacturaSeleccionada = jQuery(this).val();
+      var ivaField = container.find("input[name=iva]");
+      if (tipoFacturaSeleccionada == 'A') {
+        ivaField.val('21');
+      } else {
+        ivaField.val('0');
+      }
+      var tipoFacturaHint = container.find(".js-tipo-factura-hint");
+      if (currentTitular && currentTitular.factura != tipoFacturaSeleccionada) {
+        tipoFacturaHint.show();
+      } else {
+        tipoFacturaHint.hide();
+      }
+    });
+
     container.find(".js-save-order").click(function () {
       if (LiveValidation.massValidate(validations)) {
         container.submit();
       }
     });
-
   };
 
   var initValidators = function () {
@@ -140,9 +160,20 @@ App.widget.OrdenPago = function (container) {
     validations.push(ivaValidation);
   };
 
+  var onTitularSelected = function (titular, titularObject) {
+    currentTitular = null;
+    if (titular.tipo == "2") {
+      currentTitular = titularObject;
+      var tipoFacturaField = container.find("select[name=tipoFactura]");
+      tipoFacturaField.val(titularObject.factura);
+      tipoFacturaField.change();
+    }
+  };
+
   return {
     render: function () {
-      var titularSelector = App.widget.TitularSelector(container.find(".js-titular-selector"));
+      var titularSelector = App.widget.TitularSelector(container.find(".js-titular-selector"),
+          onTitularSelected);
       titularSelector.render();
 
       container.find(".js-date" ).datepicker({
@@ -240,6 +271,7 @@ textarea.LV_invalid_field:active {
                   <option value="C" <#if ((order.tipoFactura)!'') == 'C'>selected="selected"</#if>>C</option>
                   <option value="M" <#if ((order.tipoFactura)!'') == 'M'>selected="selected"</#if>>M</option>
                 </select>
+                <span class="hint js-tipo-factura-hint" style="display:none">El tipo de factura seleccionado no es el sugerido para este titular</span>
               </div>
               <div class="form-shop-row">
                 <label for="fechaPago" class="mandatory">Fecha pago</label>
@@ -251,7 +283,7 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="iva" class="mandatory">IVA %</label>
-                <input type="text" name="iva" id="iva" value="${(order.iva)!'21'}"/>
+                <input type="text" name="iva" id="iva" value="${(order.iva)!'0'}"/>
               </div>
               <div class="form-shop-row">
                 <label for="localidad">Localidad</label>
