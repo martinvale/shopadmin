@@ -39,8 +39,8 @@ App.widget.TitularSelector = function (container, callback) {
   var selector = container.find(".js-titulares");
 
   var endpoints = {
-    1: "../services/shoppers/suggest",
-    2: "../proveedores/suggest"
+    1: "<@spring.url '/services/shoppers/suggest'/>",
+    2: "<@spring.url '/proveedores/suggest'/>"
   };
 
   var tipoTitularSelector = container.find(".js-tipo-titular");
@@ -200,7 +200,7 @@ App.widget.OrdenPago = function (container) {
 
     <!--script src="../script/TitularSelector.js"></script>
     <script src="../script/OrdenPago.js"></script-->
-    <script src="../script/LoadingIndicator.js"></script>
+    <script src="<@spring.url '/script/LoadingIndicator.js'/>"></script>
 
 <style>
 .LV_validation_message.LV_valid {

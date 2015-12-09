@@ -84,7 +84,7 @@ App.widget.EditorPagarOrden = function (container) {
       })
     });
 
-    container.find(".js-close-order").click(function () {
+    container.find(".js-pay-order").click(function () {
       var validations = [];
       validations.push(medioPagoValidation);
       /*var tipoPagoSeleccionado = container.find(".js-medio-pago").val();
@@ -108,6 +108,10 @@ App.widget.EditorPagarOrden = function (container) {
       window.open('../caratula/${order.numero?c}', "", "width=700, height=600");
     });
 
+    container.find(".js-remito" ).click(function () {
+      window.open('../remito/${order.numero?c}', "", "width=700, height=600");
+    });
+
     container.find(".js-reopen-order").click(function () {
       jQuery.ajax({
         url: "../open/${order.numero?c}",
@@ -124,6 +128,24 @@ App.widget.EditorPagarOrden = function (container) {
       }).done(function () {
         location.href = "../${order.numero?c}";
       });
+    });
+
+    container.find(".js-close-order").click(function () {
+      var stateField = container.find("input[name='state']");
+      stateField.val(3);
+      var validations = [];
+      validations.push(medioPagoValidation);
+      /*var tipoPagoSeleccionado = container.find(".js-medio-pago").val();
+      if (tipoPagoSeleccionado == '1' || tipoPagoSeleccionado == '2') {
+        validations.push(chequeraValidation);
+        validations.push(chequeValidation);
+        validations.push(fechaChequeValidation);
+      } else {
+        validations.push(transferIdValidation);
+      }*/
+      if (LiveValidation.massValidate(validations)) {
+        container.submit();
+      }
     });
 
     container.find(".js-pausar-order").click(function () {
@@ -231,6 +253,7 @@ textarea.LV_invalid_field:active {
           <!-- FILA 1 -->
           <div class="cell box-gray">
             <fieldset>
+              <input type="hidden" name="state" value="4" />
               <div class="form-shop-row">
                 <label>N&uacute;mero</label>
                 <input type="text" name="numeroOrden" readOnly="true" value="${(order.numero?c)!''}"/>
@@ -285,11 +308,15 @@ textarea.LV_invalid_field:active {
             </fieldset>
           </div>
           <ul class="action-columns">
-            <li><input type="button" class="btn-shop js-close-order" value="Cerrar" <#if !canPay>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop js-pay-order" value="Pagar" <#if !canPay>disabled="true"</#if>></li>
+          <#if (order.estado.id != 3)>
+            <li><input type="button" class="btn-shop js-close-order" value="Cerrar" /></li>
+          </#if>
             <li><input type="button" class="btn-shop js-reopen-order" value="Reabrir" /></li>
             <li><input type="button" class="btn-shop js-anular-order" value="Anular" /></li>
             <li><input type="button" class="btn-shop js-pausar-order" value="En espera" /></li>
             <li><input type="button" class="btn-shop-small js-caratula" value="Car&aacute;tula" /></li>
+            <li><input type="button" class="btn-shop-small js-remito" value="Remito" /></li>
             <li><input type="button" class="btn-shop-small js-detail" value="Imprimir detalle" /></li>
           </ul>
       </form>

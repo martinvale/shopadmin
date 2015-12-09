@@ -2,12 +2,12 @@ package com.ibiscus.shopnchek.domain.admin;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 public class OrderRepository extends HibernateDaoSupport {
 
@@ -80,23 +80,53 @@ public class OrderRepository extends HibernateDaoSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public List<OrdenPago> findOrdenes(Integer tipoTitular, Integer titularId,
-      String dniShopper, String numeroCheque, OrderState estado) {
+  public List<OrdenPago> find(final Integer start, final Integer count,
+      final String orderBy, final boolean asc, final Integer tipoTitular,
+      final Integer titularId, final String dniShopper, final String numeroCheque,
+      final OrderState estado) {
+    Criteria criteria = getCriteria(tipoTitular, titularId, dniShopper,
+        numeroCheque, estado);
+    if (start != null) {
+      criteria.setFirstResult(start);
+    }
+    if (count != null) {
+      criteria.setMaxResults(count);
+    }
+    if (orderBy != null) {
+      if (asc) {
+        criteria.addOrder(Order.asc(orderBy));
+      } else {
+        criteria.addOrder(Order.desc(orderBy));
+      }
+    }
+    return criteria.list();
+  }
+
+  public Integer getCount(final Integer tipoTitular, final Integer titularId,
+      final String dniShopper, final String numeroCheque, final OrderState estado) {
+    Criteria criteria = getCriteria(tipoTitular, titularId, dniShopper,
+            numeroCheque, estado);
+    return (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
+  }
+
+  private Criteria getCriteria(final Integer tipoTitular, final Integer titularId,
+      final String dniShopper, final String numeroCheque, final OrderState estado) {
     Criteria criteria = getSession().createCriteria(OrdenPago.class);
-    if (tipoTitular != null && tipoTitular.equals(2) && titularId != null) {
+    if (tipoTitular != null && titularId != null) {
+      criteria.add(Expression.eq("tipoProveedor", tipoTitular));
       criteria.add(Expression.eq("proveedor", titularId));
     }
     if (dniShopper != null && !dniShopper.isEmpty()) {
-      criteria.createCriteria("items")
-          .add(Expression.eq("shopperDni", dniShopper));
+      criteria.createCriteria("items").add(Expression.eq("shopperDni", dniShopper));
     }
-    if (numeroCheque != null && !numeroCheque.isEmpty()) {
+    if (!StringUtils.isBlank(numeroCheque)) {
       criteria.add(Expression.eq("numeroCheque", numeroCheque));
     }
     if (estado != null) {
       criteria.add(Expression.eq("estado", estado));
     }
     criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-    return (List<OrdenPago>) criteria.list();
+    return criteria;
   }
+
 }

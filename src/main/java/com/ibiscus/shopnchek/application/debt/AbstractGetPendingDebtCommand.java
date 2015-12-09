@@ -55,7 +55,9 @@ public abstract class AbstractGetPendingDebtCommand implements Command<Boolean> 
 		if (!items.isEmpty()) {
 			endReached = false;
 			for (Debt debt : items) {
-				debtRepository.save(debt);
+				if (!exists(debt)) {
+					debtRepository.save(debt);
+				}
 				if (debt.getExternalId() > lastProcessedId) {
 					lastProcessedId = debt.getExternalId();
 				}
@@ -66,6 +68,12 @@ public abstract class AbstractGetPendingDebtCommand implements Command<Boolean> 
 	}
 
 	protected abstract String getCode();
+
+	private boolean exists(final Debt debt) {
+		Debt localDebt = debtRepository.getByExternalId(debt.getExternalId(),
+				debt.getTipoItem(), debt.getTipoPago());
+		return localDebt != null;
+	}
 
 	protected Client getClient(final String name) {
 		Client client = clientRepository.getByName(name);

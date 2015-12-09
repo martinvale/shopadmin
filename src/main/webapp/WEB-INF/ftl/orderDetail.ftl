@@ -407,7 +407,7 @@ textarea.LV_invalid_field:active {
         </div>
         <ul class="action-columns">
         <#if order.estado.id != 6 && order.estado.id != 5>
-          <li><input type="button" class="btn-shop-small js-remito" value="Imprimir" <#if !canEdit>disabled="true"</#if> /></li>
+          <li><input type="button" class="btn-shop-small js-remito" value="Remito" <#if !canEdit>disabled="true"</#if> /></li>
           <li><input type="button" class="btn-shop-small js-detail" value="Imprimir Detalle" <#if !canEdit>disabled="true"</#if> /></li>
           <li><input type="button" class="btn-shop-small js-detail-shopper" value="Detalle Shopper" /></li>
           <li><input type="button" class="btn-shop-small js-caratula" value="Car&aacute;tula" /></li>

@@ -38,6 +38,8 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
 
   var urlService = customUrlService || "<@spring.url '/debt/listjson'/>";
 
+  var dialogContainer = container.find(".js-edit-importe-container");
+
   var itemDialog = container.dialog({
     autoOpen: false,
     title: 'Busqueda de items adeudados a un shopper',
@@ -172,6 +174,37 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
       itemContainer.find(".js-view-user").click(function (event) {
         event.preventDefault();
         showUser(visita);
+      })
+      itemContainer.find(".js-edit-importe").click(function (event) {
+        event.preventDefault();
+        var importe = visita.importe.toFixed(2);
+        dialogContainer.find(".js-importe-item").val(importe);
+        var dialogEditImporte = dialogContainer.dialog({
+          autoOpen: true,
+          width: 350,
+          modal: true,
+          buttons: {
+            "Ok": function() {
+              var nuevoImporteValue = dialogContainer.find(".js-importe-item").val();
+              jQuery.ajax({
+                url: "<@spring.url '/debt/updateImporte'/>",
+                type: 'POST',
+                data: {
+                  'id': visita.id,
+                  'importe': nuevoImporteValue
+                }
+              }).done(function () {
+                var nuevoImporte = new Number(nuevoImporteValue);
+                visita.importe = nuevoImporte;
+                itemContainer.find(".importe").text("$ " + nuevoImporte.toFixed(2).replace('.', ','));
+                dialogEditImporte.dialog("close");
+              });
+            },
+            Cancel: function() {
+              dialogEditImporte.dialog("close");
+            }
+          }
+        });
       })
     });
   };
@@ -915,8 +948,8 @@ textarea.LV_invalid_field:active {
                   <tr>
                     <th scope="col" style="width:25%"><a id="order-empresa" href="#" class="js-order">Empresa <i class="fa fa-angle-down"></i></a></th>
                     <th scope="col" style="width:25%"><a id="order-programa" href="#" class="js-order">Subcuestionario <i class="fa fa-angle-down"></i></a></th>
-                    <th scope="col" style="width:26%"><a id="order-local" href="#" class="js-order">Local <i class="fa fa-angle-down"></i></a></th>
-                    <th scope="col" style="width:8%"><a id="order-importe" href="#" class="js-order">Importe <i class="fa fa-angle-down"></i></a></th>
+                    <th scope="col" style="width:24%"><a id="order-local" href="#" class="js-order">Local <i class="fa fa-angle-down"></i></a></th>
+                    <th scope="col" style="width:10%"><a id="order-importe" href="#" class="js-order">Importe <i class="fa fa-angle-down"></i></a></th>
                     <th scope="col" style="width:8%"><a id="order-fecha" href="#" class="js-order">Fecha <i class="fa fa-angle-down"></i></a></th>
                     <th scope="col" style="width:8%"><a id="order-descripcion" href="#" class="js-order">Pago <i class="fa fa-angle-down"></i></a></th>
                   </tr>
@@ -926,7 +959,7 @@ textarea.LV_invalid_field:active {
                     <td class="empresa"></td>
                     <td class="subcuestionario"></td>
                     <td class="local"></td>
-                    <td class="importe"></td>
+                    <td><span class="importe"></span> <a class="js-edit-importe" href="#">editar</a></td>
                     <td class="fecha"></td>
                     <td class="pago"></td>
                   </tr>
@@ -943,6 +976,12 @@ textarea.LV_invalid_field:active {
             </div>
           </div>
         </form>
+      </div>
+      <div style="display:none">
+        <div class="js-edit-importe-container" title="Modificar el importe">
+          <label for="importe-item">Ingrese el importe de este item de la factura</label>
+          <input id="importe-item" type="text" value="" class="js-importe-item" />
+        </div>
       </div>
     </div>
     <div id="confirm-delete-item" title="Borrar item de la orden de pago">

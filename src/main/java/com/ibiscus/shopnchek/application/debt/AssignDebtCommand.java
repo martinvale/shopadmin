@@ -16,6 +16,7 @@ import com.ibiscus.shopnchek.domain.admin.OrderRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 import com.ibiscus.shopnchek.domain.admin.TipoPago;
+import com.ibiscus.shopnchek.domain.debt.Branch;
 import com.ibiscus.shopnchek.domain.debt.Debt;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 import com.ibiscus.shopnchek.domain.debt.TipoItem;
@@ -82,7 +83,12 @@ public class AssignDebtCommand implements Command<Boolean> {
 			}
 			String sucursal = debt.getBranchDescription();
 			if (debt.getBranch() != null) {
-				sucursal = debt.getBranch().getAddress();
+				Branch branch = debt.getBranch();
+				if (branch.getCity() != null) {
+					sucursal = branch.getCity() + " - " + branch.getAddress();
+				} else {
+					sucursal = branch.getAddress();
+				}
 			}
 			if (sucursal != null && sucursal.length() > ItemOrden.SUCURSAL_FIELD_LENGTH) {
 				sucursal = sucursal.substring(0, ItemOrden.SUCURSAL_FIELD_LENGTH);
@@ -96,7 +102,7 @@ public class AssignDebtCommand implements Command<Boolean> {
 			int mes = calendar.get(Calendar.MONTH) + 1;
 			int year = calendar.get(Calendar.YEAR);
 			SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-			ItemOrden itemOrden = new ItemOrden(newId, order, operator.getId(),
+			ItemOrden itemOrden = new ItemOrden(newId, order, debt, operator.getId(),
 					debt.getShopperDni(), new Long(debt.getId()).intValue(), tipoItem,
 					unTipoPago, cliente, sucursal, mes, year,
 					dateFormat.format(debt.getFecha()), debt.getImporte(), description, 1);

@@ -7,8 +7,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+
+import com.ibiscus.shopnchek.domain.debt.Debt;
 
 @Entity
 @Table(name = "items_orden")
@@ -49,6 +52,10 @@ public class ItemOrden {
   @Column(name = "asignacion")
   private Integer asignacion;
 
+  @OneToOne
+  @JoinColumn(name = "debt_id")
+  private Debt debt;
+
   @Column(name = "tipo_item")
   private int tipoItem;
 
@@ -75,7 +82,7 @@ public class ItemOrden {
   ItemOrden() {
   }
 
-  public ItemOrden(final long theId, final OrdenPago unaOrden,
+  public ItemOrden(final long theId, final OrdenPago unaOrden, final Debt debt,
       final long usuario, final String theShopperDni, final Integer unaAsignacion,
       final int unTipoItem, final TipoPago unTipoPago, final String unCliente,
       final String unaSucursal, final int unMes, final int unAnio,
@@ -83,9 +90,10 @@ public class ItemOrden {
       final int unEstado) {
     id = theId;
     ordenPago = unaOrden;
+    this.debt = debt;
     usuarioAutorizacion = usuario;
     shopperDni = theShopperDni;
-    asignacion = unaAsignacion;
+    //asignacion = unaAsignacion;
     tipoItem = unTipoItem;
     tipoPago = unTipoPago;
     cliente = unCliente;
@@ -128,6 +136,14 @@ public class ItemOrden {
     return sucursal;
   }
 
+  public String getAddress() {
+    String address = sucursal;
+    if (debt != null) {
+      address = debt.getBranchAddress();
+    }
+    return address;
+  }
+
   /**
    * @return the mes
    */
@@ -165,6 +181,10 @@ public class ItemOrden {
    */
   public Integer getAsignacion() {
     return asignacion;
+  }
+
+  public Debt getDebt() {
+    return debt;
   }
 
   /**

@@ -146,6 +146,10 @@
     <property name="shopperRepository" ref="shopperRepository" />
   </bean>
 
+  <bean id="searchOrderDtoCommand" class="com.ibiscus.shopnchek.application.order.SearchOrderDtoCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+  </bean>
+
   <bean id="payOrderCommand" class="com.ibiscus.shopnchek.application.order.PayOrderCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
     <property name="debtRepository" ref="debtRepository" />
@@ -189,6 +193,10 @@
     <property name="clientRepository" ref="clientRepository" />
     <property name="branchRepository" ref="branchRepository" />
     <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
+  <bean id="updateImporteDebtCommand" class="com.ibiscus.shopnchek.application.debt.UpdateImporteDebtCommand" scope="prototype">
+    <property name="debtRepository" ref="debtRepository" />
   </bean>
 
   <bean id="searchDebtCommand" class="com.ibiscus.shopnchek.application.debt.SearchDebtCommand" scope="prototype">
@@ -350,7 +358,7 @@
   <bean id="getMcdPendingDebtTrigger"
       class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
     <property name="jobDetail" ref="getMcdPendingDebtJobDetail" />
-    <property name="cronExpression" value="0 0 0/1 * * ?" /><!-- every hour -->
+    <property name="cronExpression" value="0 0/2 * * * ?" /><!-- every 15 minutes -->
   </bean>
 
   <bean name="getIngematicaPendingDebtJobDetail"

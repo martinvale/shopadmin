@@ -10,6 +10,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import com.ibiscus.shopnchek.application.Command;
 import com.ibiscus.shopnchek.application.util.ExcelWriter;
 import com.ibiscus.shopnchek.domain.debt.Debt;
+import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 
 public class ExportDebtCommand implements Command<Workbook> {
@@ -45,7 +46,7 @@ public class ExportDebtCommand implements Command<Workbook> {
 			Validate.isTrue(from.before(to), "The FROM date must be before the TO date");
 		}
 
-		List<Debt> items = debtRepository.find(shopperDni, null, from, to, null);
+		List<Debt> items = debtRepository.find(shopperDni, State.pendiente, from, to, null);
 		List<String> header = new ArrayList<String>();
 		header.add("Shopper");
 		header.add("Empresa");

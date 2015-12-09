@@ -60,10 +60,11 @@ App.widget.Buscador = function (container) {
   </head>
   <body>
     <#include "header.ftl" />
+    <#setting locale="es_AR">
 
     <div class="container-box-plantilla">
       <h2 class="container-tit">Buscar Orden de pago</h2>
-      <form action="search" method="POST" class="form-shop form-shop-big js-search">
+      <form action="searchByNumber" method="POST" class="form-shop form-shop-big js-search">
         <!-- FILA 1 -->
         <div class="cell box-green buscador">
           <fieldset>
@@ -100,7 +101,7 @@ App.widget.Buscador = function (container) {
                 </li>
               </ul>
               <div class="combo-titular">
-                <#assign titularId = "${model['titularId']!''}" />
+                <#assign titularId = "${(model['titularId']?c)!''}" />
                 <#assign titularNombre = "${model['titularNombre']!''}" />
                 <input type="text" value="${titularNombre}" class="nombre-titular js-titulares" />
                 <input type="hidden" name="titularId" value="${titularId}" class="js-titular-id" />
@@ -145,16 +146,43 @@ App.widget.Buscador = function (container) {
           </tr>
         </thead>
         <tbody>
-          <#list model["ordenes"] as orden>
+          <#assign resultSet = model["result"] />
+          <#list resultSet.items as orden>
           <tr>
             <td>${orden.numero?c} <a href="${orden.numero?c}">editar</a></td>
             <td class="js-importe">${orden.importe?string.currency}</td>
             <td class="js-fecha">${orden.fechaPago?string("dd/MM/yyyy")}</td>
-            <td class="js-estado">${orden.estado.description}</td>
+            <td class="js-estado">${orden.state}</td>
           </tr>
           </#list>
         </tbody>
       </table>
+
+      <div class="paginator">
+        <#assign parameters = "shopperDni=${model['shopperDni']!''}&tipoTitular=${model['tipoTitular']!''}&titularId=${model['titularId']!''}&estadoId=${model['state']!''}&numeroCheque=${model['numeroCheque']!''}" />
+
+        <#if model["page"] &gt; 1>
+          <a href="?page=${(model['page'] - 1)}&${parameters}">&lt;&lt;</a>
+        <#else>
+          <span>&lt;&lt;</span>
+        </#if>
+
+        <#assign maxIndex = model["page"] * model["pageSize"] />
+        <#if maxIndex &gt; resultSet.count>
+          <#assign maxIndex = resultSet.count />
+          <span>&gt;&gt;</span>
+        <#else>
+          <a href="?page=${(model['page'] + 1)}&${parameters}">&gt;&gt;</a>
+        </#if>
+
+        <#assign start = 0 />
+        <#if resultSet.count &gt; 0>
+          <#assign start = ((model["page"] - 1) * model["pageSize"]) + 1 />
+        </#if>
+        <span class="resultset">Adicionales de ${(start)?c} a ${maxIndex} de ${resultSet.count}</span>
+        <a class="tool" href="export?${parameters}">descargar</a>
+      </div>
+
     </div>
   </body>
 </html>

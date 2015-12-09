@@ -131,15 +131,18 @@
       </div>
       <hr/>
       <p class="heading">
+      <#if model["ordenPago"].medioPago.id == 3>
         <#if model["ordenPago"].idTransferencia??>
           <span class="name">ID Transfer:</span> ${model["ordenPago"].idTransferencia}
         </#if>
+      <#else>
         <#if model["ordenPago"].numeroChequera??>
           <span class="name">Chequera Nro:</span> ${model["ordenPago"].numeroChequera}
         </#if>
         <#if model["ordenPago"].numeroCheque??>
           <span class="left"><span class="name">Cheque Nro:</span> ${model["ordenPago"].numeroCheque}</span>
         </#if>
+      </#if>
       </p>
       <p class="heading">
         <#if model["ordenPago"].medioPago??>

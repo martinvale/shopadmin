@@ -127,7 +127,6 @@ table td.value {
         <table>
           <tr class="header">
             <td>Fecha</td>
-            <td>Shopper</td>
             <td>Cliente</td>
             <td>Sucursal</td>
             <td>Pago</td>
@@ -136,7 +135,6 @@ table td.value {
         <#list model["ordenPago"].items?sort_by(["tipoPago", "description"]) as item>
           <tr>
             <td>${item.fecha!''}</td>
-            <td>${item.shopper.name!''}</td>
             <td>${item.cliente!''}</td>
             <td>${item.sucursal!''}</td>
             <td>${item.tipoPago.description}</td>
@@ -145,7 +143,6 @@ table td.value {
         </#list>
           <tr class="header">
             <td>Total:</td>
-            <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>
             <td>&nbsp;</td>

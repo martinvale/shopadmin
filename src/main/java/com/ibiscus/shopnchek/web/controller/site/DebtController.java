@@ -30,6 +30,7 @@ import com.ibiscus.shopnchek.application.debt.GetDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SaveDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SearchDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SearchDebtDtoCommand;
+import com.ibiscus.shopnchek.application.debt.UpdateImporteDebtCommand;
 import com.ibiscus.shopnchek.application.debt.VisitaDto;
 import com.ibiscus.shopnchek.domain.debt.BranchRepository;
 import com.ibiscus.shopnchek.domain.debt.ClientRepository;
@@ -57,6 +58,9 @@ public class DebtController {
 
 	@Autowired
 	private SaveDebtCommand saveDebtCommand;
+
+	@Autowired
+	private UpdateImporteDebtCommand updateImporteDebtCommand;
 
 	@Autowired
 	private AssignDebtCommand assignDebtCommand;
@@ -256,5 +260,15 @@ public class DebtController {
 		model.addAttribute("tiposPago", TipoPago.values());
 		model.addAttribute("debt", debt);
 		return "redirect:../list";
+	}
+
+	@RequestMapping(value="/updateImporte", method = RequestMethod.POST)
+	public @ResponseBody boolean updateImporte(@ModelAttribute("model") final ModelMap model,
+			long id, double importe) {
+		updateImporteDebtCommand.setDebtId(id);
+		updateImporteDebtCommand.setImporte(importe);
+		updateImporteDebtCommand.execute();
+
+		return true;
 	}
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -26,12 +25,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ibiscus.shopnchek.application.ResultSet;
 import com.ibiscus.shopnchek.application.order.AsociarMedioPagoCommand;
 import com.ibiscus.shopnchek.application.order.GetOrderCommand;
 import com.ibiscus.shopnchek.application.order.ItemsOrdenService;
+import com.ibiscus.shopnchek.application.order.OrderDto;
 import com.ibiscus.shopnchek.application.order.PayOrderCommand;
 import com.ibiscus.shopnchek.application.order.RemoveItemOrderCommand;
 import com.ibiscus.shopnchek.application.order.SaveOrderCommand;
+import com.ibiscus.shopnchek.application.order.SearchOrderDtoCommand;
 import com.ibiscus.shopnchek.application.order.TransitionOrderCommand;
 import com.ibiscus.shopnchek.application.shopmetrics.ImportService;
 import com.ibiscus.shopnchek.domain.admin.AsociacionMedioPago;
@@ -76,6 +78,9 @@ public class OrdenPagoController {
 
   @Autowired
   private GetOrderCommand getOrderCommand;
+
+  @Autowired
+  private SearchOrderDtoCommand searchOrderDtoCommand;
 
   @Autowired
   private PayOrderCommand payOrderCommand;
@@ -154,6 +159,8 @@ public class OrdenPagoController {
     if (ordenPago.getEstado().getId() == OrderState.ABIERTA) {
       return "redirect:items/" + orderId;
     } else if (ordenPago.getEstado().getId() == OrderState.VERIFICADA) {
+      return "redirect:pay/" + orderId;
+    } else if (ordenPago.getEstado().getId() == OrderState.CERRADA) {
       return "redirect:pay/" + orderId;
     } else {
       return "redirect:view/" + orderId;
@@ -336,12 +343,13 @@ public class OrdenPagoController {
       @RequestParam(required = false) String numeroChequera,
       @RequestParam(required = false) String numeroCheque,
       @RequestParam(required = false) String transferId,
-      String observaciones, String observacionesShopper) {
+      String observaciones, String observacionesShopper, Integer state) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
 
     payOrderCommand.setNumero(orderId);
+    payOrderCommand.setStateId(state);
     payOrderCommand.setMedioPagoId(medioPagoId);
     payOrderCommand.setNumeroChequera(numeroChequera);
     payOrderCommand.setNumeroCheque(numeroCheque);
@@ -364,6 +372,20 @@ public class OrdenPagoController {
 
     transitionOrderCommand.setNumero(orderId);
     transitionOrderCommand.setStateId(OrderState.ANULADA);
+    transitionOrderCommand.execute();
+
+    return true;
+  }
+
+  @RequestMapping(value="/close/{orderId}", method = RequestMethod.POST)
+  public @ResponseBody boolean close(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    transitionOrderCommand.setNumero(orderId);
+    transitionOrderCommand.setStateId(OrderState.CERRADA);
     transitionOrderCommand.execute();
 
     return true;
@@ -443,58 +465,68 @@ public class OrdenPagoController {
     return asociacion;
   }
 
+  @RequestMapping(value="/searchByNumber")
+  public String searchByNumber(@ModelAttribute("model") final ModelMap model,
+      final Long numeroOrden) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+    model.addAttribute("orderStates", orderRepository.findOrderStates());
+
+    getOrderCommand.setNumero(numeroOrden);
+    OrdenPago order = getOrderCommand.execute();
+    model.put("numberOrden", numeroOrden);
+    model.put("result", new ResultSet<OrderDto>(1, 25, new ArrayList<OrderDto>(), 0));
+    model.put("page", 1);
+    model.put("pageSize", 25);
+
+    if (order != null) {
+      return "redirect:" + numeroOrden;
+    } else {
+      return "buscadorOrdenPago";
+    }
+  }
+
   @RequestMapping(value="/search")
   public String search(@ModelAttribute("model") final ModelMap model,
+      @RequestParam(required = false, defaultValue = "1") Integer page,
+      @RequestParam(required = false, defaultValue = "fechaPago") String orderBy,
+      @RequestParam(required = false, defaultValue = "false") Boolean ascending,
       Long numeroOrden, Integer tipoTitular, Integer titularId,
       String dniShopper, String numeroCheque, Long estadoId) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
     model.addAttribute("orderStates", orderRepository.findOrderStates());
-    if (numeroOrden != null) {
-      model.addAttribute("numeroOrden", numeroOrden);
-    }
-    model.addAttribute("tipoTitular", tipoTitular);
+
     if (titularId != null) {
-      model.addAttribute("titularId", titularId);
       if (tipoTitular.equals(1)) {
         Shopper shopper = shopperRepository.get(titularId);
-        dniShopper = shopper.getDni();
         model.addAttribute("titularNombre", shopper.getName());
       } else {
         Proveedor proveedor = proveedorRepository.get(titularId);
         model.addAttribute("titularNombre", proveedor.getDescription());
       }
     }
-    if (numeroOrden != null) {
-      model.addAttribute("numeroOrden", numeroOrden);
-    }
-    if (dniShopper != null && !dniShopper.isEmpty()) {
-      model.addAttribute("dniShopper", dniShopper);
-    }
-    if (numeroCheque != null && !numeroCheque.isEmpty()) {
-      model.addAttribute("numeroCheque", numeroCheque);
-    }
+    searchOrderDtoCommand.setPage(page);
+    searchOrderDtoCommand.setPageSize(25);
+    searchOrderDtoCommand.setOrderBy(orderBy, ascending);
+    searchOrderDtoCommand.setTipoTitular(tipoTitular);
+    searchOrderDtoCommand.setTitularId(titularId);
+    searchOrderDtoCommand.setDniShopper(dniShopper);
+    searchOrderDtoCommand.setStateId(estadoId);
+    ResultSet<OrderDto> rsOrdenes = searchOrderDtoCommand.execute();
 
-    List<OrdenPago> ordenes = new ArrayList<OrdenPago>();
-    if (numeroOrden != null) {
-      OrdenPago ordenPago = orderRepository.get(numeroOrden);
-      if (ordenPago != null) {
-        ordenes.add(ordenPago);
-      }
-    } else if (titularId != null
-        || (dniShopper != null && !dniShopper.isEmpty())
-        || (numeroCheque != null && !numeroCheque.isEmpty())
-        || estadoId != null) {
-      OrderState estado = null;
-      if (estadoId != null) {
-        estado = orderRepository.getOrderState(estadoId);
-        model.addAttribute("state", estadoId);
-      }
-      ordenes = orderRepository.findOrdenes(tipoTitular, titularId, dniShopper,
-          numeroCheque, estado);
-    }
-    model.addAttribute("ordenes", ordenes);
+    model.put("result", rsOrdenes);
+    model.put("page", page);
+    model.put("pageSize", 25);
+    model.put("numeroOrden", numeroOrden);
+    model.put("tipoTitular", tipoTitular);
+    model.put("titularId", titularId);
+    model.put("state", estadoId);
+    model.put("dniShopper", dniShopper);
+    model.put("numeroCheque", numeroCheque);
+
     return "buscadorOrdenPago";
   }
 

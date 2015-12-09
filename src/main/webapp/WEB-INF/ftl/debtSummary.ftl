@@ -88,7 +88,7 @@
               <label for="anioDesde">A&ntilde;o desde: </label>
               <select id="anioDesde" name="anioDesde">
               <#assign anioDesde = model["anioDesde"]!2006 />
-              <#list 2006..2015 as anio>
+              <#list 2006..2017 as anio>
                 <option value="${anio?c}" <#if anio == anioDesde>selected="true"</#if>>${anio?c}</option>
               </#list>
               </select>
@@ -104,7 +104,7 @@
               <label for="anioHasta">A&ntilde;o hasta: </label>
               <select id="anioHasta" name="anioHasta">
               <#assign anioHasta = model["anioHasta"]!2015 />
-              <#list 2006..2015 as anio>
+              <#list 2006..2017 as anio>
                 <option value="${anio?c}" <#if anio == anioHasta>selected="true"</#if>>${anio?c}</option>
               </#list>
               </select>

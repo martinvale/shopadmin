@@ -134,6 +134,10 @@ public class Debt {
 		this.usuario = operator;
 	}
 
+	public void updateImporte(final double importe) {
+		this.importe = importe;
+	}
+
 	public void updateShopper(final Shopper shopper) {
 		this.shopper = shopper;
 	}
@@ -184,6 +188,18 @@ public class Debt {
 
 	public String getBranchDescription() {
 		return branchDescription;
+	}
+
+	public String getBranchAddress() {
+		String address = getBranchDescription();
+		if (branch != null) {
+			if (branch.getCity() != null) {
+				address = branch.getCity() + " - " + branch.getAddress();
+			} else {
+				address = branch.getAddress();
+			}
+		}
+		return address;
 	}
 
 	public Long getExternalId() {

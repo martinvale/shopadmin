@@ -25,27 +25,29 @@ public class GetOrderCommand implements Command<OrdenPago> {
 	@Transactional(readOnly = true, propagation = Propagation.REQUIRED)
 	public OrdenPago execute() {
 		OrdenPago order = orderRepository.get(numero);
-		for (ItemOrden itemOrden : order.getItems()) {
-			Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
-			itemOrden.updateShopper(itemShopper);
-		}
-		Collections.sort(order.getItems(), new Comparator<ItemOrden>() {
-
-			@Override
-			public int compare(ItemOrden o1, ItemOrden o2) {
-				int result = 0;
-				if (o1.getShopper() != null) {
-					result = o1.getShopper().getName().compareTo(o2.getShopper().getName());
-					if (result == 0 && o1.getCliente() != null) {
-						result = o1.getCliente().compareTo(o2.getCliente());
-						if (result == 0 && o1.getSucursal() != null) {
-							result = o1.getSucursal().compareTo(o2.getSucursal());
+		if (order != null) {
+			for (ItemOrden itemOrden : order.getItems()) {
+				Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
+				itemOrden.updateShopper(itemShopper);
+			}
+			Collections.sort(order.getItems(), new Comparator<ItemOrden>() {
+	
+				@Override
+				public int compare(ItemOrden o1, ItemOrden o2) {
+					int result = 0;
+					if (o1.getShopper() != null && o2.getShopper() != null) {
+						result = o1.getShopper().getName().compareTo(o2.getShopper().getName());
+						if (result == 0 && o1.getCliente() != null) {
+							result = o1.getCliente().compareTo(o2.getCliente());
+							if (result == 0 && o1.getSucursal() != null) {
+								result = o1.getSucursal().compareTo(o2.getSucursal());
+							}
 						}
 					}
+					return result;
 				}
-				return result;
-			}
-		});
+			});
+		}
 
 		return order;
 	}

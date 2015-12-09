@@ -34,16 +34,19 @@ public class PayOrderCommand implements Command<OrdenPago> {
 
 	private String observacionesShopper;
 
+	private Integer stateId;
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public OrdenPago execute() {
 		MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
 		OrderState state = null;
-		if (medioPago.getId() == 3) {
+		/*if (medioPago.getId() == 3) {
 			state = orderRepository.getOrderState(OrderState.CERRADA);
 		} else {
 			state = orderRepository.getOrderState(OrderState.PAGADA);
-		}
+		}*/
+		state = orderRepository.getOrderState(stateId);
 
 		OrdenPago order = orderRepository.get(numero);
 		order.pagar(state, medioPago, idTransferencia, numeroChequera, numeroCheque,
@@ -95,5 +98,9 @@ public class PayOrderCommand implements Command<OrdenPago> {
 
 	public void setObservacionesShopper(String observacionesShopper) {
 		this.observacionesShopper = observacionesShopper;
+	}
+
+	public void setStateId(final Integer stateId) {
+		this.stateId = stateId;
 	}
 }

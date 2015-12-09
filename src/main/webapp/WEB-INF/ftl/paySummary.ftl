@@ -62,6 +62,7 @@
   </head>
   <body>
     <#include "header.ftl" />
+    <#setting locale="es_AR">
 
     <div class="container-box-plantilla">
       <h2 class="container-tit">Resumen de pagos</h2>
@@ -84,7 +85,7 @@
               <label for="anioDesde">A&ntilde;o desde: </label>
               <select id="anioDesde" name="anioDesde">
               <#assign anioDesde = model["anioDesde"]!2006 />
-              <#list 2006..2015 as anio>
+              <#list 2006..2017 as anio>
                 <option value="${anio?c}" <#if anio == anioDesde>selected="true"</#if>>${anio?c}</option>
               </#list>
               </select>

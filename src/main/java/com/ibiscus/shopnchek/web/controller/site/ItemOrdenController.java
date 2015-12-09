@@ -330,7 +330,7 @@ public class ItemOrdenController {
         && sucursal.length() > ItemOrden.SUCURSAL_FIELD_LENGTH) {
       sucursal = sucursal.substring(0, ItemOrden.SUCURSAL_FIELD_LENGTH);
     }
-    ItemOrden itemOrden = new ItemOrden(newId, ordenPago, autorizador.getId(),
+    ItemOrden itemOrden = new ItemOrden(newId, ordenPago, null, autorizador.getId(),
         shopperDni, asignacion, tipoItem, unTipoPago,
         cliente, sucursal, mes, anio, fecha, importe, null, 1);
     itemOrden.updateShopper(shopper);
@@ -362,7 +362,7 @@ public class ItemOrdenController {
       sucursal = sucursal.substring(0, ItemOrden.SUCURSAL_FIELD_LENGTH);
     }
 
-    ItemOrden itemOrden = new ItemOrden(newId, ordenPago, autorizador.getId(),
+    ItemOrden itemOrden = new ItemOrden(newId, ordenPago, null, autorizador.getId(),
         shopperDni, asignacion, 3, unTipoPago,
         cliente, sucursal, mes, anio, fecha, importe, descripcion, 1);
     itemOrden.updateShopper(shopper);

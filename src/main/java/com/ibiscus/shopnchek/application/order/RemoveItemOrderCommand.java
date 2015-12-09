@@ -7,7 +7,6 @@ import com.ibiscus.shopnchek.application.Command;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
-import com.ibiscus.shopnchek.domain.debt.Debt;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 
 public class RemoveItemOrderCommand implements Command<Boolean> {
@@ -32,9 +31,8 @@ public class RemoveItemOrderCommand implements Command<Boolean> {
 			}
 		}
 		order.getItems().remove(itemToRemove);
-		Debt debt = debtRepository.get(itemToRemove.getAsignacion());
-		if (debt != null) {
-			debt.release();
+		if (itemToRemove.getDebt() != null) {
+			itemToRemove.getDebt().release();
 		}
 
 		return true;
