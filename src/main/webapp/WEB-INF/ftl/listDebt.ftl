@@ -95,6 +95,24 @@
             <input type="hidden" name="shopperDni" value="${model['shopperDni']!''}" class="js-shopper-dni" />
           </div>
           <div class="field">
+            <label for="tipoItem">Tipo de item: </label>
+            <select id="tipoItem" name="tipoItem">
+              <option value="">Todos</option>
+            <#list model["tiposItem"] as tipoItem>
+              <option value="${tipoItem}" <#if tipoItem == model['tipoItem']!''>selected="true"</#if>>${tipoItem.description}</option>
+            </#list>
+            </select>
+          </div>
+          <div class="field">
+            <label for="tipoPago">Tipo de Pago: </label>
+            <select id="tipoPago" name="tipoPago">
+              <option value="">Todos</option>
+            <#list model["tiposPago"] as tipoPago>
+              <option value="${tipoPago}" <#if tipoPago == model['tipoPago']!''>selected="true"</#if>>${tipoPago.description}</option>
+            </#list>
+            </select>
+          </div>
+          <div class="field">
             <label for="from">Desde: </label>
             <input type="text" id="from" name="from" value="${(model['from']?string('dd/MM/yyyy'))!''}" class="js-date js-date-from" />
             <label for="to">Hasta: </label>
@@ -136,7 +154,7 @@
       </table>
 
       <div class="paginator">
-        <#assign parameters = "shopperDni=${model['shopperDni']!''}&from=${model['from']?string('dd/MM/yyyy')!''}&to=${model['to']?string('dd/MM/yyyy')!''}" />
+        <#assign parameters = "shopperDni=${model['shopperDni']!''}&tipoItem=${model['tipoItem']!''}&tipoPago=${model['tipoPago']!''}&from=${model['from']?string('dd/MM/yyyy')!''}&to=${model['to']?string('dd/MM/yyyy')!''}" />
 
         <#if model["page"] &gt; 1>
           <a href="?page=${(model['page'] - 1)}&${parameters}">&lt;&lt;</a>

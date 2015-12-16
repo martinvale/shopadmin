@@ -305,4 +305,28 @@ public class OrdenPago {
     }
     return otrosGastos;
   }
+
+  public boolean estaAbierta() {
+    return estado.getId() == OrderState.ABIERTA;
+  }
+
+  public boolean estaSuspendida() {
+    return estado.getId() == OrderState.EN_ESPERA;
+  }
+
+  public boolean estaPagada() {
+    return estado.getId() == OrderState.PAGADA;
+  }
+
+  public boolean estaCerrada() {
+    return estado.getId() == OrderState.CERRADA;
+  }
+
+  public boolean estaVerificada() {
+    return estado.getId() == OrderState.VERIFICADA;
+  }
+
+  public boolean estaAnulada() {
+    return estado.getId() == OrderState.ANULADA;
+  }
 }

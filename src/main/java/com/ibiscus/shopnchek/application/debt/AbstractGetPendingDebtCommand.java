@@ -99,7 +99,7 @@ public abstract class AbstractGetPendingDebtCommand implements Command<Boolean> 
 
 		});
 		if (branch == null) {
-			branch = new Branch(client, null, address);
+			branch = new Branch(client, null, null, address);
 			branchRepository.save(branch);
 		}
 		return branch;

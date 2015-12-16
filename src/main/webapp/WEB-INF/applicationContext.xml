@@ -230,6 +230,15 @@
     <property name="feedRepository" ref="feedRepository" />
   </bean>
 
+  <bean id="getFeedCommand" class="com.ibiscus.shopnchek.application.feed.GetFeedCommand" scope="prototype">
+    <property name="feedRepository" ref="feedRepository" />
+  </bean>
+
+  <bean id="saveFeedCommand" class="com.ibiscus.shopnchek.application.feed.SaveFeedCommand" scope="prototype">
+    <property name="feedRepository" ref="feedRepository" />
+    <property name="debtRepository" ref="debtRepository" />
+  </bean>
+
   <bean id="getUserCommand" class="com.ibiscus.shopnchek.application.security.GetUserCommand" scope="prototype">
     <property name="userRepository" ref="userRepository" />
   </bean>

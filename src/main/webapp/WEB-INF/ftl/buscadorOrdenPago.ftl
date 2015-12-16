@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../css/shop.css">
     <link rel="stylesheet" href="../css/custom.css">
 
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+
     <script src="../script/jquery.js"></script>
     <script src="../script/jquery-ui.js"></script>
     <script src="../script/pure.min.js"></script>
@@ -82,7 +84,7 @@ App.widget.Buscador = function (container) {
         </ul>
         <!-- FIN FILA 2 -->
       </form>
-      <form action="search" method="POST" class="form-shop form-shop-big js-search">
+      <form action="search" method="GET" class="form-shop form-shop-big js-search">
         <!-- FILA 1 -->
         <div class="cell box-green buscador">
           <fieldset>
@@ -136,13 +138,20 @@ App.widget.Buscador = function (container) {
       </form>
 
       <h2 class="subtitulo">Ordenes de pago</h2>
+      <#assign orderBy = model['orderBy']!'fechaPago' />
+      <#assign ascending = model['ascending']!false />
+      <#assign direction = 'down' />
+      <#if model['ascending']>
+        <#assign direction = 'up' />
+      </#if>
+      <#assign parameters = "dniShopper=${model['dniShopper']!''}&tipoTitular=${model['tipoTitular']!''}&titularId=${model['titularId']!''}&estadoId=${model['state']!''}&numeroCheque=${model['numeroCheque']!''}" />
       <table summary="Listado de ordenes de pago" class="table-form">
         <thead>
           <tr>
-            <th scope="col">Nro de Orden</th>
+            <th scope="col"><a href="search?${parameters}&orderBy=numero&ascending=${(!ascending)?c}" <#if orderBy == 'numero'>class="selected"</#if>>Nro de Orden <#if orderBy == 'numero'><i class="fa fa-angle-${direction}"></i></#if></a></th>
             <th scope="col">Importe</th>
-            <th scope="col">Fecha de Pago</th>
-            <th scope="col">Estado</th>
+            <th scope="col"><a href="search?${parameters}&orderBy=fechaPago&ascending=${(!ascending)?c}" <#if orderBy == 'fechaPago'>class="selected"</#if>>Fecha de Pago <#if orderBy == 'fechaPago'><i class="fa fa-angle-${direction}"></i></#if></a></th>
+            <th scope="col"><a href="search?${parameters}&orderBy=estado&ascending=${(!ascending)?c}" <#if orderBy == 'estado'>class="selected"</#if>>Estado <#if orderBy == 'estado'><i class="fa fa-angle-${direction}"></i></#if></a></th>
           </tr>
         </thead>
         <tbody>
@@ -159,10 +168,8 @@ App.widget.Buscador = function (container) {
       </table>
 
       <div class="paginator">
-        <#assign parameters = "shopperDni=${model['shopperDni']!''}&tipoTitular=${model['tipoTitular']!''}&titularId=${model['titularId']!''}&estadoId=${model['state']!''}&numeroCheque=${model['numeroCheque']!''}" />
-
         <#if model["page"] &gt; 1>
-          <a href="?page=${(model['page'] - 1)}&${parameters}">&lt;&lt;</a>
+          <a href="?page=${(model['page'] - 1)}&${parameters}&orderBy=${orderBy}&ascending=${ascending?c}">&lt;&lt;</a>
         <#else>
           <span>&lt;&lt;</span>
         </#if>
@@ -172,7 +179,7 @@ App.widget.Buscador = function (container) {
           <#assign maxIndex = resultSet.count />
           <span>&gt;&gt;</span>
         <#else>
-          <a href="?page=${(model['page'] + 1)}&${parameters}">&gt;&gt;</a>
+          <a href="?page=${(model['page'] + 1)}&${parameters}&orderBy=${orderBy}&ascending=${ascending?c}">&gt;&gt;</a>
         </#if>
 
         <#assign start = 0 />

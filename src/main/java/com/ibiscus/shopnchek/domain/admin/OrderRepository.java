@@ -1,11 +1,13 @@
 package com.ibiscus.shopnchek.domain.admin;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -86,27 +88,53 @@ public class OrderRepository extends HibernateDaoSupport {
       final OrderState estado) {
     Criteria criteria = getCriteria(tipoTitular, titularId, dniShopper,
         numeroCheque, estado);
-    if (start != null) {
-      criteria.setFirstResult(start);
+    if (StringUtils.isBlank(dniShopper)) {
+	    if (start != null) {
+	      criteria.setFirstResult(start);
+	    }
+	    if (count != null) {
+	      criteria.setMaxResults(count);
+	    }
+	    if (orderBy != null) {
+	      if (asc) {
+	        criteria.addOrder(Order.asc(orderBy));
+	      } else {
+	        criteria.addOrder(Order.desc(orderBy));
+	      }
+	    }
+	    return criteria.list();
+    } else {
+	    if (start != null) {
+	      criteria.setFirstResult(start);
+	    }
+	    if (count != null) {
+	      criteria.setMaxResults(count);
+	    }
+	    ProjectionList projectionList = Projections.projectionList();
+	    projectionList.add(Projections.groupProperty("numero"));
+	    if (orderBy != null) {
+	      projectionList.add(Projections.groupProperty(orderBy));
+	      if (asc) {
+	        criteria.addOrder(Order.asc(orderBy));
+	      } else {
+	        criteria.addOrder(Order.desc(orderBy));
+	      }
+	    }
+    	criteria.setProjection(projectionList);
+    	List<Object[]> ids = criteria.list();
+    	List<OrdenPago> orders = new ArrayList<OrdenPago>();
+    	for (Object[] orderId : ids) {
+    		orders.add(get((Long) orderId[0])); 
+    	}
+    	return orders;
     }
-    if (count != null) {
-      criteria.setMaxResults(count);
-    }
-    if (orderBy != null) {
-      if (asc) {
-        criteria.addOrder(Order.asc(orderBy));
-      } else {
-        criteria.addOrder(Order.desc(orderBy));
-      }
-    }
-    return criteria.list();
   }
 
   public Integer getCount(final Integer tipoTitular, final Integer titularId,
       final String dniShopper, final String numeroCheque, final OrderState estado) {
     Criteria criteria = getCriteria(tipoTitular, titularId, dniShopper,
             numeroCheque, estado);
-    return (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
+    return (Integer) criteria.setProjection(Projections.countDistinct("id")).uniqueResult();
   }
 
   private Criteria getCriteria(final Integer tipoTitular, final Integer titularId,

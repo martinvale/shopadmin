@@ -25,8 +25,9 @@
     <script src="<@spring.url '/script/livevalidation.js'/>"></script>
 
     <#setting locale="es_AR">
-    <#assign canEdit = true />
     <#assign order = model["ordenPago"] />
+    <#assign canEdit = order.estaAbierta() />
+    <#assign canPay = model["user"].hasFeature('pay_order') />
     <script type="text/javascript">
 
       window.App = window.App || {};
@@ -435,7 +436,7 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
       "Ok": function() {
         var itemId = deleteConfirmDialog.currentId;
         jQuery.ajax({
-          url: "../" + numeroOrden + "/item/" + itemId,
+          url: "" + numeroOrden + "/item/" + itemId,
           method: 'DELETE'
         }).done(function (data) {
           deleteConfirmDialog.dialog("close");
@@ -522,17 +523,17 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
 
   var initEventListeners = function () {
     container.find(".js-caratula" ).click(function () {
-      window.open('../caratula/' + numeroOrden, "", "width=700, height=600");
+      window.open('caratula/' + numeroOrden, "", "width=700, height=600");
     });
 
     container.find(".js-remito" ).click(function () {
-      window.open('../remito/' + numeroOrden, "", "width=700, height=600");
+      window.open('remito/' + numeroOrden, "", "width=700, height=600");
     });
     container.find(".js-detail" ).click(function () {
-      window.open('../printdetail/' + numeroOrden, "", "width=1000, height=600");
+      window.open('printdetail/' + numeroOrden, "", "width=1000, height=600");
     });
     container.find(".js-detail-shopper" ).click(function () {
-      window.open('../printshopper/' + numeroOrden, "", "width=1000, height=600");
+      window.open('printshopper/' + numeroOrden, "", "width=1000, height=600");
     });
 
     container.find(".js-buscar-deuda").click(function () {
@@ -541,28 +542,37 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
 
     container.find(".js-anular-order").click(function () {
       jQuery.ajax({
-        url: "../cancel/${order.numero?c}",
+        url: "cancel/${order.numero?c}",
         type: 'POST'
       }).done(function () {
-        location.href = "../${order.numero?c}";
+        location.href = "${order.numero?c}";
       });
     });
 
     container.find(".js-pausar-order").click(function () {
       jQuery.ajax({
-        url: "../pause/${order.numero?c}",
+        url: "pause/${order.numero?c}",
         type: 'POST'
       }).done(function () {
-        location.href = "../${order.numero?c}";
+        location.href = "${order.numero?c}";
       });
     });
 
     container.find(".js-verified-order").click(function () {
       jQuery.ajax({
-        url: "../verified/${order.numero?c}",
+        url: "verified/${order.numero?c}",
         type: 'POST'
       }).done(function () {
-        location.href = "../${order.numero?c}";
+        location.href = "${order.numero?c}";
+      });
+    });
+
+    container.find(".js-reopen-order").click(function () {
+      jQuery.ajax({
+        url: "open/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "${order.numero?c}";
       });
     });
 
@@ -609,7 +619,7 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
               "Ok": function() {
                 var nuevoImporte = dialogContainer.find(".js-importe-item").val();
                 jQuery.ajax({
-                  url: "../../item/updateImporte",
+                  url: "../item/updateImporte",
                   type: 'POST',
                   data: {
                     'itemId': item.id,
@@ -642,7 +652,7 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
             "Ok": function() {
               var nuevoImporte = dialogContainer.find(".js-importe-item").val();
               jQuery.ajax({
-                url: "../../item/updateImporte",
+                url: "../item/updateImporte",
                 type: 'POST',
                 data: {
                   'itemId': item.id,
@@ -709,6 +719,173 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
   };
 }
 
+App.widget.EditorPagarOrden = function (container) {
+
+  var medioPagoValidation;
+
+  var chequeraValidation;
+
+  var chequeValidation;
+
+  var fechaChequeValidation;
+
+  var transferIdValidation;
+
+  var initEventListeners = function () {
+    var medioDefault = container.find(".js-medio-pago-predeterminado");
+    var sinMedioSeleccionado = container.find(".js-sin-medio-pago");
+    var asociarMedio = container.find(".js-asociar-medio");
+
+    container.find(".js-medio-pago" ).change(function () {
+      medioDefault.hide();
+      sinMedioSeleccionado.hide();
+      asociarMedio.show();
+      if (jQuery(this).val() == '1' || jQuery(this).val() == '2') {
+        container.find(".js-medio-cheque").show();
+        container.find(".js-medio-transfer").hide();
+      } else {
+        container.find(".js-medio-cheque").hide();
+        container.find(".js-medio-transfer").show();
+      }
+    });
+
+    asociarMedio.click(function (event) {
+      event.preventDefault();
+
+      var medioPagoSeleccionado = container.find(".js-medio-pago").val();
+
+      jQuery.ajax({
+        url: "asociarMedioPago",
+        data: {
+          numeroOrden: ${order.numero?c},
+          medioPagoId: medioPagoSeleccionado
+        },
+        method: 'POST'
+      }).done(function (data) {
+        asociarMedio.hide();
+        sinMedioSeleccionado.hide();
+        medioDefault.text('Medio de pago predeterminado: ' + data);
+        medioDefault.show();
+      })
+    });
+
+    jQuery(".js-pay-order").click(function () {
+      var validations = [];
+      validations.push(medioPagoValidation);
+      /*var tipoPagoSeleccionado = container.find(".js-medio-pago").val();
+      if (tipoPagoSeleccionado == '1' || tipoPagoSeleccionado == '2') {
+        validations.push(chequeraValidation);
+        validations.push(chequeValidation);
+        validations.push(fechaChequeValidation);
+      } else {
+        validations.push(transferIdValidation);
+      }*/
+      if (LiveValidation.massValidate(validations)) {
+        container.submit();
+      }
+    });
+
+    container.find(".js-detail" ).click(function () {
+      window.open('printdetail/${order.numero?c}', "width=1000, height=600");
+    });
+
+    container.find(".js-caratula" ).click(function () {
+      window.open('caratula/${order.numero?c}', "", "width=700, height=600");
+    });
+
+    container.find(".js-remito" ).click(function () {
+      window.open('remito/${order.numero?c}', "", "width=700, height=600");
+    });
+
+    container.find(".js-reopen-order").click(function () {
+      jQuery.ajax({
+        url: "open/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "${order.numero?c}";
+      });
+    });
+
+    container.find(".js-anular-order").click(function () {
+      jQuery.ajax({
+        url: "cancel/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "${order.numero?c}";
+      });
+    });
+
+    jQuery(".js-close-order").click(function () {
+      var stateField = container.find("input[name='state']");
+      stateField.val(3);
+      var validations = [];
+      //validations.push(medioPagoValidation);
+      /*var tipoPagoSeleccionado = container.find(".js-medio-pago").val();
+      if (tipoPagoSeleccionado == '1' || tipoPagoSeleccionado == '2') {
+        validations.push(chequeraValidation);
+        validations.push(chequeValidation);
+        validations.push(fechaChequeValidation);
+      } else {
+        validations.push(transferIdValidation);
+      }*/
+      if (LiveValidation.massValidate(validations)) {
+        container.submit();
+      }
+    });
+
+    container.find(".js-pausar-order").click(function () {
+      jQuery.ajax({
+        url: "pause/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "${order.numero?c}";
+      });
+    });
+
+  };
+
+  var initValidators = function () {
+    medioPagoValidation = new LiveValidation("medioPago");
+    medioPagoValidation.add(Validate.Exclusion, {
+        within: ["Seleccionar"],
+        failureMessage: "El medio de pago es obligatorio"
+    });
+
+    /*chequeraValidation = new LiveValidation("numeroChequera");
+    chequeraValidation.add(Validate.Presence, {
+        failureMessage: "El nro de la chequera es obligatorio"
+    });
+
+    chequeValidation = new LiveValidation("numeroCheque");
+    chequeValidation.add(Validate.Presence, {
+        failureMessage: "El nro del cheque es obligatorio"
+    });
+
+    fechaChequeValidation = new LiveValidation("fechaCheque");
+    fechaChequeValidation.add(Validate.Presence, {
+        failureMessage: "La fecha del cheque es obligatoria"
+    });
+
+    transferIdValidation = new LiveValidation("transferId");
+    transferIdValidation.add(Validate.Presence, {
+        failureMessage: "El ID de la transferencia es obligatorio"
+    });*/
+  };
+
+  return {
+    render: function () {
+      container.find(".js-date" ).datepicker({
+        //minDate: new Date(),
+        dateFormat: 'dd/mm/yy',
+        onSelect: function(dateText, datePicker) {
+          $(this).attr('value', dateText);
+        }
+      });
+      initEventListeners();
+      initValidators();
+    }
+  };
+}
 
 
       jQuery(document).ready(function() {
@@ -733,7 +910,13 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
         var orderItemsEditor = new App.widget.OrderItemsEditor(jQuery(".js-orden-pago"),
             ${order.numero?c}, items, ${canEdit?c});
         orderItemsEditor.render();
+
+        var payFormContainer = jQuery(".js-pagar-orden-editor");
+        var orderEditor = App.widget.EditorPagarOrden(payFormContainer);
+        orderEditor.render();
+
       });
+
     </script>
 
     <script src="<@spring.url '/script/ShopperSelector.js'/>"></script>
@@ -769,7 +952,7 @@ textarea.LV_invalid_field:active {
     <#include "header.ftl" />
 
     <div class="container-box-plantilla js-orden-pago">
-      <h2 class="container-tit">Orden de pago ${order.numero?c} <a href="../edit/${order.numero?c}">editar</a></h2>
+      <h2 class="container-tit">Orden de pago ${order.numero?c} (${order.estado.description}) <#if order.estaAbierta()><a href="edit/${order.numero?c}">editar</a></#if></h2>
       <!-- FILA 1 -->
       <div class="cell">
         <div class="box-green">
@@ -785,6 +968,19 @@ textarea.LV_invalid_field:active {
                 <td width="33%"><label>Factura Nro: </label>${order.numeroFactura!''}</td>
                 <td width="33%"><label>Localidad: </label>${order.localidad!''}</td>
               </tr>
+            <#if order.estaPagada() >
+              <#if order.medioPago.id = 3>
+              <tr>
+                <td width="100%" colspan="2"><label>ID Transfer: </label>${order.idTransferencia!''}</td>
+              </tr>
+              <#else>
+              <tr>
+                <td width="33%"><label>Chequera Nro: </label>${order.numeroChequera!''}</td>
+                <td width="33%"><label>Cheque Nro: </label>${order.numeroCheque!''}</td>
+                <td width="33%"><label>Fecha cheque: </label>${(order.fechaCheque?string('dd/MM/yyyy'))!''}</td>
+              </tr>
+              </#if>
+            </#if>
               <tr>
                 <td width="100%" colspan="2"><label>Observaciones: </label>${order.observaciones!''}</td>
               </tr>
@@ -833,10 +1029,16 @@ textarea.LV_invalid_field:active {
           </table>
         </div>
         <ul class="action-columns">
+        <#if order.estaAbierta()>
           <li><input type="button" class="btn-shop-small js-buscar-deuda" value="Deuda Shopper" <#if !canEdit>disabled="true"</#if> /></li>
-          <!--li><input type="button" class="btn-shop-small js-remito" value="Imprimir" <#if !canEdit>disabled="true"</#if> /></li-->
+        </#if>
+
+        <#if !order.estaAnulada() && !order.estaSuspendida()>
+          <li><input type="button" class="btn-shop-small js-remito" value="Remito" /></li>
           <li><input type="button" class="btn-shop-small js-detail" value="Imprimir Detalle" /></li>
-          <!--li><input type="button" class="btn-shop-small js-detail-shopper" value="Detalle Shopper" /></li-->
+          <li><input type="button" class="btn-shop-small js-detail-shopper" value="Detalle Shopper" /></li>
+          <li><input type="button" class="btn-shop-small js-caratula" value="Car&aacute;tula" /></li>
+        </#if>
         </ul>
 
         <!-- FIN FILA 3 -->
@@ -891,11 +1093,89 @@ textarea.LV_invalid_field:active {
           </li>
         </ul>
 
+      <#if order.estaVerificada() || order.estaCerrada()>
+        <h2 class="subtitulo">Forma de pago</h2>
+
+        <form action="pay/${order.numero?c}" method="POST" class="form-shop form-shop-big js-pagar-orden-editor">
+          <!-- FILA 1 -->
+          <div class="cell box-gray">
+            <fieldset>
+              <input type="hidden" name="state" value="4" />
+              <div class="form-shop-row">
+                <label>N&uacute;mero</label>
+                <input type="text" name="numeroOrden" readOnly="true" value="${(order.numero?c)!''}"/>
+              </div>
+              <div class="form-shop-row">
+                <label for="medioPago" class="mandatory">M. de pago</label>
+                <select id="medioPago" name="medioPagoId" class="js-medio-pago">
+                  <#list model["mediosPago"] as medioPago>
+                    <option value="${medioPago.id}" <#if medioPago.id?c == ((order.medioPago.id?c)!'')>selected="selected"</#if>>${medioPago.description}</option>
+                  </#list>
+                </select>
+                <div class="js-medio-pago-asociado">
+                  <#if model["medioPagoPredeterminado"]??>
+                    <span class="medio-pago js-medio-pago-predeterminado">Medio de pago predeterminado: ${model["medioPagoPredeterminado"]}</span>
+                    <a href="#" class="asociar-medio js-asociar-medio" style="display:none">Asociar medio de pago al titular</a>
+                  <#else>
+                    <span class="medio-pago js-medio-pago-predeterminado" style="display:none">Medio de pago predeterminado: </span>
+                    <#if ((order.medioPago.id?c)!'') != "">
+                      <a href="#" class="asociar-medio js-asociar-medio">Asociar medio de pago al titular</a>
+                    <#else>
+                      <span class="sin-medio-pago js-sin-medio-pago">(El titular no tiene un medio de pago asociado)</span>
+                      <a href="#" class="asociar-medio js-asociar-medio" style="display:none">Asociar medio de pago al titular</a>
+                    </#if>
+                  </#if>
+                </div>
+              </div>
+              <div class="form-shop-row js-medio-cheque" <#if ((order.medioPago.id?c)!'') != '1' && ((order.medioPago.id?c)!'') != '2'>style="display:none;"</#if>>
+                <label for="numeroChequera">Chequera N&deg;</label>
+                <input type="text" name="numeroChequera" id="numeroChequera" value="${(order.numeroChequera)!''}" <#if !canPay>disabled="true"</#if>/>
+              </div>
+              <div class="form-shop-row js-medio-cheque" <#if ((order.medioPago.id?c)!'') != '1' && ((order.medioPago.id?c)!'') != '2'>style="display:none;"</#if>>
+                <label for="numeroCheque">Cheque N&deg;</label>
+                <input type="text" name="numeroCheque" id="numeroCheque" value="${(order.numeroCheque)!''}" <#if !canPay>disabled="true"</#if>/>
+              </div>
+              <div class="form-shop-row js-medio-cheque" <#if ((order.medioPago.id?c)!'') != '1' && ((order.medioPago.id?c)!'') != '2'>style="display:none;"</#if>>
+                <label for="fechaCheque">Fecha cheque</label>
+                <input type="text" id="fechaCheque" name="fechaCheque" class="js-date" value="${(order.fechaCheque?string('dd/MM/yyyy'))!''}" <#if !canPay>disabled="true"</#if>/>
+              </div>
+              <div class="form-shop-row js-medio-transfer" <#if ((order.medioPago.id?c)!'') != '3'>style="display:none;"</#if>>
+                <label for="transferId">ID Transfer</label>
+                <input type="text" name="transferId" id="transferId" value="${(order.idTransferencia)!''}" <#if !canPay>disabled="true"</#if>/>
+              </div>
+              <div class="form-shop-row">
+                <label for="observaciones">Observaciones</label>
+                <textarea id="observaciones" name="observaciones" class="item-field">${(order.observaciones)!''}</textarea>
+              </div>
+              <div class="form-shop-row">
+                <label for="observacionesShopper">Obs. p/shopper</label>
+                <textarea id="observacionesShopper" name="observacionesShopper" class="item-field">${(order.observacionesShopper)!''}</textarea>
+              </div>
+            </fieldset>
+          </div>
+        </form>
+      </#if>
+
         <div class="actions-form">
           <ul class="action-columns">
+          <#if order.estaAbierta() >
             <li><input type="button" class="btn-shop js-anular-order" value="Anular" /></li>
             <li><input type="button" class="btn-shop js-pausar-order" value="En espera" /></li>
             <li><input type="button" class="btn-shop js-verified-order" value="Verificada" /></li>
+          </#if>
+          <#if order.estaVerificada() >
+            <li><input type="button" class="btn-shop js-pay-order" value="Pagar" <#if !canPay>disabled="true"</#if>></li>
+            <li><input type="button" class="btn-shop js-close-order" value="Cerrar" /></li>
+          </#if>
+          <#if order.estaCerrada() >
+            <li><input type="button" class="btn-shop js-pay-order" value="Pagar" <#if !canPay>disabled="true"</#if>></li>
+          </#if>
+          <#if order.estaSuspendida() >
+            <li><input type="button" class="btn-shop js-reopen-order" value="Reabrir" /></li>
+          </#if>
+          <#if order.estaPagada() && model["user"].hasFeature("reopen_order")>
+            <li><input type="button" class="btn-shop js-reopen-order" value="Reabrir" /></li>
+          </#if>
           </ul>
         </div>
         <div style="display:none">

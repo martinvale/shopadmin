@@ -8,6 +8,7 @@ import org.apache.commons.lang.Validate;
 
 import com.ibiscus.shopnchek.application.SearchCommand;
 import com.ibiscus.shopnchek.domain.debt.Debt;
+import com.ibiscus.shopnchek.domain.debt.TipoItem;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
@@ -26,6 +27,8 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 
 	private String tipoPago;
 
+	private String tipoItem;
+
 	public SearchDebtCommand() {
 	}
 
@@ -39,6 +42,14 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 			tipoPagoDeuda = TipoPago.valueOf(tipoPago);
 		}
 		return tipoPagoDeuda;
+	}
+
+	private TipoItem getTipoItem() {
+		TipoItem tipoItemDeuda = null;
+		if (!StringUtils.isBlank(tipoItem)) {
+			tipoItemDeuda = TipoItem.valueOf(tipoItem);
+		}
+		return tipoItemDeuda;
 	}
 
 	public void setShopperDni(final String shopperDni) {
@@ -61,17 +72,21 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 		this.tipoPago = tipoPago;
 	}
 
+	public void setTipoItem(final String tipoItem) {
+		this.tipoItem = tipoItem;
+	}
+
 	@Override
 	protected List<Debt> getItems() {
 		if (from != null && to != null) {
 			Validate.isTrue(from.before(to), "The FROM date must be before the TO date");
 		}
 		return debtRepository.find(getStart(), getPageSize(), getOrderBy(), isAscending(),
-				shopperDni, state, from, to, getTipoPago());
+				shopperDni, state, from, to, getTipoPago(), getTipoItem());
 	}
 
 	@Override
 	protected int getCount() {
-		return debtRepository.getCount(shopperDni, state, from, to, getTipoPago());
+		return debtRepository.getCount(shopperDni, state, from, to, getTipoPago(), getTipoItem());
 	}
 }

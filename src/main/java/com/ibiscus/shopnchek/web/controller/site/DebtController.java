@@ -37,6 +37,7 @@ import com.ibiscus.shopnchek.domain.debt.ClientRepository;
 import com.ibiscus.shopnchek.domain.debt.Debt;
 import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
+import com.ibiscus.shopnchek.domain.debt.TipoItem;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.security.User;
 
@@ -79,7 +80,7 @@ public class DebtController {
 			@RequestParam(required = false, defaultValue = "1") Integer page,
 			@RequestParam(required = false, defaultValue = "fechaCreacion") String orderBy,
 			@RequestParam(required = false, defaultValue = "false") Boolean ascending,
-			String shopperDni, String tipoPago,
+			String shopperDni, String tipoPago, String tipoItem,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date from,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date to) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
@@ -103,13 +104,19 @@ public class DebtController {
 		searchDebtCommand.setTo(to);
 		searchDebtCommand.setState(State.pendiente);
 		searchDebtCommand.setTipoPago(tipoPago);
+		searchDebtCommand.setTipoItem(tipoItem);
 		ResultSet<Debt> resultSet = searchDebtCommand.execute();
 		model.put("result", resultSet);
 		model.put("page", page);
 		model.put("pageSize", 25);
 		model.put("shopperDni", shopperDni);
+		model.put("tipoPago", tipoPago);
+		model.put("tipoItem", tipoItem);
 		model.put("from", from);
 		model.put("to", to);
+
+		model.put("tiposPago", TipoPago.values());
+		model.put("tiposItem", TipoItem.values());
 		return "listDebt";
 	}
 
@@ -154,11 +161,13 @@ public class DebtController {
 
 	@RequestMapping(value="/export")
 	public void exportDebt(final HttpServletResponse response,
-			String shopperDni,
+			String shopperDni, String tipoPago, String tipoItem,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date from,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date to) {
 		ExportDebtCommand exportDebtCommand = new ExportDebtCommand(debtRepository);
 		exportDebtCommand.setShopperDni(shopperDni);
+		exportDebtCommand.setTipoPago(tipoPago);
+		exportDebtCommand.setTipoItem(tipoItem);
 		exportDebtCommand.setFrom(from);
 		exportDebtCommand.setTo(to);
 		Workbook workbook = exportDebtCommand.execute();

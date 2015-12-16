@@ -46,6 +46,8 @@ import com.ibiscus.shopnchek.domain.debt.TipoPago;
 
 public class ImportService {
 
+  private static final String OK_FOR_BILLING = "OK";
+
   private static final int ColSurveyID = 0;
   private static final int ColCliente = 1;
   private static final int ColApellido = 2;
@@ -232,7 +234,13 @@ public class ImportService {
       String cellTotal = cell.getStringCellValue();
       end = "Total".equals(cellTotal);
     }
-    if (surveyIdValue != null) {
+
+    cell = row.getCell(headers.get(ColOK_Pay));
+    boolean isOk = false;
+    if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+    	isOk = OK_FOR_BILLING.equals(cell.getStringCellValue());
+    }
+    if (surveyIdValue != null && isOk) {
       cell = row.getCell(headers.get(Collogin));
       String login = cell.getStringCellValue();
       if (login != null && !login.isEmpty()) {
@@ -303,7 +311,7 @@ public class ImportService {
         	});
         }
     	if (branch == null) {
-    		branch = new Branch(client, idSucursal, direccionSucursal);
+    		branch = new Branch(client, idSucursal, ciudadSucursal, direccionSucursal);
     		branchRepository.save(branch);
     		//client.addBranch(branch);
     		//clientRepository.update(client);

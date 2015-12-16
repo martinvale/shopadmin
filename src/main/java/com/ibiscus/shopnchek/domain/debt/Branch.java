@@ -34,9 +34,11 @@ public class Branch {
 	Branch() {
 	}
 
-	public Branch(final Client client, final String code, final String address) {
+	public Branch(final Client client, final String code, final String city,
+			final String address) {
 		this.client = client;
 		this.code = code;
+		this.city = city;
 		this.address = address;
 	}
 

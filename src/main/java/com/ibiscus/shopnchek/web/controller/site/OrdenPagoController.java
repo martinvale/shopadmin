@@ -156,37 +156,8 @@ public class OrdenPagoController {
       model.addAttribute("titularNombre", proveedor.getDescription());
     }
 
-    if (ordenPago.getEstado().getId() == OrderState.ABIERTA) {
-      return "redirect:items/" + orderId;
-    } else if (ordenPago.getEstado().getId() == OrderState.VERIFICADA) {
-      return "redirect:pay/" + orderId;
-    } else if (ordenPago.getEstado().getId() == OrderState.CERRADA) {
-      return "redirect:pay/" + orderId;
-    } else {
-      return "redirect:view/" + orderId;
-    }
-  }
-
-  @RequestMapping(value="/items/{orderId}")
-  public String editItems(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long orderId) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
-
-    getOrderCommand.setNumero(orderId);
-    OrdenPago ordenPago = getOrderCommand.execute();
-    model.addAttribute("ordenPago", ordenPago);
-
-    if (ordenPago.getTipoProveedor() == 1) {
-      Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", shopper.getName());
-    } else {
-      Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", proveedor.getDescription());
-    }
-
-	model.addAttribute("tiposPago",TipoPago.values());
+    model.addAttribute("mediosPago", orderRepository.findMediosPago());
+    model.addAttribute("tiposPago",TipoPago.values());
     Calendar calendar = Calendar.getInstance();
     calendar.add(Calendar.MONTH, -4);
     model.addAttribute("fechaDesde", calendar.getTime());
@@ -219,7 +190,7 @@ public class OrdenPagoController {
 
     Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
     model.addAttribute("titular", shopper);
-    return "redirect:items/" + ordenPago.getNumero();
+    return "redirect:" + ordenPago.getNumero();
   }
 
   @RequestMapping(value="createAnt", method=RequestMethod.POST)
@@ -293,7 +264,7 @@ public class OrdenPagoController {
     OrdenPago ordenPago = saveOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
-    return "redirect:items/" + numeroOrden;
+    return "redirect:" + numeroOrden;
   }
 
   @RequestMapping(value="/{orderId}/item/{itemId}", method=RequestMethod.DELETE)
@@ -311,29 +282,6 @@ public class OrdenPagoController {
     asociarMedioPagoCommand.setMedioPagoId(medioPagoId);
     MedioPago medioPago = asociarMedioPagoCommand.execute();
     return medioPago.getDescription();
-  }
-
-  @RequestMapping(value="/pay/{orderId}")
-  public String toPay(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long orderId) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
-
-    getOrderCommand.setNumero(orderId);
-    OrdenPago ordenPago = getOrderCommand.execute();
-    model.addAttribute("ordenPago", ordenPago);
-
-    if (ordenPago.getTipoProveedor() == 1) {
-      Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", shopper.getName());
-    } else {
-      Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", proveedor.getDescription());
-    }
-
-    model.addAttribute("mediosPago", orderRepository.findMediosPago());
-    return "payOrder";
   }
 
   @RequestMapping(value="/pay/{orderId}", method = RequestMethod.POST)
@@ -433,28 +381,6 @@ public class OrdenPagoController {
     return true;
   }
 
-  @RequestMapping(value="/view/{numeroOrden}")
-  public String viewOrder(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long numeroOrden) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
-
-    getOrderCommand.setNumero(numeroOrden);
-    OrdenPago ordenPago = getOrderCommand.execute();
-    model.addAttribute("ordenPago", ordenPago);
-
-    if (ordenPago.getTipoProveedor() == 1) {
-      Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", shopper.getName());
-    } else {
-      Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", proveedor.getDescription());
-    }
-
-    return "orderDetail";
-  }
-
   @RequestMapping(value="getAsociacionMedioPago")
   public @ResponseBody AsociacionMedioPago getAsociacionMedioPago(
       @ModelAttribute("model") final ModelMap model,
@@ -520,6 +446,8 @@ public class OrdenPagoController {
     model.put("result", rsOrdenes);
     model.put("page", page);
     model.put("pageSize", 25);
+    model.put("orderBy", orderBy);
+    model.put("ascending", ascending);
     model.put("numeroOrden", numeroOrden);
     model.put("tipoTitular", tipoTitular);
     model.put("titularId", titularId);

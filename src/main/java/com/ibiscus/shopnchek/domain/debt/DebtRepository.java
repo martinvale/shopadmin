@@ -38,7 +38,7 @@ public class DebtRepository extends HibernateDaoSupport {
 	}
 
 	public Criteria getCriteria(final String shopperDni, final State state,
-			final Date from, final Date to, final TipoPago tipoPago) {
+			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem) {
 		Criteria criteria = getSession().createCriteria(Debt.class);
 		if (!StringUtils.isBlank(shopperDni)) {
 			criteria.add(Expression.eq("shopperDni", shopperDni));
@@ -55,12 +55,16 @@ public class DebtRepository extends HibernateDaoSupport {
 		if (tipoPago != null) {
 			criteria.add(Expression.eq("tipoPago", tipoPago));
 		}
+		if (tipoItem != null) {
+			criteria.add(Expression.eq("tipoItem", tipoItem));
+		}
 		return criteria;
 	}
 
 	public List<Debt> find(final String shopperDni, final State state,
-			final Date from, final Date to, final TipoPago tipoPago) {
-		return find(null, null, null, true, shopperDni, state, from, to, tipoPago);
+			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem) {
+		return find(null, null, null, true, shopperDni, state, from, to, tipoPago,
+				tipoItem);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -129,8 +133,9 @@ public class DebtRepository extends HibernateDaoSupport {
 	@SuppressWarnings("unchecked")
 	public List<Debt> find(final Integer start, final Integer count,
 			final String orderBy, final boolean asc, final String shopperDni,
-			final State state, final Date from, final Date to, final TipoPago tipoPago) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago);
+			final State state, final Date from, final Date to, final TipoPago tipoPago,
+			final TipoItem tipoItem) {
+		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago, tipoItem);
 		if (start != null) {
 			criteria.setFirstResult(start);
 		}
@@ -148,8 +153,8 @@ public class DebtRepository extends HibernateDaoSupport {
 	}
 
 	public Integer getCount(final String shopperDni, final State state, final Date from,
-			final Date to, final TipoPago tipoPago) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago);
+			final Date to, final TipoPago tipoPago, final TipoItem tipoItem) {
+		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago, tipoItem);
 		return (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
 	}
 }
