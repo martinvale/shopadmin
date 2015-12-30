@@ -8,10 +8,11 @@ import org.apache.commons.lang.Validate;
 
 import com.ibiscus.shopnchek.application.SearchCommand;
 import com.ibiscus.shopnchek.domain.debt.Debt;
-import com.ibiscus.shopnchek.domain.debt.TipoItem;
-import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
+import com.ibiscus.shopnchek.domain.debt.TipoItem;
+import com.ibiscus.shopnchek.domain.debt.TipoPago;
+import com.ibiscus.shopnchek.domain.security.User;
 
 public class SearchDebtCommand extends SearchCommand<Debt> {
 
@@ -28,6 +29,8 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 	private String tipoPago;
 
 	private String tipoItem;
+
+	private User owner;
 
 	public SearchDebtCommand() {
 	}
@@ -76,17 +79,30 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 		this.tipoItem = tipoItem;
 	}
 
+	public void setOwner(final User owner) {
+		this.owner = owner;
+	}
+
 	@Override
 	protected List<Debt> getItems() {
 		if (from != null && to != null) {
 			Validate.isTrue(from.before(to), "The FROM date must be before the TO date");
 		}
+		String ownerUsername = null;
+		if (owner != null && !owner.isAdministrator()) {
+			ownerUsername = owner.getUsername();
+		}
 		return debtRepository.find(getStart(), getPageSize(), getOrderBy(), isAscending(),
-				shopperDni, state, from, to, getTipoPago(), getTipoItem());
+				shopperDni, state, from, to, getTipoPago(), getTipoItem(), ownerUsername);
 	}
 
 	@Override
 	protected int getCount() {
-		return debtRepository.getCount(shopperDni, state, from, to, getTipoPago(), getTipoItem());
+		String ownerUsername = null;
+		if (owner != null && !owner.isAdministrator()) {
+			ownerUsername = owner.getUsername();
+		}
+		return debtRepository.getCount(shopperDni, state, from, to, getTipoPago(),
+				getTipoItem(), ownerUsername);
 	}
 }

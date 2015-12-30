@@ -20,14 +20,23 @@
               </ul>
             </li>
           </#if>
-          <#if model["user"].hasFeature('create_aditional') || model["user"].hasFeature('list_aditional')>
+          <#if model["user"].hasFeature('list_debt')>
             <li><a href="#"><i class="icon-user"></i>Deuda</a>
               <ul class="sub-menu">
-              <#if model["user"].hasFeature('list_aditional')>
+              <#if model["user"].hasFeature('list_debt')>
                 <li><a href="<@spring.url '/debt/list'/>">Buscar deuda</a></li>
               </#if>
+              </ul>
+            </li>
+          </#if>
+          <#if model["user"].hasFeature('create_aditional') || model["user"].hasFeature('list_aditional')>
+            <li><a href="#"><i class="icon-user"></i>Adicionales</a>
+              <ul class="sub-menu">
+              <#if model["user"].hasFeature('list_aditional')>
+                <li><a href="<@spring.url '/debt/aditionals'/>">Buscar</a></li>
+              </#if>
               <#if model["user"].hasFeature('create_aditional')>
-                <li><a href="<@spring.url '/debt/create'/>">Crear adicional</a></li>
+                <li><a href="<@spring.url '/debt/create'/>">Crear</a></li>
               </#if>
               </ul>
             </li>

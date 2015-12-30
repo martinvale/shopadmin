@@ -94,6 +94,7 @@
             <input type="hidden" name="shopperId" value="" class="js-shopper-id" />
             <input type="hidden" name="shopperDni" value="${model['shopperDni']!''}" class="js-shopper-dni" />
           </div>
+        <#if model["showItemType"]!true>
           <div class="field">
             <label for="tipoItem">Tipo de item: </label>
             <select id="tipoItem" name="tipoItem">
@@ -103,6 +104,7 @@
             </#list>
             </select>
           </div>
+        </#if>
           <div class="field">
             <label for="tipoPago">Tipo de Pago: </label>
             <select id="tipoPago" name="tipoPago">
@@ -146,7 +148,7 @@
             <td>${item.tipoPago.description}</td>
             <td>$ ${item.importe?string["0.##"]?replace(',', '.')}</td>
             <td>${item.fecha?string('dd/MM/yyyy')}</td>
-            <td>&nbsp;</td>
+            <td>${item.usuario!''}</td>
             <td>${(item.nroOperacion?c)!''}</td>
           </tr>
           </#list>

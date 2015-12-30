@@ -38,7 +38,8 @@ public class DebtRepository extends HibernateDaoSupport {
 	}
 
 	public Criteria getCriteria(final String shopperDni, final State state,
-			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem) {
+			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem,
+			final String owner) {
 		Criteria criteria = getSession().createCriteria(Debt.class);
 		if (!StringUtils.isBlank(shopperDni)) {
 			criteria.add(Expression.eq("shopperDni", shopperDni));
@@ -58,13 +59,16 @@ public class DebtRepository extends HibernateDaoSupport {
 		if (tipoItem != null) {
 			criteria.add(Expression.eq("tipoItem", tipoItem));
 		}
+		if (owner != null) {
+			criteria.add(Expression.eq("usuario", owner));
+		}
 		return criteria;
 	}
 
 	public List<Debt> find(final String shopperDni, final State state,
 			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem) {
 		return find(null, null, null, true, shopperDni, state, from, to, tipoPago,
-				tipoItem);
+				tipoItem, null);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -134,8 +138,9 @@ public class DebtRepository extends HibernateDaoSupport {
 	public List<Debt> find(final Integer start, final Integer count,
 			final String orderBy, final boolean asc, final String shopperDni,
 			final State state, final Date from, final Date to, final TipoPago tipoPago,
-			final TipoItem tipoItem) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago, tipoItem);
+			final TipoItem tipoItem, final String owner) {
+		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago,
+				tipoItem, owner);
 		if (start != null) {
 			criteria.setFirstResult(start);
 		}
@@ -153,8 +158,8 @@ public class DebtRepository extends HibernateDaoSupport {
 	}
 
 	public Integer getCount(final String shopperDni, final State state, final Date from,
-			final Date to, final TipoPago tipoPago, final TipoItem tipoItem) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago, tipoItem);
+			final Date to, final TipoPago tipoPago, final TipoItem tipoItem, final String owner) {
+		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago, tipoItem, owner);
 		return (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
 	}
 }

@@ -56,7 +56,7 @@ public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 		List<DebtDto> debtDtoItems = new LinkedList<DebtDto>();
 
 		List<Debt> debtItems = debtRepository.find(getStart(), getPageSize(), getOrderBy(),
-				isAscending(), shopperDni, State.pendiente, from, to, getTipoPago(), null);
+				isAscending(), shopperDni, State.pendiente, from, to, getTipoPago(), null, null);
 		for (Debt debt : debtItems) {
 			debtDtoItems.add(new DebtDto(debt));
 		}
@@ -66,7 +66,7 @@ public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 	@Override
 	protected int getCount() {
 		return debtRepository.getCount(shopperDni, State.pendiente, from, to,
-				getTipoPago(), null);
+				getTipoPago(), null, null);
 	}
 
 	private TipoPago getTipoPago() {

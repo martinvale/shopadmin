@@ -100,7 +100,7 @@ public class User implements UserDetails {
 		return roleFound;
 	}
 
-	private boolean isAdministrator() {
+	public boolean isAdministrator() {
 		boolean hasAdminRole = false;
 		Iterator<Role> rolesIterator = roles.iterator();
 		while (rolesIterator.hasNext() && !hasAdminRole) {

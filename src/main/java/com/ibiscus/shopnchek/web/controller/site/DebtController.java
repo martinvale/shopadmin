@@ -147,6 +147,52 @@ public class DebtController {
 		return resultSet.getItems();
 	}
 
+	@RequestMapping(value="/aditionals")
+	public String searchAditionals(@ModelAttribute("model") final ModelMap model,
+			@RequestParam(required = false, defaultValue = "1") Integer page,
+			@RequestParam(required = false, defaultValue = "fechaCreacion") String orderBy,
+			@RequestParam(required = false, defaultValue = "false") Boolean ascending,
+			String shopperDni, String tipoPago,
+			@DateTimeFormat(pattern="dd/MM/yyyy") Date from,
+			@DateTimeFormat(pattern="dd/MM/yyyy") Date to) {
+		User user = (User) SecurityContextHolder.getContext().getAuthentication()
+				.getPrincipal();
+		model.addAttribute("user", user);
+
+		if (from == null) {
+			Calendar calendar = Calendar.getInstance();
+			calendar.add(Calendar.MONTH, -3);
+			from = calendar.getTime();
+		}
+
+		if (to == null) {
+			to = new Date();
+		}
+		searchDebtCommand.setPage(page);
+		searchDebtCommand.setPageSize(25);
+		searchDebtCommand.setOrderBy(orderBy, ascending);
+		searchDebtCommand.setShopperDni(shopperDni);
+		searchDebtCommand.setFrom(from);
+		searchDebtCommand.setTo(to);
+		searchDebtCommand.setState(State.pendiente);
+		searchDebtCommand.setTipoPago(tipoPago);
+		searchDebtCommand.setTipoItem(TipoItem.manual.toString());
+		searchDebtCommand.setOwner(user);
+		ResultSet<Debt> resultSet = searchDebtCommand.execute();
+		model.put("result", resultSet);
+		model.put("page", page);
+		model.put("pageSize", 25);
+		model.put("shopperDni", shopperDni);
+		model.put("tipoPago", tipoPago);
+		model.put("from", from);
+		model.put("to", to);
+
+		model.put("tiposPago", TipoPago.values());
+		model.put("tiposItem", TipoItem.values());
+		model.put("showItemType", false);
+		return "listDebt";
+	}
+
 	@RequestMapping(value="/assign", method = RequestMethod.POST)
 	public @ResponseBody Boolean assign(@RequestParam("nroOrden") long nroOrden,
 			@RequestParam("items[]") List<Long> items) {
