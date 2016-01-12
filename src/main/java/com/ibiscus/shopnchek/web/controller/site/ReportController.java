@@ -311,6 +311,53 @@ public class ReportController {
     return "printSummary";
   }
 
+  @RequestMapping(value="/paySummary2")
+  public String paySummary2(@ModelAttribute("model") final ModelMap model,
+      @RequestParam(required = false) Integer anioDesde,
+      @RequestParam(required = false) Integer mesDesde,
+      @RequestParam(required = false) Integer anioHasta,
+      @RequestParam(required = false) Integer mesHasta) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    List<Row> rows = new LinkedList<Row>();
+    if (anioDesde != null && mesDesde != null && anioHasta != null
+        && mesHasta != null) {
+      model.addAttribute("anioDesde", anioDesde);
+      model.addAttribute("mesDesde", mesDesde);
+      model.addAttribute("anioHasta", anioHasta);
+      model.addAttribute("mesHasta", mesHasta);
+
+      Calendar calendar = Calendar.getInstance();
+      calendar.set(Calendar.YEAR, anioDesde);
+      calendar.set(Calendar.MONTH, mesDesde - 1);
+      calendar.set(Calendar.DAY_OF_MONTH, 1);
+      calendar.set(Calendar.HOUR, 0);
+      calendar.set(Calendar.MINUTE, 0);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+      Date desde = calendar.getTime();
+
+      calendar.set(Calendar.YEAR, anioHasta);
+      calendar.set(Calendar.MONTH, mesHasta - 1);
+      calendar.add(Calendar.MONTH, 1);
+      calendar.add(Calendar.DAY_OF_MONTH, -1);
+      Date hasta = calendar.getTime();
+
+      GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
+      command.setFrom(desde);
+      command.setTo(hasta);
+      List<State> states = new ArrayList<State>();
+      states.add(State.pagada);
+      command.setStates(states);
+      rows = command.execute();
+    }
+
+    model.addAttribute("rows", rows);
+    return "paySummary";
+  }
+
   @RequestMapping(value="/paySummary")
   public String paySummary(@ModelAttribute("model") final ModelMap model,
       @RequestParam(required = false) Integer anioDesde,
@@ -363,6 +410,38 @@ public class ReportController {
   public String printPaySummary(@ModelAttribute("model") final ModelMap model,
       Integer anioDesde, Integer mesDesde, Integer anioHasta,
       Integer mesHasta) {
+/*    List<Row> rows = new LinkedList<Row>();
+    if (anioDesde != null && mesDesde != null && anioHasta != null
+        && mesHasta != null) {
+      Calendar calendar = Calendar.getInstance();
+      calendar.set(Calendar.YEAR, anioDesde);
+      calendar.set(Calendar.MONTH, mesDesde - 1);
+      calendar.set(Calendar.DAY_OF_MONTH, 1);
+      calendar.set(Calendar.HOUR, 0);
+      calendar.set(Calendar.MINUTE, 0);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+      Date desde = calendar.getTime();
+
+      calendar.set(Calendar.YEAR, anioHasta);
+      calendar.set(Calendar.MONTH, mesHasta - 1);
+      calendar.add(Calendar.MONTH, 1);
+      calendar.add(Calendar.DAY_OF_MONTH, -1);
+      Date hasta = calendar.getTime();
+
+      GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
+      command.setFrom(desde);
+      command.setTo(hasta);
+      List<State> states = new ArrayList<State>();
+      states.add(State.pagada);
+      command.setStates(states);
+      rows = command.execute();
+    }
+
+    model.addAttribute("rows", rows);
+    model.addAttribute("title", "Resumen de Pagos");
+    return "printSummary";*/
+
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
     String fechaDesde = "01-" + mesDesde + "-" + anioDesde;
     String fechaHasta = "01-" + (mesHasta + 1) + "-" + anioHasta;

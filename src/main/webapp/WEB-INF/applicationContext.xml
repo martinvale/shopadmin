@@ -130,11 +130,13 @@
 
   <bean id="importerService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportService">
     <constructor-arg index="0" ref="dataSource" />
-    <constructor-arg index="1" ref="debtRepository" />
-    <constructor-arg index="2" ref="clientRepository" />
-    <constructor-arg index="3" ref="branchRepository" />
-    <constructor-arg index="4" ref="shopperRepository" />
-  </bean>
+    <constructor-arg index="1" ref="orderRepository" />
+    <constructor-arg index="2" ref="debtRepository" />
+    <constructor-arg index="3" ref="clientRepository" />
+    <constructor-arg index="4" ref="branchRepository" />
+    <constructor-arg index="5" ref="shopperRepository" />
+    <constructor-arg index="6" ref="proveedorRepository" />
+    </bean>
 
   <!-- Commands -->
   <bean id="saveOrderCommand" class="com.ibiscus.shopnchek.application.order.SaveOrderCommand" scope="prototype">
@@ -152,7 +154,6 @@
 
   <bean id="payOrderCommand" class="com.ibiscus.shopnchek.application.order.PayOrderCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
-    <property name="debtRepository" ref="debtRepository" />
   </bean>
 
   <bean id="transitionOrderCommand" class="com.ibiscus.shopnchek.application.order.TransitionOrderCommand" scope="prototype">

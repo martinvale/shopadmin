@@ -22,6 +22,9 @@ import org.hibernate.annotations.FetchMode;
 @Table(name="ordenes")
 public class OrdenPago {
 
+  public static final int SHOPPER = 1;
+  public static final int PROVEEDOR = 2;
+
   @Id
   @Column(name="numero", nullable=false)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -131,10 +134,28 @@ public class OrdenPago {
     this.fechaCheque = fechaCheque;
     this.observaciones = observacion;
     this.observacionesShopper = observacionShopper;
+    for (ItemOrden item : items) {
+      if (item.getDebt() != null) {
+        item.getDebt().pagado();
+      }
+    }
   }
 
   public void transition(final OrderState state) {
     this.estado = state;
+    if (state.getId() == OrderState.VERIFICADA) {
+      for (ItemOrden item : items) {
+        if (item.getDebt() != null) {
+          item.getDebt().pagado();
+        }
+      }
+    } else {
+      for (ItemOrden item : items) {
+        if (item.getDebt() != null) {
+          item.getDebt().asignada();
+        }
+      }
+    }
   }
 
   public void updateNumero(final long unNumero) {

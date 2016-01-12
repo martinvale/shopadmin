@@ -38,7 +38,7 @@
     <p id="print-button"><button onclick="window.print()">Imprimir</button></p>
 
     <div class="container-box-plantilla">
-      <h2 class="container-tit">${model["title"]}</h2>
+      <h2 class="container-tit">${model["title"]} (impreso el ${.now})</h2>
       <table summary="${model["title"]}" class="table-form">
         <thead>
           <tr>

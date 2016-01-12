@@ -1,6 +1,7 @@
 package com.ibiscus.shopnchek.domain.admin;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -85,9 +86,9 @@ public class OrderRepository extends HibernateDaoSupport {
   public List<OrdenPago> find(final Integer start, final Integer count,
       final String orderBy, final boolean asc, final Integer tipoTitular,
       final Integer titularId, final String dniShopper, final String numeroCheque,
-      final OrderState estado) {
+      final OrderState estado, final Date fechaPagoDesde, final Date fechaPagoHasta) {
     Criteria criteria = getCriteria(tipoTitular, titularId, dniShopper,
-        numeroCheque, estado);
+        numeroCheque, estado, fechaPagoDesde, fechaPagoHasta);
     if (StringUtils.isBlank(dniShopper)) {
 	    if (start != null) {
 	      criteria.setFirstResult(start);
@@ -131,14 +132,16 @@ public class OrderRepository extends HibernateDaoSupport {
   }
 
   public Integer getCount(final Integer tipoTitular, final Integer titularId,
-      final String dniShopper, final String numeroCheque, final OrderState estado) {
+      final String dniShopper, final String numeroCheque, final OrderState estado,
+      final Date fechaPagoDesde, final Date fechaPagoHasta) {
     Criteria criteria = getCriteria(tipoTitular, titularId, dniShopper,
-            numeroCheque, estado);
+            numeroCheque, estado, fechaPagoDesde, fechaPagoHasta);
     return (Integer) criteria.setProjection(Projections.countDistinct("id")).uniqueResult();
   }
 
   private Criteria getCriteria(final Integer tipoTitular, final Integer titularId,
-      final String dniShopper, final String numeroCheque, final OrderState estado) {
+      final String dniShopper, final String numeroCheque, final OrderState estado,
+      final Date fechaPagoDesde, final Date fechaPagoHasta) {
     Criteria criteria = getSession().createCriteria(OrdenPago.class);
     if (tipoTitular != null && titularId != null) {
       criteria.add(Expression.eq("tipoProveedor", tipoTitular));
@@ -152,6 +155,12 @@ public class OrderRepository extends HibernateDaoSupport {
     }
     if (estado != null) {
       criteria.add(Expression.eq("estado", estado));
+    }
+    if (fechaPagoDesde != null) {
+      criteria.add(Expression.ge("fechaPago", fechaPagoDesde));
+    }
+    if (fechaPagoHasta != null) {
+      criteria.add(Expression.le("fechaPago", fechaPagoHasta));
     }
     criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
     return criteria;

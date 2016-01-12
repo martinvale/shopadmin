@@ -58,7 +58,7 @@ public class SearchOrderDtoCommand extends SearchCommand<OrderDto> {
 
 		List<OrdenPago> orderItems = orderRepository.find(getStart(), getPageSize(),
 				getOrderBy(), isAscending(), tipoTitular, titularId, dniShopper,
-				numeroCheque, getState());
+				numeroCheque, getState(), null, null);
 		for (OrdenPago order : orderItems) {
 			OrderDto orderDto = null;
 			if (!StringUtils.isBlank(dniShopper)) {
@@ -80,7 +80,7 @@ public class SearchOrderDtoCommand extends SearchCommand<OrderDto> {
 	@Override
 	protected int getCount() {
 		return orderRepository.getCount(tipoTitular, titularId, dniShopper,
-				numeroCheque, getState());
+				numeroCheque, getState(), null, null);
 	}
 
 	private OrderState getState() {

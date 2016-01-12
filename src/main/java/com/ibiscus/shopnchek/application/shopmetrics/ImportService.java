@@ -3,10 +3,8 @@ package com.ibiscus.shopnchek.application.shopmetrics;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.CallableStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,6 +31,11 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
+import com.ibiscus.shopnchek.domain.admin.ItemOrden;
+import com.ibiscus.shopnchek.domain.admin.OrdenPago;
+import com.ibiscus.shopnchek.domain.admin.OrderRepository;
+import com.ibiscus.shopnchek.domain.admin.Proveedor;
+import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 import com.ibiscus.shopnchek.domain.debt.Branch;
@@ -68,6 +71,8 @@ public class ImportService {
 
   private final DataSource dataSource;
 
+  private final OrderRepository orderRepository;
+
   private final DebtRepository debtRepository;
 
   private final ClientRepository clientRepository;
@@ -76,13 +81,19 @@ public class ImportService {
 
   private final ShopperRepository shopperRepository;
 
-  public ImportService(final DataSource dataSource, final DebtRepository debtRepository, final ClientRepository clientRepository,
-		  final BranchRepository branchRepository, final ShopperRepository shopperRepository) {
+  private final ProveedorRepository proveedorRepository;
+
+  public ImportService(final DataSource dataSource, final OrderRepository orderRepository,
+		  final DebtRepository debtRepository, final ClientRepository clientRepository,
+		  final BranchRepository branchRepository, final ShopperRepository shopperRepository,
+		  final ProveedorRepository proveedorRepository) {
     this.dataSource = dataSource;
+    this.orderRepository = orderRepository;
     this.debtRepository = debtRepository;
     this.clientRepository = clientRepository;
     this.branchRepository = branchRepository;
     this.shopperRepository = shopperRepository;
+    this.proveedorRepository = proveedorRepository;
   }
 
   public List<ShopmetricsUserDto> process(final InputStream inputStream) {
@@ -422,20 +433,17 @@ public class ImportService {
     Workbook workbook = new SXSSFWorkbook();
     Sheet sheet = workbook.createSheet("Ordenes");
 
-    CallableStatement cstmt = null;
-    ResultSet rs = null;
+    List<OrdenPago> orders = orderRepository.find(null, null, "numero", true, null, null, null, null,
+        null, desde, hasta);
     try {
-      int currentRow = 1;
-      int columnCount = 0;
-      cstmt = dataSource.getConnection().prepareCall(
-          "{call dbo.SProc_LISTADO_ORDENES_ENTRE_FECHAS(?, ?)}");
+      int currentRow = 2;
 
-      cstmt.setDate(1, new java.sql.Date(desde.getTime()));
-      cstmt.setDate(2, new java.sql.Date(hasta.getTime()));
-      rs = cstmt.executeQuery();
-
-      columnCount = rs.getMetaData().getColumnCount();
       Row row = sheet.createRow(0);
+      createCell(workbook, styles, row, 0, "Fecha de impresion");
+      DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+      createCell(workbook, styles, row, 1, dateFormat.format(new Date()));
+
+      row = sheet.createRow(1);
       createCell(workbook, styles, row, 0, "NUMERO");
       createCell(workbook, styles, row, 1, "TITULAR");
       createCell(workbook, styles, row, 2, "CHEQUERA");
@@ -453,37 +461,54 @@ public class ImportService {
       createCell(workbook, styles, row, 14, "IMPORTE IVA");
       createCell(workbook, styles, row, 15, "TOTAL");
 
-      while (rs.next()) {
+      for (OrdenPago order : orders) {
         row = sheet.createRow(currentRow++);
-        int skipped = 0;
-        for (int i = 0; i < columnCount; i++) {
-          if (i != 4) {
-            Object value = rs.getObject(i + 1);
-            createCell(workbook, styles, row, i - skipped, value);
+        createCell(workbook, styles, row, 0, order.getNumero());
+        String titular = null;
+        String cuit = null;
+        if (order.getTipoProveedor().equals(OrdenPago.SHOPPER)) {
+          Shopper shopper = shopperRepository.get(order.getProveedor());
+          titular = shopper.getName();
+          //cuit = shopper.getCuit();
+        } else {
+          Proveedor proveedor = proveedorRepository.get(order.getProveedor());
+          titular = proveedor.getDescription();
+          cuit = proveedor.getCuit();
+        }
+        createCell(workbook, styles, row, 1, titular);
+        createCell(workbook, styles, row, 2, order.getNumeroChequera());
+        createCell(workbook, styles, row, 3, order.getNumeroCheque());
+        createCell(workbook, styles, row, 4, order.getIdTransferencia());
+        createCell(workbook, styles, row, 5, order.getEstado().getDescription());
+        createCell(workbook, styles, row, 6, order.getTipoFactura());
+        createCell(workbook, styles, row, 7, order.getNumeroFactura());
+        createCell(workbook, styles, row, 8, order.getIva());
+        createCell(workbook, styles, row, 9, cuit);
+        createCell(workbook, styles, row, 10, order.getFechaPago());
+        double honorarios = 0;
+        double reintegros = 0;
+        double otrosGastos = 0;
+        for (ItemOrden item : order.getItems()) {
+          if (item.getTipoPago().getDescription().equals(com.ibiscus.shopnchek.domain.admin.TipoPago.HONORARIOS)) {
+            honorarios += item.getImporte();
+          } else if (item.getTipoPago().getDescription().equals(com.ibiscus.shopnchek.domain.admin.TipoPago.REINTEGROS)) {
+            reintegros += item.getImporte();
           } else {
-            skipped++;
+            otrosGastos += item.getImporte();
           }
         }
+        createCell(workbook, styles, row, 11, reintegros);
+        createCell(workbook, styles, row, 12, otrosGastos);
+        createCell(workbook, styles, row, 13, honorarios);
+        double ivaHonorarios = (order.getIva() * honorarios) / 100;
+        createCell(workbook, styles, row, 14, ivaHonorarios);
+        double total = honorarios + reintegros + otrosGastos + ivaHonorarios;
+        createCell(workbook, styles, row, 15, total);
       }
 
       workbook.write(outputStream);
-    } catch (Exception ex) {
-      logger.log(Level.SEVERE, null, ex);
-    } finally {
-      if (rs != null) {
-        try {
-          rs.close();
-        } catch (SQLException ex) {
-          logger.log(Level.WARNING, null, ex);
-        }
-      }
-      if (cstmt != null) {
-        try {
-          cstmt.close();
-        } catch (SQLException ex) {
-          logger.log(Level.WARNING, null, ex);
-        }
-      }
+    } catch (IOException e) {
+      logger.log(Level.SEVERE, "Cannot export the orders", e);
     }
   }
 

@@ -33,7 +33,7 @@ public class GetMcdPendingDebtCommand extends AbstractGetPendingDebtCommand {
 			cstmt = getDataSource().getConnection().prepareCall(
 					"{call dbo.itemsDeudaMCD(?)}");
 
-			cstmt.setLong(1, lastProcessedId);
+			cstmt.setLong(1, lastProcessedId - 200L);
 			rs = cstmt.executeQuery();
 			while (rs.next()) {
 				TipoPago tipoPago = TipoPago.valueOf(rs.getString("tipoPago"));

@@ -337,7 +337,7 @@ public class ReportService {
           + "sum(case when items_orden.tipo_pago = 3 then items_orden.importe else 0 end) as otros "
           + "from ordenes "
           + "inner join items_orden on (ordenes.numero = items_orden.orden_nro) "
-          + "where ordenes.estado = 4 and ordenes.fecha_pago >= ? and ordenes.fecha_pago <= ? "
+          + "where (ordenes.estado = 4 or ordenes.estado = 2) and ordenes.fecha_pago >= ? and ordenes.fecha_pago <= ? "
           + "group by year(ordenes.fecha_pago), month(ordenes.fecha_pago) "
           + "order by year(ordenes.fecha_pago), month(ordenes.fecha_pago)");
       statement.setDate(1, new java.sql.Date(desde.getTime()));

@@ -10,13 +10,10 @@ import com.ibiscus.shopnchek.domain.admin.MedioPago;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
 import com.ibiscus.shopnchek.domain.admin.OrderState;
-import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 
 public class PayOrderCommand implements Command<OrdenPago> {
 
 	private OrderRepository orderRepository;
-
-	private DebtRepository debtRepository;
 
 	private long numero;
 
@@ -41,31 +38,16 @@ public class PayOrderCommand implements Command<OrdenPago> {
 	public OrdenPago execute() {
 		MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
 		OrderState state = null;
-		/*if (medioPago.getId() == 3) {
-			state = orderRepository.getOrderState(OrderState.CERRADA);
-		} else {
-			state = orderRepository.getOrderState(OrderState.PAGADA);
-		}*/
 		state = orderRepository.getOrderState(stateId);
 
 		OrdenPago order = orderRepository.get(numero);
 		order.pagar(state, medioPago, idTransferencia, numeroChequera, numeroCheque,
 				fechaCheque, observaciones, observacionesShopper);
-		/*for (ItemOrden item : order.getItems()) {
-			Debt debt = debtRepository.get(item.getAsignacion());
-			if (debt != null) {
-				debt.pagado();
-			}
-		}*/
 		return order;
 	}
 
 	public void setOrderRepository(final OrderRepository orderRepository) {
 		this.orderRepository = orderRepository;
-	}
-
-	public void setDebtRepository(final DebtRepository debtRepository) {
-		this.debtRepository = debtRepository;
 	}
 
 	public void setNumero(final long numero) {

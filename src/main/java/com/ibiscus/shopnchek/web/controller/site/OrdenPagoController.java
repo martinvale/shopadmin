@@ -1,8 +1,6 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -191,52 +189,6 @@ public class OrdenPagoController {
     Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
     model.addAttribute("titular", shopper);
     return "redirect:" + ordenPago.getNumero();
-  }
-
-  @RequestMapping(value="createAnt", method=RequestMethod.POST)
-  public String createOrdenAnt(@ModelAttribute("model") final ModelMap model,
-      int tipoTitular, int titularId, String tipoFactura,
-      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
-      long estadoId, long medioPagoId,
-      @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva,
-      String numeroFactura,
-      String fechaCheque, String chequeraNumero,
-      String chequeNumero,
-      String transferId, String localidad, String observaciones,
-      String observacionesShopper) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
-    model.addAttribute("orderStates", orderRepository.findOrderStates());
-    model.addAttribute("mediosPago", orderRepository.findMediosPago());
-    Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.MONTH, -4);
-    model.addAttribute("fechaDesde", calendar.getTime());
-
-    OrderState state = orderRepository.getOrderState(estadoId);
-    MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
-    OrdenPago ordenPago = null;
-    Date fechaChequeValue = null;
-    if (fechaCheque != null && !fechaCheque.isEmpty()) {
-      SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-      try {
-        fechaChequeValue = dateFormat.parse(fechaCheque);
-      } catch (ParseException e) {
-        throw new RuntimeException("Cannot parse the following date: "
-            + fechaCheque, e);
-      }
-    }
-    /*ordenPago.update(tipoTitular, titularId, tipoFactura, fechaPago, state,
-        medioPago, iva, numeroFactura, fechaChequeValue, chequeraNumero,
-        chequeNumero, transferId, localidad, observaciones,
-        observacionesShopper);*/
-
-    long numeroOrden = orderRepository.save(ordenPago);
-    ordenPago = orderRepository.get(numeroOrden);
-    model.addAttribute("ordenPago", ordenPago);
-    Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-    model.addAttribute("titular", shopper);
-    return "redirect:" + numeroOrden;
   }
 
   @RequestMapping(value="save", method=RequestMethod.POST)
@@ -499,6 +451,7 @@ public class OrdenPagoController {
     } else {
       Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
       model.addAttribute("titularNombre", proveedor.getDescription());
+      model.addAttribute("bancoAsociado", proveedor.getBanco());
     }
     return "remito";
   }

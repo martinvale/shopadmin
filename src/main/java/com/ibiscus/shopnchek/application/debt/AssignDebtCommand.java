@@ -108,10 +108,7 @@ public class AssignDebtCommand implements Command<Boolean> {
 					dateFormat.format(debt.getFecha()), debt.getImporte(), description, 1);
 			itemOrden.updateShopper(shopper);
 			orderRepository.saveItem(itemOrden);
-			/*if (debt.getTipoItem() == TipoItem.manual && asignacion != null) {
-				itemsOrdenService.linkAdicional(asignacion, order.getNumero());
-			}*/
-			debt.pagado();
+			debt.asignada();
 		}
 		return true;
 	}
