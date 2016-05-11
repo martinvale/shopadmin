@@ -392,6 +392,7 @@ public class OrdenPagoController {
     searchOrderDtoCommand.setTipoTitular(tipoTitular);
     searchOrderDtoCommand.setTitularId(titularId);
     searchOrderDtoCommand.setDniShopper(dniShopper);
+    searchOrderDtoCommand.setNumeroCheque(numeroCheque);
     searchOrderDtoCommand.setStateId(estadoId);
     ResultSet<OrderDto> rsOrdenes = searchOrderDtoCommand.execute();
 

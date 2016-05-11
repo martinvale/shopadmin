@@ -90,6 +90,10 @@ App.widget.FeedEditor = function (container) {
           <div class="box-gray">
             <fieldset>
               <div class="form-shop-row">
+                <label for="active">Activo</label>
+                <input id="active" type="checkbox" name="active" <#if feed.active>checked="checked"</#if> />
+              </div>
+              <div class="form-shop-row">
                 <label for="from">Fecha de reset</label>
                 <input id="from" type="text" name="from" value="" class="item-field" />
               </div>

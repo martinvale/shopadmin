@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,6 +33,8 @@ import com.ibiscus.shopnchek.application.debt.SearchDebtCommand;
 import com.ibiscus.shopnchek.application.debt.SearchDebtDtoCommand;
 import com.ibiscus.shopnchek.application.debt.UpdateImporteDebtCommand;
 import com.ibiscus.shopnchek.application.debt.VisitaDto;
+import com.ibiscus.shopnchek.domain.admin.Shopper;
+import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 import com.ibiscus.shopnchek.domain.debt.BranchRepository;
 import com.ibiscus.shopnchek.domain.debt.ClientRepository;
 import com.ibiscus.shopnchek.domain.debt.Debt;
@@ -53,6 +56,9 @@ public class DebtController {
 
 	@Autowired
 	private BranchRepository branchRepository;
+
+	@Autowired
+	private ShopperRepository shopperRepository;
 
 	@Autowired
 	private CreateDebtCommand createDebtCommand;
@@ -115,6 +121,12 @@ public class DebtController {
 		model.put("from", from);
 		model.put("to", to);
 
+		if (!StringUtils.isBlank(shopperDni)) {
+			Shopper shopper = shopperRepository.findByDni(shopperDni);
+			if (shopper != null) {
+				model.put("shopper", shopper);
+			}
+		}
 		model.put("tiposPago", TipoPago.values());
 		model.put("tiposItem", TipoItem.values());
 		return "listDebt";

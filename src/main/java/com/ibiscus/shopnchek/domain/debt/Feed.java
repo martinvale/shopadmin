@@ -32,6 +32,11 @@ public class Feed {
 		this.lastProcessedId = lastProcessedId;
 	}
 
+	public void update(final Long lastProcessedId, final boolean active) {
+		this.lastProcessedId = lastProcessedId;
+		this.active = active;
+	}
+
 	public long getId() {
 		return id;
 	}

@@ -22,6 +22,8 @@ public class SaveFeedCommand implements Command<Feed> {
 
 	private String code;
 
+	private boolean active;
+
 	private Date from;
 
 	public SaveFeedCommand() {
@@ -39,7 +41,7 @@ public class SaveFeedCommand implements Command<Feed> {
 		if (!debts.isEmpty()) {
 			lastProcessedId = debts.get(0).getExternalId();
 		}
-		feed.update(lastProcessedId);
+		feed.update(lastProcessedId, active);
 		return feed;
 	}
 
@@ -53,6 +55,10 @@ public class SaveFeedCommand implements Command<Feed> {
 
 	public void setCode(final String code) {
 		this.code = code;
+	}
+
+	public void setActive(final boolean active) {
+		this.active = active;
 	}
 
 	public void setFrom(final Date from) {

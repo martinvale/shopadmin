@@ -2,6 +2,7 @@ package com.ibiscus.shopnchek.domain.debt;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
@@ -11,10 +12,13 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import com.ibiscus.shopnchek.application.debt.AbstractGetPendingDebtCommand;
 import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.util.Row;
 
 public class DebtRepository extends HibernateDaoSupport {
+
+	private static Logger logger = Logger.getLogger(DebtRepository.class.getName());
 
 	public Debt get(final long id) {
 		return getHibernateTemplate().get(Debt.class, id);
@@ -154,6 +158,7 @@ public class DebtRepository extends HibernateDaoSupport {
 				criteria.addOrder(Order.desc(orderBy));
 			}
 		}
+		logger.info("Debt query: " + criteria);
 		return criteria.list();
 	}
 

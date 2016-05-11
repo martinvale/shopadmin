@@ -42,7 +42,7 @@ public class FeedController {
 
 	@RequestMapping(value="/{code}", method = RequestMethod.POST)
 	public String update(@ModelAttribute("model") final ModelMap model,
-			@PathVariable("code") String code,
+			@PathVariable("code") String code, boolean active,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date from) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
@@ -50,6 +50,7 @@ public class FeedController {
 
 		saveFeedCommand.setCode("mcd_items_debt");
 		saveFeedCommand.setFrom(from);
+		saveFeedCommand.setActive(active);
 		Feed feed = saveFeedCommand.execute();
 		model.put("feed", feed);
 
