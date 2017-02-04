@@ -52,4 +52,5 @@ public class ShopperRepository extends HibernateDaoSupport {
   public Shopper get(final long id) {
     return (Shopper) getSession().get(Shopper.class, id);
   }
+
 }

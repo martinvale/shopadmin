@@ -370,8 +370,8 @@ public class OrdenPagoController {
       @RequestParam(required = false, defaultValue = "1") Integer page,
       @RequestParam(required = false, defaultValue = "fechaPago") String orderBy,
       @RequestParam(required = false, defaultValue = "false") Boolean ascending,
-      Long numeroOrden, Integer tipoTitular, Integer titularId,
-      String dniShopper, String numeroCheque, Long estadoId) {
+      Long numeroOrden, Integer tipoTitular, Integer titularId, String shopper,
+      String shopperDni, Long shopperId, String numeroCheque, Long estadoId) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
@@ -379,8 +379,8 @@ public class OrdenPagoController {
 
     if (titularId != null) {
       if (tipoTitular.equals(1)) {
-        Shopper shopper = shopperRepository.get(titularId);
-        model.addAttribute("titularNombre", shopper.getName());
+        Shopper shopperTitular = shopperRepository.get(titularId);
+        model.addAttribute("titularNombre", shopperTitular.getName());
       } else {
         Proveedor proveedor = proveedorRepository.get(titularId);
         model.addAttribute("titularNombre", proveedor.getDescription());
@@ -391,7 +391,7 @@ public class OrdenPagoController {
     searchOrderDtoCommand.setOrderBy(orderBy, ascending);
     searchOrderDtoCommand.setTipoTitular(tipoTitular);
     searchOrderDtoCommand.setTitularId(titularId);
-    searchOrderDtoCommand.setDniShopper(dniShopper);
+    searchOrderDtoCommand.setDniShopper(shopperDni);
     searchOrderDtoCommand.setNumeroCheque(numeroCheque);
     searchOrderDtoCommand.setStateId(estadoId);
     ResultSet<OrderDto> rsOrdenes = searchOrderDtoCommand.execute();
@@ -405,7 +405,9 @@ public class OrdenPagoController {
     model.put("tipoTitular", tipoTitular);
     model.put("titularId", titularId);
     model.put("state", estadoId);
-    model.put("dniShopper", dniShopper);
+    model.put("shopperDni", shopperDni);
+    model.put("shopperId", shopperId);
+    model.put("shopper", shopper);
     model.put("numeroCheque", numeroCheque);
 
     return "buscadorOrdenPago";

@@ -45,6 +45,10 @@ App.widget.Buscador = function (container) {
       titularSelector = new App.widget.TitularSelector(
           container.find(".js-titular-selector"));
       titularSelector.render();
+
+      var shopperSelector = new App.widget.ShopperSelector(jQuery(".js-shopper-selector"));
+      shopperSelector.render();
+
       initEventListeners();
     }
   }
@@ -57,6 +61,7 @@ App.widget.Buscador = function (container) {
     </script>
 
     <script src="../script/TitularSelector.js"></script>
+    <script src="../script/ShopperSelector.js"></script>
     <script src="../script/LoadingIndicator.js"></script>
 
   </head>
@@ -109,9 +114,12 @@ App.widget.Buscador = function (container) {
                 <input type="hidden" name="titularId" value="${titularId}" class="js-titular-id" />
               </div>
             </div>
-            <div class="field">
-              <label for="dniShopper">DNI del shopper</label>
-              <input id="dniShopper" type="text" name="dniShopper" value="${model["dniShopper"]!""}" />
+            <div class="field js-shopper-selector">
+              <label for="shopper">Shopper incluido en la orden</label>
+              <input type="text" id="shopper" name="shopper" value="${model['shopper']!''}" class="js-shopper" />
+              <a id="clear-shopper" href="#" class="clear js-clear">limpiar</a>
+              <input type="hidden" name="shopperId" value="${(model['shopperId']?c)!''}" class="js-shopper-id" />
+              <input type="hidden" name="shopperDni" value="${model['shopperDni']!''}" class="js-shopper-dni" />
             </div>
             <div class="field">
               <label for="numeroCheque">Nro de cheque</label>

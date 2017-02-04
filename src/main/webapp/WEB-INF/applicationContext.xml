@@ -251,8 +251,12 @@
   <bean id="saveUserCommand" class="com.ibiscus.shopnchek.application.security.SaveUserCommand" scope="prototype">
     <property name="userRepository" ref="userRepository" />
     <property name="roleRepository" ref="roleRepository" />
-    </bean>
+  </bean>
 
+  <bean id="saveShopperCommand" class="com.ibiscus.shopnchek.application.shopper.SaveShopperCommand" scope="prototype">
+    <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+  
   <!-- Properties -->
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="/WEB-INF/shopnchek.properties" />

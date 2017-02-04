@@ -42,7 +42,7 @@
 
 .heading {
   font-size: 25px;
-  line-height: 35px;
+  line-height: 30px;
 }
 
 .name {

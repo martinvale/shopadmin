@@ -14,7 +14,7 @@ import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 
 @Controller
 @RequestMapping(value="/services/shoppers")
-public class ShopperController {
+public class ShopperServicesController {
 
   /** Repository of shoppers. */
   @Autowired

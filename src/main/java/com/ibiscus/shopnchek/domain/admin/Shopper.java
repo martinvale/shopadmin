@@ -56,4 +56,8 @@ public class Shopper {
   public Integer getPais() {
     return pais;
   }
+
+  public void update(final String login) {
+	  this.login = login;
+  }
 }

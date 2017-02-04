@@ -1,4 +1,4 @@
-App.widget.ShopperSelector = function (container, skipValidation, url) {
+App.widget.ShopperSelector = function (container, skipValidation, url, onSelect) {
 
   var selector = container.find(".js-shopper");
 
@@ -7,6 +7,8 @@ App.widget.ShopperSelector = function (container, skipValidation, url) {
   var serviceUrl = url || "../services/shoppers/suggest";
 
   var currentShopper = null;
+
+  var selectHandler = onSelect || function () {};
 
   var highlight = function (value, term) {
     var matcher = new RegExp("(" + $.ui.autocomplete.escapeRegex(term) + ")", "ig");
@@ -32,6 +34,7 @@ App.widget.ShopperSelector = function (container, skipValidation, url) {
         selector.val(ui.item.name);
         container.find(".js-shopper-id").val(ui.item.id);
         container.find(".js-shopper-dni").val(ui.item.dni);
+        selectHandler(ui.item);
         return false;
       }
     });
