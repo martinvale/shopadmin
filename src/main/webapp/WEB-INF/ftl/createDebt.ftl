@@ -17,6 +17,9 @@
     <script src="<@spring.url '/script/pure.min.js'/>"></script>
     <script src="<@spring.url '/script/livevalidation.js'/>"></script>
 
+    <script src="<@spring.url '/script/spin.js'/>"></script>
+    <script src="<@spring.url '/script/jquery.spin.js'/>"></script>
+
     <#assign actionUrl = "create" />
     <#assign readOnly = model["readOnly"]!true />
     <#if model["debt"]??>
@@ -37,6 +40,8 @@ App.widget.AdicionalEditor = function (container) {
   var branchSelector = container.find(".js-sucursales");
 
   var itemTemplate = container.find(".js-items tbody tr");
+
+  var loadingIndicator = new App.widget.LoadingIndicator(container);
 
   var shopperSelector = new App.widget.ShopperSelector(
       container.find(".js-shopper-selector"), false, "<@spring.url '/services/shoppers/suggest' />");
@@ -60,38 +65,16 @@ App.widget.AdicionalEditor = function (container) {
     });
 
     container.find(".js-add").click(function () {
-      //resetVisitaValidations();
       if (LiveValidation.massValidate(validations)) {
         jQuery(this).prop('disabled', true);
-        var items = [];
-        container.find(".js-items tbody tr").each(function (index) {
-          var row = jQuery(this);
-          items.push({
-            tipoPago: row.find("[name='tipoPago']").val(),
-            importe: row.find("[name='importe']").val(),
-            observacion: row.find("[name='observaciones']").val()
-          });
-        });
-        jQuery.ajax({
-          headers: { 
-            'Accept': 'application/json',
-            'Content-Type': 'application/json' 
-          },
-          url: "${actionUrl}",
-          dataType: 'json',
-          data: JSON.stringify({
-            "shopperDni": container.find(".js-shopper-dni").val(),
-            "clientId": container.find(".js-client-id").val(),
-            "clientDescription": container.find(".js-clients").val(),
-            "branchId": container.find(".js-sucursales").val(),
-            "branchDescription": container.find(".js-sucursal-description").val(),
-            "fecha": container.find(".js-fecha-visita").val(),
-            "items": items
-          }),
-          method: 'POST'
-        }).done(function (data) {
-          location.href = 'list';
-        })
+        save(true);
+      }
+    });
+
+    container.find(".js-add-and-continue").click(function () {
+      if (LiveValidation.massValidate(validations)) {
+        jQuery(this).prop('disabled', true);
+        save(false);
       }
     });
 
@@ -109,6 +92,60 @@ App.widget.AdicionalEditor = function (container) {
       });
     });
   };
+
+  var resetForm = function () {
+    container.find(".js-items tbody").empty();
+    rowIndex = 1;
+    container.find('.js-items tbody').append('<tr id="item-' + rowIndex + '">' + itemTemplate.html() + '</tr>');
+    container.find("#item-" + rowIndex + " .js-remove-item").click(function () {
+      event.preventDefault();
+      jQuery(this).parent('td').parent('tr').remove();
+    });
+    container.find(".js-clients").val("");
+    container.find(".js-client-id").val("");
+    container.find(".js-sucursales").val("");
+    container.find(".js-sucursal-description").val("");
+  }
+
+  var save = function (redirectToList) {
+    loadingIndicator.start();
+    var items = [];
+    container.find(".js-items tbody tr").each(function (index) {
+      var row = jQuery(this);
+      items.push({
+        tipoPago: row.find("[name='tipoPago']").val(),
+        importe: row.find("[name='importe']").val(),
+        observacion: row.find("[name='observaciones']").val()
+      });
+    });
+    jQuery.ajax({
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      url: "${actionUrl}",
+      dataType: 'json',
+      data: JSON.stringify({
+        "shopperDni": container.find(".js-shopper-dni").val(),
+        "clientId": container.find(".js-client-id").val(),
+        "clientDescription": container.find(".js-clients").val(),
+        "branchId": container.find(".js-sucursales").val(),
+        "branchDescription": container.find(".js-sucursal-description").val(),
+        "fecha": container.find(".js-fecha-visita").val(),
+        "items": items
+      }),
+      method: 'POST'
+    }).done(function (data) {
+      if (redirectToList) {
+        location.href = 'list';
+      } else {
+        resetForm();
+        container.find(".js-add-and-continue").prop('disabled', false);
+        container.find(".js-clients").focus();
+        loadingIndicator.stop();
+      }
+    })
+  }
 
   var updateBranchs = function (branchs) {
     branchSelector.empty();
@@ -165,6 +202,7 @@ App.widget.AdicionalEditor = function (container) {
     </script>
 
     <script src="<@spring.url '/script/ShopperSelector.js'/>"></script>
+    <script src="<@spring.url '/script/LoadingIndicator.js'/>"></script>
 
   </head>
   <body>
@@ -249,7 +287,8 @@ App.widget.AdicionalEditor = function (container) {
               <#if debt?? && readOnly>
                 <a href="<@spring.url '/debt/edit/${debt.id?c}'/>" class="btn-shop-small">Editar</a>
               <#else>
-                <input type="button" class="btn-shop-small js-add" value="Guardar" />
+                <input type="button" class="btn-shop-small js-add" value="Guardar y volver a la lista" />
+                <input type="button" class="btn-shop-small js-add-and-continue" value="Guardar y continuar" />
               </#if>
             </li>
           </ul>
