@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="../css/shop.css">
     <link rel="stylesheet" href="../css/custom.css">
 
+    <link rel="stylesheet" href="../font-awesome/css/font-awesome.min.css">
+
     <script src="../script/jquery.js"></script>
     <script src="../script/jquery-ui.js"></script>
     <script src="../script/pure.min.js"></script>
@@ -24,6 +26,50 @@
       window.App = window.App || {};
 
       App.widget = App.widget || {};
+
+      App.widget.Table = function (container, order, form) {
+
+        var orderBy = order.orderBy;
+
+        var ascending = order.ascending;
+
+        var setOrder = function (field) {
+          var isCurrentField = false;
+          if (field == orderBy) {
+            ascending = !ascending;
+          } else {
+            orderBy = field;
+          }
+          return {'orderBy': orderBy, 'ascending': ascending};
+        }
+
+        var initEventListeners = function() {
+          container.find(".js-order").click(function () {
+            event.preventDefault();
+            var header = jQuery(event.target);
+            var arrow = header.find(".fa");
+            var field = event.currentTarget.id.substring(6);
+            var orderDefinition = setOrder(field);
+
+            container.find(".js-order").removeClass("selected");
+            header.addClass("selected");
+            if (orderDefinition.ascending) {
+              arrow.removeClass("fa-angle-down");
+              arrow.addClass("fa-angle-up");
+            } else {
+              arrow.removeClass("fa-angle-up");
+              arrow.addClass("fa-angle-down");
+            };
+            form.setOrder(field, ascending);
+          });
+        };
+
+        return {
+          render: function() {
+            initEventListeners();
+          }
+        }
+      }
 
       App.widget.AdicionalEditor = function (container) {
 
@@ -55,6 +101,11 @@
               }
             });
             initEventListeners();
+          },
+          setOrder: function (orderBy, ascending) {
+            container.find("input[name='orderBy']").val(orderBy);
+            container.find("input[name='ascending']").val(ascending);
+            container.submit();
           }
         }
 
@@ -67,6 +118,12 @@
         var formElement = jQuery(".js-search-form");
         var form = App.widget.AdicionalEditor(formElement);
         form.render();
+
+        var tableElement = jQuery(".js-results");
+        var orderBy = '${model['orderBy']}';
+        var ascending = ${model['ascending']?c};
+        var table = App.widget.Table(tableElement, {'orderBy': orderBy, 'ascending': ascending}, form);
+        table.render();
       });
 
     </script>
@@ -81,6 +138,8 @@
     <div class="container-box-plantilla">
       <h2 class="container-tit">B&uacute;squeda de adicionales</h2>
       <form action="" class="form-shop form-shop-big js-search-form" method="GET">
+        <input type="hidden" name="orderBy" value="${model['orderBy']!'fecha'}" class="js-order-by" />
+        <input type="hidden" name="ascending" value="${model['ascending']?c}" class="js-ascending" />
           <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
                   <div class="ch-popover-content">
                       Revisa los datos. Debes completar campos "Número" y "Factura".
@@ -125,15 +184,15 @@
           <li><input type="submit" value="Buscar" class="btn-shop-small"></li>
         </ul>
       </form>
-      <table summary="Lista de adicionales" class="table-form">
+      <table summary="Lista de adicionales" class="table-form js-results">
         <thead>
           <tr>
             <th scope="col">Shopper</th>
-            <th scope="col">Cliente</th>
+            <th scope="col"><a id="order-client" href="#" class="js-order <#if model['orderBy'] == 'client'>selected</#if>">Cliente <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
             <th scope="col">Sucursal</th>
-            <th scope="col">Pago</th>
+            <th scope="col"><a id="order-tipoPago" href="#" class="js-order <#if model['orderBy'] == 'tipoPago'>selected</#if>">Pago <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
             <th scope="col">Importe</th>
-            <th scope="col">F. Visita</th>
+            <th scope="col"><a id="order-fecha" href="#" class="js-order <#if model['orderBy'] == 'fecha'>selected</#if>">F. Visita <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
             <th scope="col">Autoriza</th>
             <th scope="col">Nro OP</th>
           </tr>

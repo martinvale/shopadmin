@@ -84,7 +84,7 @@ public class DebtController {
 	@RequestMapping(value="/list")
 	public String searchDebt(@ModelAttribute("model") final ModelMap model,
 			@RequestParam(required = false, defaultValue = "1") Integer page,
-			@RequestParam(required = false, defaultValue = "fechaCreacion") String orderBy,
+			@RequestParam(required = false, defaultValue = "fecha") String orderBy,
 			@RequestParam(required = false, defaultValue = "false") Boolean ascending,
 			String shopperDni, String tipoPago, String tipoItem,
 			@DateTimeFormat(pattern="dd/MM/yyyy") Date from,
@@ -115,6 +115,8 @@ public class DebtController {
 		model.put("result", resultSet);
 		model.put("page", page);
 		model.put("pageSize", 25);
+		model.put("orderBy", orderBy);
+		model.put("ascending", ascending);
 		model.put("shopperDni", shopperDni);
 		model.put("tipoPago", tipoPago);
 		model.put("tipoItem", tipoItem);

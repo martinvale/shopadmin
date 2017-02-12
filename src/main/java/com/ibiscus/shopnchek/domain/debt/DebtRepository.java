@@ -152,10 +152,14 @@ public class DebtRepository extends HibernateDaoSupport {
 			criteria.setMaxResults(count);
 		}
 		if (orderBy != null) {
+			criteria.createAlias("client", "c");
 			if (asc) {
 				criteria.addOrder(Order.asc(orderBy));
 			} else {
 				criteria.addOrder(Order.desc(orderBy));
+			}
+			if (!orderBy.equals("fecha")) {
+				criteria.addOrder(Order.asc("fecha"));
 			}
 		}
 		logger.info("Debt query: " + criteria);

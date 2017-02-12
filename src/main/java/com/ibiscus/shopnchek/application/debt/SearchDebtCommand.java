@@ -105,4 +105,14 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 		return debtRepository.getCount(shopperDni, state, from, to, getTipoPago(),
 				getTipoItem(), ownerUsername);
 	}
+
+	@Override
+	protected String getOrderBy() {
+		String orderBy = super.getOrderBy();
+		if (orderBy.equals("client")) {
+			orderBy = "c.name";
+		}
+		return orderBy;
+	}
+
 }
