@@ -1,6 +1,10 @@
 package com.ibiscus.shopnchek.application.shopmetrics;
 
-public class ShopmetricsUserDto {
+import java.io.Serializable;
+
+public class ShopmetricsUserDto implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private String login;
   private String lastName;

@@ -22,4 +22,17 @@ public class BranchRepository extends HibernateDaoSupport {
 		criteria.add(Expression.eq("name", name));
 		return criteria.list();
 	}
+
+	@SuppressWarnings("unchecked")
+	public Branch findByCode(final Client client, final String code) {
+		Criteria criteria = getSession().createCriteria(Branch.class);
+		criteria.add(Expression.eq("code", code));
+		criteria.add(Expression.eq("client", client));
+		Branch branch = null;
+		List<Branch> branchs = criteria.list();
+		if (branchs.size() > 0) {
+			branch = branchs.get(0);
+		}
+		return branch;
+	}
 }

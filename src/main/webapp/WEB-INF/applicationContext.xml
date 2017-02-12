@@ -119,6 +119,10 @@
     <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
 
+  <bean id="batchTaskStatusRepository" class="com.ibiscus.shopnchek.domain.tasks.BatchTaskStatusRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
   <!-- Services -->
   <bean id="itemsOrdenService" class="com.ibiscus.shopnchek.application.order.ItemsOrdenService">
     <constructor-arg index="0" ref="dataSource" />
@@ -136,7 +140,8 @@
     <constructor-arg index="4" ref="branchRepository" />
     <constructor-arg index="5" ref="shopperRepository" />
     <constructor-arg index="6" ref="proveedorRepository" />
-    </bean>
+    <constructor-arg index="7" ref="batchTaskStatusRepository" />
+  </bean>
 
   <!-- Commands -->
   <bean id="saveOrderCommand" class="com.ibiscus.shopnchek.application.order.SaveOrderCommand" scope="prototype">

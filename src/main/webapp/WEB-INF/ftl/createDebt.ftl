@@ -49,30 +49,6 @@ App.widget.AdicionalEditor = function (container) {
       failureMessage: "La fecha del adicional es obligatoria"
     });
     validations.push(fechaValidation);
-
-    /*var importeValidation = new LiveValidation("importe");
-    importeValidation.add(Validate.Presence, {
-      failureMessage: "El importe es obligatorio"
-    });
-    importeValidation.add(Validate.Numericality, {
-      minimum: 0,
-      notANumberMessage: "El importe debe ser un numero mayor que 0",
-      tooLowMessage: "El importe debe ser un numero mayor que 0"
-    });
-    validations.push(importeValidation);*/
-
-    /*var tipoPagoValidation = new LiveValidation("tipoPago");
-    tipoPagoValidation.add(Validate.Custom, {
-      against: function (value, args) {
-        var tipoPago = container.find("select[name='tipoPagoId']").val();
-        var isValid = true;
-        if (tipoPago !== '3' && itemId === '') {
-          isValid = jQuery.inArray(tipoPago, adicionales) === -1;
-        }
-        return isValid;
-      },
-      failureMessage: "Este tipo de pago no esta disponible para el mismo dia"
-    });*/
   };
 
   var initEventListeners = function() {
@@ -86,6 +62,7 @@ App.widget.AdicionalEditor = function (container) {
     container.find(".js-add").click(function () {
       //resetVisitaValidations();
       if (LiveValidation.massValidate(validations)) {
+        jQuery(this).prop('disabled', true);
         var items = [];
         container.find(".js-items tbody tr").each(function (index) {
           var row = jQuery(this);

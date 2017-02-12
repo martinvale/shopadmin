@@ -1,35 +1,33 @@
 package com.ibiscus.shopnchek.application.shopmetrics;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.sql.DataSource;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
@@ -38,36 +36,15 @@ import com.ibiscus.shopnchek.domain.admin.Proveedor;
 import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
-import com.ibiscus.shopnchek.domain.debt.Branch;
 import com.ibiscus.shopnchek.domain.debt.BranchRepository;
-import com.ibiscus.shopnchek.domain.debt.Client;
 import com.ibiscus.shopnchek.domain.debt.ClientRepository;
-import com.ibiscus.shopnchek.domain.debt.Debt;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
-import com.ibiscus.shopnchek.domain.debt.TipoItem;
-import com.ibiscus.shopnchek.domain.debt.TipoPago;
+import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatus;
+import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatusRepository;
 
 public class ImportService {
 
-  private static final String OK_FOR_BILLING = "OK";
-
-  private static final int ColSurveyID = 0;
-  private static final int ColCliente = 1;
-  private static final int ColApellido = 2;
-  private static final int ColNombre = 3;
-  private static final int Collogin = 4;
-  private static final int ColFecha = 5;
-  private static final int ColSubcuestionario = 6;
-  private static final int ColIDSucursal = 7;
-  private static final int ColNombreSucursal = 8;
-  private static final int ColDireccionSucursal = 9;
-  private static final int ColCiudadSucursal = 10;
-  private static final int ColHonorarios = 11;
-  private static final int ColReintegros = 12;
-  private static final int Colmoneda = 14;
-  private static final int ColOK_Pay = 15;
-
-  private final Logger logger = Logger.getLogger(ImportService.class.getName());
+  private final Logger logger = LoggerFactory.getLogger(ImportService.class);
 
   private final DataSource dataSource;
 
@@ -83,10 +60,14 @@ public class ImportService {
 
   private final ProveedorRepository proveedorRepository;
 
+  private final BatchTaskStatusRepository batchTaskStatusRepository;
+
+  private ExecutorService executor = Executors.newFixedThreadPool(10);
+
   public ImportService(final DataSource dataSource, final OrderRepository orderRepository,
 		  final DebtRepository debtRepository, final ClientRepository clientRepository,
 		  final BranchRepository branchRepository, final ShopperRepository shopperRepository,
-		  final ProveedorRepository proveedorRepository) {
+		  final ProveedorRepository proveedorRepository, final BatchTaskStatusRepository batchTaskStatusRepository) {
     this.dataSource = dataSource;
     this.orderRepository = orderRepository;
     this.debtRepository = debtRepository;
@@ -94,336 +75,37 @@ public class ImportService {
     this.branchRepository = branchRepository;
     this.shopperRepository = shopperRepository;
     this.proveedorRepository = proveedorRepository;
+    this.batchTaskStatusRepository = batchTaskStatusRepository;
   }
 
-  public List<ShopmetricsUserDto> process(final InputStream inputStream) {
-    List<ShopmetricsUserDto> users = new LinkedList<ShopmetricsUserDto>();
+  /** Creates an import process to be executed asynchronously.
+   *
+   * @param inputStream The input stream to parse, cannot be null.
+   *
+   * @return The name identifier of the new process, never returns null.
+   */
+  public String process(String fileName, final InputStream inputStream) {
+	String processName = null;
+	File tempFile = null;
+    FileOutputStream fileOutputStream = null;
+	try {
+		tempFile = File.createTempFile(fileName, null);
+		fileOutputStream = new FileOutputStream(tempFile);
+		IOUtils.copy(inputStream, fileOutputStream);
+	} catch (IOException e) {
+		logger.error("Cannot copy " + fileName + " to temp file", e);
+	} finally {
+		IOUtils.closeQuietly(fileOutputStream);
+		IOUtils.closeQuietly(inputStream);
+	}
 
-    Workbook workbook;
-    Sheet sheet;
-    try {
-      workbook = WorkbookFactory.create(inputStream);
-      sheet = workbook.getSheetAt(2);
-    } catch (IOException e) {
-      throw new RuntimeException("Cannot read the XLS file", e);
-    } catch (InvalidFormatException e) {
-      throw new RuntimeException("Cannot open the XLS file", e);
-    }
-
-    CreationHelper creationHelper = workbook.getCreationHelper();
-    CellStyle theCellStyle = workbook.createCellStyle();
-    Iterator<Row> rowIterator = sheet.rowIterator();
-
-    Row row = (Row) rowIterator.next();
-    Map<Integer, Integer> headers = getCellHeaders(row);
-
-    theCellStyle.setDataFormat(creationHelper.createDataFormat()
-        .getFormat("yyyy-mm-dd"));
-
-    boolean salir = false;
-    while (rowIterator.hasNext() && !salir) {
-      row = (Row) rowIterator.next();
-      try {
-    	  salir = addRow(headers, row);
-      } catch (ShopperNotFoundException e) {
-    	  logger.log(Level.WARNING, "Cannot import Shopmetrics item for shopper with login "
-    			  + e.getIdentifier());
-    	  users.add(new ShopmetricsUserDto(e.getIdentifier(), null, null));
-      }
-    }
-
-    /*ResultSet rs = null;
-    try {
-      //Actualizar ID shoppers
-      stmt = dataSource.getConnection().prepareStatement(
-          "UPDATE importacionshopmetricsauxiliar SET tax_id = S.NRO_Documento, tax_id_type = s.TipoDocumento "
-              + "FROM ImportacionShopmetricsauxiliar I LEFT JOIN mcdonalds.dbo.shoppers s ON I.login = S.login_shopmetrics "
-              + "collate Modern_Spanish_CI_AS WHERE isnull(I.tax_id,'''')='''' ");
-
-      stmt.execute();
-
-      //Insertar nuevos items
-      stmt = dataSource.getConnection().prepareStatement(
-          "INSERT ImportacionShopmetrics SELECT * FROM ImportacionShopmetricsAuxiliar A "
-              + "where A.Tax_id IS NOT NULL and A.InstanceId not in (select InstanceId from ImportacionShopmetrics)");
-
-      stmt.execute();
-
-      //Actualizo los honorarios
-      stmt = dataSource.getConnection().prepareStatement(
-          "update ImportacionShopmetrics set Honorarios=A.Honorarios "
-              + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
-              + "S.InstanceID = A.InstanceID Left join Items_Orden I on ((S.InstanceId = "
-              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =1)) where ((a.honorarios <> S.Honorarios) or (S.Honorarios is null)) "
-              + "and ((I.asignacion is null) or ((A.Honorarios = I.Importe)and(I.asignacion is not null)))");
-      stmt.execute();
-
-      //Actualizo los reintegros
-      stmt = dataSource.getConnection().prepareStatement(
-          "update ImportacionShopmetrics set Reintegros=A.Reintegros "
-              + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
-              + "S.InstanceID = A.InstanceID Left join Items_Orden I on ((S.InstanceId = "
-              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =2)) where ((S.reintegros <> A.reintegros) or (S.reintegros is null)) "
-              + "and ((I.asignacion is null) or ((A.Reintegros = I.Importe)and(I.asignacion is not null)))");
-      stmt.execute();
-
-      //Actualizo los otros gastos
-      stmt = dataSource.getConnection().prepareStatement(
-          "update ImportacionShopmetrics set OtrosGastos=A.OtrosGastos "
-              + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
-              + "S.InstanceID = A.InstanceID Left join Items_Orden I on ((S.InstanceId = "
-              + "I.Asignacion)and(I.Tipo_Item = 5)and(I.Tipo_Pago =3)) where ((a.OtrosGastos <> S.OtrosGastos) or (S.OtrosGastos is null)) "
-              + "and ((I.asignacion is null) or ((A.OtrosGastos = I.Importe)and(I.asignacion is not null)))");
-      stmt.execute();
-
-      //Actualizo shopper asignado
-      stmt = dataSource.getConnection().prepareStatement(
-          "update ImportacionShopmetrics set TAX_ID = A.TAX_ID, "
-              + "[LOGIN] = A.[LOGIN], APELLIDO = A.APELLIDO, NOMBRE = A.NOMBRE "
-              + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
-              + "S.InstanceID = A.InstanceID Left join Items_Orden I on ((S.InstanceId = "
-              + "I.Asignacion)and(I.Tipo_Item = 5)) where (I.asignacion is null)and "
-              + "((isnull(A.tax_id,'''') <> isnull(S.tax_id,''''))or(isnull(A.login,'''') <> isnull(S.login,'''')))");
-      stmt.execute();
-
-      //Actualizo fechas de visitas
-      stmt = dataSource.getConnection().prepareStatement(
-          "update ImportacionShopmetrics set Date_Time = A.Date_Time "
-              + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
-              + "S.InstanceID = A.InstanceID where (a.Date_Time <> S.Date_Time)");
-      stmt.execute();
-
-      //Actualizo OK pay
-      stmt = dataSource.getConnection().prepareStatement(
-          "update ImportacionShopmetrics set OK_Pay=A.OK_Pay "
-              + "from ImportacionShopmetrics S inner join ImportacionShopmetricsAuxiliar A on "
-              + "S.InstanceID = A.InstanceID where (a.OK_Pay <> S.OK_Pay)");
-      stmt.execute();
-
-      stmt = dataSource.getConnection().prepareStatement("select aux.login, "
-          + "aux.apellido, aux.nombre from ImportacionShopmetricsauxiliar aux "
-          + "LEFT JOIN mcdonalds.dbo.shoppers s ON aux.login = s.login_shopmetrics "
-          + "collate Modern_Spanish_CI_AS where s.id is null "
-          + "group by aux.login, aux.apellido, aux.nombre;");
-
-      rs = stmt.executeQuery();
-      while (rs.next()) {
-        ShopmetricsUserDto user = new ShopmetricsUserDto(rs.getString("login"),
-            rs.getString("apellido"), rs.getString("nombre"));
-        users.add(user);
-      }
-
-    } catch (Exception ex) {
-      logger.log(Level.SEVERE, null, ex);
-    } finally {
-      if (rs != null) {
-        try {
-          rs.close();
-        } catch (SQLException ex) {
-          logger.log(Level.WARNING, null, ex);
-        }
-      }
-      if (stmt != null) {
-        try {
-          stmt.close();
-        } catch (SQLException ex) {
-          logger.log(Level.WARNING, null, ex);
-        }
-      }
-    }*/
-
-    return users;
-  }
-
-  private boolean addRow(final Map<Integer, Integer> headers, final Row row) {
-    boolean end = false;
-    Cell cell = row.getCell(headers.get(ColSurveyID));
-    Double surveyIdValue = null;
-    if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-      surveyIdValue = cell.getNumericCellValue();
-    } else if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-      String cellTotal = cell.getStringCellValue();
-      end = "Total".equals(cellTotal);
-    }
-
-    cell = row.getCell(headers.get(ColOK_Pay));
-    boolean isOk = false;
-    if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
-    	isOk = OK_FOR_BILLING.equals(cell.getStringCellValue());
-    }
-    if (surveyIdValue != null && isOk) {
-      cell = row.getCell(headers.get(Collogin));
-      String login = cell.getStringCellValue();
-      if (login != null && !login.isEmpty()) {
-        String cliente = row.getCell(headers.get(ColCliente))
-            .getStringCellValue();
-        String apellido = row.getCell(headers.get(ColApellido))
-            .getStringCellValue();
-        String nombre = row.getCell(headers.get(ColNombre))
-            .getStringCellValue();
-        String fechaValue = row.getCell(headers.get(ColFecha))
-            .getStringCellValue();
-        Date fecha = null;
-        if (fechaValue != null) {
-          SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-          try {
-            fecha = dateFormat.parse(fechaValue);
-          } catch (ParseException e) {
-            throw new RuntimeException("Cannot parse the cell date", e);
-          }
-        }
-        String subCuestionario = row.getCell(headers.get(ColSubcuestionario))
-            .getStringCellValue();
-        String idSucursal = row.getCell(headers.get(ColIDSucursal))
-            .getStringCellValue();
-        String nombreSucursal = row.getCell(headers.get(ColNombreSucursal))
-            .getStringCellValue();
-        String direccionSucursal = row.getCell(headers.get(ColDireccionSucursal))
-            .getStringCellValue();
-        String ciudadSucursal = row.getCell(headers.get(ColCiudadSucursal))
-            .getStringCellValue();
-        String honorariosValue = row.getCell(headers.get(ColHonorarios))
-            .getStringCellValue();
-        Double honorarios = null;
-        if (honorariosValue != null && !honorariosValue.isEmpty()) {
-          honorariosValue = honorariosValue.replaceAll(",", "");
-          honorarios = new Double(honorariosValue);
-        }
-        Double reintegros = null;
-        Integer reintegroPos = headers.get(ColReintegros);
-        if (reintegroPos != null) {
-          String reintegrosValue = row.getCell(reintegroPos)
-              .getStringCellValue();
-          if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
-            reintegrosValue = reintegrosValue.replaceAll(",", "");
-            reintegros = new Double(reintegrosValue);
-          }
-        }
-
-        Branch branch = null;
-        Client client = clientRepository.getByName(cliente);
-        if (client == null) {
-        	client = new Client(cliente);
-        	clientRepository.save(client);
-        } else {
-        	final String sucursalCode = idSucursal;
-        	branch = (Branch) CollectionUtils.find(client.getBranchs(), new Predicate() {
-
-				@Override
-				public boolean evaluate(Object item) {
-					boolean result = false;
-					Branch branch = (Branch) item;
-					if (branch.getCode() != null) {
-						result = branch.getCode().equals(sucursalCode);
-					}
-					return result;
-				}
-
-        	});
-        }
-    	if (branch == null) {
-    		branch = new Branch(client, idSucursal, ciudadSucursal, direccionSucursal);
-    		branchRepository.save(branch);
-    		//client.addBranch(branch);
-    		//clientRepository.update(client);
-    	}
-
-    	Shopper shopper = shopperRepository.findByLogin(login);
-    	if (shopper == null) {
-    		throw new ShopperNotFoundException(login);
-    	}
-    	if (honorarios != null) {
-	        Debt debt = debtRepository.getByExternalId(surveyIdValue.longValue(), TipoItem.shopmetrics,
-	        		TipoPago.honorarios);
-	        if (debt == null) {
-	        	debt = new Debt(TipoItem.shopmetrics, TipoPago.honorarios, shopper.getDni(),
-	        			honorarios, fecha, null, subCuestionario, client, null, branch, null,
-	        			surveyIdValue.longValue(), null);
-	        	debtRepository.save(debt);
-	        } else {
-	        	debt.update(TipoItem.shopmetrics, TipoPago.honorarios, shopper.getDni(),
-	        			honorarios, fecha, null, subCuestionario, client, null, branch, null,
-	        			surveyIdValue.longValue(), null);
-	        	debtRepository.update(debt);
-	        }
-    	}
-    	if (reintegros != null) {
-	        Debt debt = debtRepository.getByExternalId(surveyIdValue.longValue(), TipoItem.shopmetrics,
-	        		TipoPago.reintegros);
-	        if (debt == null) {
-	        	debt = new Debt(TipoItem.shopmetrics, TipoPago.reintegros, shopper.getDni(),
-	        			reintegros, fecha, null, subCuestionario, client, null, branch, null,
-	        			surveyIdValue.longValue(), null);
-	        	debtRepository.save(debt);
-	        } else {
-	        	debt.update(TipoItem.shopmetrics, TipoPago.reintegros, shopper.getDni(),
-	        			reintegros, fecha, null, subCuestionario, client, null, branch, null,
-	        			surveyIdValue.longValue(), null);
-	        	debtRepository.update(debt);
-	        }
-    	}
-      }
-    }
-    return end;
-  }
-
-  private Map<Integer, Integer> getCellHeaders(final Row row) {
-    Map<Integer, Integer> headers = new HashMap<Integer, Integer>();
-
-    Iterator<Cell> cellIterator = row.cellIterator();
-
-    int currentPos = 0;
-    while (cellIterator.hasNext()) {
-      Cell cell = (Cell) cellIterator.next();
-      if (cell.getStringCellValue().equalsIgnoreCase("Survey ID")) {
-        headers.put(ColSurveyID, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Client")) {
-        headers.put(ColCliente, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Login")) {
-        headers.put(Collogin, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("First Name")) {
-        headers.put(ColNombre, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Last Name")) {
-        headers.put(ColApellido, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("PayRate")) {
-        headers.put(ColHonorarios, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Purchase Reimbursement")) {
-        headers.put(ColReintegros, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Currency")) {
-        headers.put(Colmoneda, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Ok Pay")) {
-        headers.put(ColOK_Pay, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Survey Date")) {
-        headers.put(ColFecha, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Survey")) {
-        headers.put(ColSubcuestionario, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Store ID")) {
-        headers.put(ColIDSucursal, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Location Name")) {
-        headers.put(ColNombreSucursal, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("Address")) {
-        headers.put(ColDireccionSucursal, currentPos);
-      }
-      if (cell.getStringCellValue().equalsIgnoreCase("City")) {
-        headers.put(ColCiudadSucursal, currentPos);
-      }
-
-      currentPos++;
-    }
-    return headers;
+	DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm");
+	processName = fileName + dateFormat.format(new Date());
+	BatchTaskStatus batchTaskStatus = new BatchTaskStatus(processName);
+	batchTaskStatusRepository.save(batchTaskStatus);
+	executor.submit(new FileImportTask(processName, tempFile, batchTaskStatusRepository,
+			debtRepository, clientRepository, branchRepository, shopperRepository));
+	return processName;
   }
 
   public void exportOrdenes(final OutputStream outputStream,
@@ -508,7 +190,7 @@ public class ImportService {
 
       workbook.write(outputStream);
     } catch (IOException e) {
-      logger.log(Level.SEVERE, "Cannot export the orders", e);
+      logger.error("Cannot export the orders", e);
     }
   }
 

@@ -28,6 +28,29 @@
         form.find("input[type=submit]").click(function () {
           loadingIndicator.start();
         });
+
+        var tasksTable = jQuery('.js-tasks');
+        setInterval(function () {
+          jQuery.ajax({
+            url: "tasks"
+          }).done(function (data) {
+            tasksTable.find('tbody').empty();
+            for (i = 0; i < data.length; i++) {
+              var task = data[i];
+              var newRow = jQuery('<tr></tr>');
+              tasksTable.find('tbody').append(newRow);
+              newRow.append('<td>' + task.name + '</td>');
+              newRow.append('<td>' + task.status + '</td>');
+              newRow.append('<td>' + task.porcentage + ' %</td>');
+              if (task.additionalInfo) {
+                newRow.append('<td>' + task.additionalInfo + '</td>');
+              } else {
+                newRow.append('<td>&nbsp;</td>');
+              }
+            }
+            //rows = rows.render({'itemsOrden': data}, rowsTemplate);
+          })
+        }, 5000)
       });
 
     </script>
@@ -62,22 +85,23 @@
           <li><input type="submit" value="Importar" class="btn-shop-small"></li>
         </ul>
       </form>
-    <#if model["users"]??>
-      <p>Los siguientes usuarios no pudieron ser identificados en la tabla de shoppers</p>
-      <table summary="Listado de shoppers no identificados" class="table-form">
+    <#if model["tasks"]??>
+      <table summary="Listado de tareas pendientes" class="table-form js-tasks">
         <thead>
           <tr>
-            <th scope="col" style="width:33%">Login</th>
-            <th scope="col" style="width:33%">Apellido</th>
-            <th scope="col" style="width:34%">Nombre</th>
+            <th scope="col" style="width:30%">Nombre</th>
+            <th scope="col" style="width:10%">Estado</th>
+            <th scope="col" style="width:10%">Avance</th>
+            <th scope="col" style="width:50%">Informaci&oacute;n adicional</th>
           </tr>
         </thead>
         <tbody>
-          <#list model["users"] as user>
+          <#list model["tasks"] as task>
           <tr>
-            <td>${user.login!''}</td>
-            <td>${user.lastName!''}</td>
-            <td>${user.name!''}</td>
+            <td>${task.name}</td>
+            <td>${task.status}</td>
+            <td>${task.porcentage} %</td>
+            <td>${task.additionalInfo!''}</td>
           </tr>
           </#list>
         </tbody>
