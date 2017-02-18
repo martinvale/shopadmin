@@ -133,14 +133,13 @@
   </bean>
 
   <bean id="importerService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportService">
-    <constructor-arg index="0" ref="dataSource" />
-    <constructor-arg index="1" ref="orderRepository" />
-    <constructor-arg index="2" ref="debtRepository" />
-    <constructor-arg index="3" ref="clientRepository" />
-    <constructor-arg index="4" ref="branchRepository" />
-    <constructor-arg index="5" ref="shopperRepository" />
-    <constructor-arg index="6" ref="proveedorRepository" />
-    <constructor-arg index="7" ref="batchTaskStatusRepository" />
+    <constructor-arg index="0" ref="orderRepository" />
+    <constructor-arg index="1" ref="debtRepository" />
+    <constructor-arg index="2" ref="clientRepository" />
+    <constructor-arg index="3" ref="branchRepository" />
+    <constructor-arg index="4" ref="shopperRepository" />
+    <constructor-arg index="5" ref="proveedorRepository" />
+    <constructor-arg index="6" ref="batchTaskStatusRepository" />
   </bean>
 
   <!-- Commands -->
@@ -228,13 +227,13 @@
     <property name="feedRepository" ref="feedRepository" />
   </bean>
 
-  <bean id="getIngematicaPendingDebtCommand" class="com.ibiscus.shopnchek.application.debt.GetIngematicaPendingDebtCommand" scope="prototype">
+  <!--bean id="getIngematicaPendingDebtCommand" class="com.ibiscus.shopnchek.application.debt.GetIngematicaPendingDebtCommand" scope="prototype">
     <property name="dataSource" ref="dataSource" />
     <property name="debtRepository" ref="debtRepository" />
     <property name="branchRepository" ref="branchRepository" />
     <property name="clientRepository" ref="clientRepository" />
     <property name="feedRepository" ref="feedRepository" />
-  </bean>
+  </bean-->
 
   <bean id="getFeedCommand" class="com.ibiscus.shopnchek.application.feed.GetFeedCommand" scope="prototype">
     <property name="feedRepository" ref="feedRepository" />
@@ -267,6 +266,21 @@
     <property name="location" value="/WEB-INF/shopnchek.properties" />
   </bean>
 
+  <!-- bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${jdbc.driverClassName}" />
+    <property name="url" value="${jdbc.databaseurl}" />
+    <property name="username" value="${jdbc.username}" />
+    <property name="password" value="${jdbc.password}" />
+    <property name="testOnBorrow" value="true" />
+    <property name="testOnReturn" value="true" />
+    <property name="testWhileIdle" value="true" />
+    <property name="timeBetweenEvictionRunsMillis" value="1800000" />
+    <property name="numTestsPerEvictionRun" value="3" />
+    <property name="minEvictableIdleTimeMillis" value="1800000" />
+    <property name="initialSize" value="5" />
+    <property name="maxTotal" value="10" />
+    <property name="validationQuery" value="select 1" />
+  </beans-->
   <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
     <property name="driverClassName" value="${jdbc.driverClassName}" />
     <property name="url" value="${jdbc.databaseurl}" />
@@ -341,9 +355,12 @@
 
   <tx:annotation-driven proxy-target-class="true" />
 
-  <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory" ref="sessionFactory"></property>
+  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <property name="dataSource" ref="dataSource" />
   </bean>
+  <!--bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean-->
 
   <!-- Quartz -->
   <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -358,7 +375,7 @@
     <property name="triggers">
       <list>
         <ref bean="getMcdPendingDebtTrigger" />
-        <ref bean="getIngematicaPendingDebtTrigger" />
+        <!--ref bean="getIngematicaPendingDebtTrigger" /-->
       </list>
     </property>
   </bean>
@@ -380,7 +397,7 @@
     <property name="cronExpression" value="0 0/2 * * * ?" /><!-- every 15 minutes -->
   </bean>
 
-  <bean name="getIngematicaPendingDebtJobDetail"
+  <!--bean name="getIngematicaPendingDebtJobDetail"
       class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
     <property name="jobClass" value="com.ibiscus.shopnchek.application.jobs.GetPendingDebtJob" />
     <property name="durability" value="true" />
@@ -394,6 +411,6 @@
   <bean id="getIngematicaPendingDebtTrigger"
       class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
     <property name="jobDetail" ref="getIngematicaPendingDebtJobDetail" />
-    <property name="cronExpression" value="0 0 0/1 * * ?" /><!-- every hour -->
-  </bean>
+    <property name="cronExpression" value="0 0 0/1 * * ?" />
+  </bean-->
 </beans>

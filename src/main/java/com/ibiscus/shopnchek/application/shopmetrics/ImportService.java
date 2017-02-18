@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
 import org.apache.poi.ss.usermodel.Cell;
@@ -46,8 +44,6 @@ public class ImportService {
 
   private final Logger logger = LoggerFactory.getLogger(ImportService.class);
 
-  private final DataSource dataSource;
-
   private final OrderRepository orderRepository;
 
   private final DebtRepository debtRepository;
@@ -64,11 +60,10 @@ public class ImportService {
 
   private ExecutorService executor = Executors.newFixedThreadPool(10);
 
-  public ImportService(final DataSource dataSource, final OrderRepository orderRepository,
+  public ImportService(final OrderRepository orderRepository,
 		  final DebtRepository debtRepository, final ClientRepository clientRepository,
 		  final BranchRepository branchRepository, final ShopperRepository shopperRepository,
 		  final ProveedorRepository proveedorRepository, final BatchTaskStatusRepository batchTaskStatusRepository) {
-    this.dataSource = dataSource;
     this.orderRepository = orderRepository;
     this.debtRepository = debtRepository;
     this.clientRepository = clientRepository;
@@ -103,8 +98,9 @@ public class ImportService {
 	processName = fileName + dateFormat.format(new Date());
 	BatchTaskStatus batchTaskStatus = new BatchTaskStatus(processName);
 	batchTaskStatusRepository.save(batchTaskStatus);
-	executor.submit(new FileImportTask(processName, tempFile, batchTaskStatusRepository,
-			debtRepository, clientRepository, branchRepository, shopperRepository));
+	Runnable task = new FileImportTask(processName, tempFile, batchTaskStatusRepository,
+			debtRepository, clientRepository, branchRepository, shopperRepository);
+	executor.submit(task);
 	return processName;
   }
 

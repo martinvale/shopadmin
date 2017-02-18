@@ -12,8 +12,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
@@ -130,21 +128,27 @@ public class FileImportTask implements Runnable {
 
 		start();
 		boolean salir = false;
-		while (rowIterator.hasNext() && !salir) {
-			row = (Row) rowIterator.next();
-			currentRowIndex++;
-			try {
-				long startTime = System.currentTimeMillis();
-				salir = addRow(headers, row);
-				logger.debug("Row import total time: {} ms", System.currentTimeMillis() - startTime);
-			} catch (ShopperNotFoundException e) {
-				logger.warn("Cannot import Shopmetrics item for shopper with login "
-						+ e.getIdentifier());
-				users.add(new ShopmetricsUserDto(e.getIdentifier(), null, null));
+		try {
+			while (rowIterator.hasNext() && !salir) {
+				row = (Row) rowIterator.next();
+				currentRowIndex++;
+				try {
+					long startTime = System.currentTimeMillis();
+					salir = addRow(headers, row);
+					logger.debug("Row import total time: {} ms", System.currentTimeMillis() - startTime);
+				} catch (ShopperNotFoundException e) {
+					logger.warn("Cannot import Shopmetrics item for shopper with login "
+							+ e.getIdentifier());
+					users.add(new ShopmetricsUserDto(e.getIdentifier(), null, null));
+				}
+				if ((currentRowIndex % intervalRowCount) == 0) {
+					updatePorcentage((currentRowIndex * 100) / rowCount);
+				}
 			}
-			if ((currentRowIndex % intervalRowCount) == 0) {
-				updatePorcentage((currentRowIndex * 100) / rowCount);
-			}
+		} catch (Exception e) {
+			logger.error("Cannot import file " + name, e);
+		} finally {
+			logger.info("Finish file {} import", name);
 		}
 		finish(users);
 	}

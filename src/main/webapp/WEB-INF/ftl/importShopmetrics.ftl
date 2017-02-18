@@ -79,7 +79,7 @@
         <div class="box-green">
           <label for="file">Archivo a importar: </label>
           <input id="file" type="file" name="file" />
-          <p class="note">El tama&ntilde;o del archivo debe ser menor a 5Mb</p>
+          <p class="note">El tama&ntilde;o del archivo debe ser menor a 256Mb</p>
         </div>
         <ul class="action-columns">
           <li><input type="submit" value="Importar" class="btn-shop-small"></li>

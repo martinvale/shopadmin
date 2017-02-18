@@ -17,6 +17,7 @@
     <quartz.version>2.2.2</quartz.version>
     <sql-jdbc.version>4.0</sql-jdbc.version>
     <dbh2.version>1.4.187</dbh2.version>
+    <logging.version>1.7.23</logging.version>
   </properties>
 
   <dependencies>
@@ -58,10 +59,11 @@
       <version>${spring.version}</version>
     </dependency>
 
-    <dependency> 
+    <!-- logging -->
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-jdk14</artifactId>
-      <version>1.7.7</version>
+      <version>${logging.version}</version>
     </dependency>
 
     <!-- Apache Commons FileUpload -->
