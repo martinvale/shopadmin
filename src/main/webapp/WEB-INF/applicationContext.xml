@@ -133,13 +133,13 @@
   </bean>
 
   <bean id="importerService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportService">
-    <constructor-arg index="0" ref="orderRepository" />
-    <constructor-arg index="1" ref="debtRepository" />
-    <constructor-arg index="2" ref="clientRepository" />
-    <constructor-arg index="3" ref="branchRepository" />
-    <constructor-arg index="4" ref="shopperRepository" />
-    <constructor-arg index="5" ref="proveedorRepository" />
-    <constructor-arg index="6" ref="batchTaskStatusRepository" />
+    <property name="orderRepository" ref="orderRepository" />
+    <property name="debtRepository" ref="debtRepository" />
+    <property name="clientRepository" ref="clientRepository" />
+    <property name="branchRepository" ref="branchRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="batchTaskStatusRepository" ref="batchTaskStatusRepository" />
   </bean>
 
   <!-- Commands -->
@@ -260,7 +260,23 @@
   <bean id="saveShopperCommand" class="com.ibiscus.shopnchek.application.shopper.SaveShopperCommand" scope="prototype">
     <property name="shopperRepository" ref="shopperRepository" />
   </bean>
-  
+
+  <bean id="importFileCommand" class="com.ibiscus.shopnchek.application.shopmetrics.ImportFileCommand" scope="prototype">
+    <property name="debtRepository" ref="debtRepository" />
+    <property name="clientRepository" ref="clientRepository" />
+    <property name="branchRepository" ref="branchRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="batchTaskStatusRepository" ref="batchTaskStatusRepository" />
+  </bean>
+
+  <bean id="fileImportTask" class="com.ibiscus.shopnchek.application.shopmetrics.FileImportTask">
+    <constructor-arg index="0" ref="batchTaskStatusRepository" />
+    <constructor-arg index="1" ref="debtRepository" />
+    <constructor-arg index="2" ref="clientRepository" />
+    <constructor-arg index="3" ref="branchRepository" />
+    <constructor-arg index="4" ref="shopperRepository" />
+  </bean>
+
   <!-- Properties -->
   <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location" value="/WEB-INF/shopnchek.properties" />
@@ -355,12 +371,12 @@
 
   <tx:annotation-driven proxy-target-class="true" />
 
-  <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  <!-- bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
     <property name="dataSource" ref="dataSource" />
-  </bean>
-  <!--bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
-    <property name="sessionFactory" ref="sessionFactory"></property>
   </bean-->
+  <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
 
   <!-- Quartz -->
   <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">

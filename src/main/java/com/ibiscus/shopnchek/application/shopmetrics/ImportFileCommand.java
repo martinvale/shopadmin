@@ -2,7 +2,10 @@ package com.ibiscus.shopnchek.application.shopmetrics;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -26,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.ibiscus.shopnchek.application.Command;
+import com.ibiscus.shopnchek.domain.admin.OrderRepository;
+import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 import com.ibiscus.shopnchek.domain.debt.Branch;
@@ -39,10 +45,9 @@ import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatus;
 import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatusRepository;
 
-public class FileImportTask implements Runnable {
+public class ImportFileCommand implements Command<Boolean> {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(FileImportTask.class);
+	private static final Logger logger = LoggerFactory.getLogger(ImportFileCommand.class);
 
 	private static final int ColSurveyID = 0;
 	private static final int ColCliente = 1;
@@ -62,41 +67,48 @@ public class FileImportTask implements Runnable {
 
 	private static final String OK_FOR_BILLING = "OK";
 
-	private String name;
+	private DebtRepository debtRepository;
 
-	private File file;
+	private ClientRepository clientRepository;
 
-	private final BatchTaskStatusRepository batchTaskStatusRepository;
+	private BranchRepository branchRepository;
 
-	private final DebtRepository debtRepository;
+	private ShopperRepository shopperRepository;
 
-	private final ClientRepository clientRepository;
+	private BatchTaskStatusRepository batchTaskStatusRepository;
 
-	private final BranchRepository branchRepository;
+	private String fileName;
 
-	private final ShopperRepository shopperRepository;
-
-	public FileImportTask(final BatchTaskStatusRepository batchTaskStatusRepository,
-			final DebtRepository debtRepository,
-			final ClientRepository clientRepository, final BranchRepository branchRepository,
-			final ShopperRepository shopperRepository) {
-		this.batchTaskStatusRepository = batchTaskStatusRepository;
-		this.debtRepository = debtRepository;
-		this.clientRepository = clientRepository;
-		this.branchRepository = branchRepository;
-		this.shopperRepository = shopperRepository;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public void setFile(File file) {
-		this.file = file;
-	}
+	private InputStream inputStream;
 
 	@Override
-	public void run() {
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
+	public Boolean execute() {
+		String processName = null;
+		File tempFile = null;
+	    FileOutputStream fileOutputStream = null;
+		try {
+			tempFile = File.createTempFile(fileName, null);
+			fileOutputStream = new FileOutputStream(tempFile);
+			IOUtils.copy(inputStream, fileOutputStream);
+		} catch (IOException e) {
+			logger.error("Cannot copy " + fileName + " to temp file", e);
+		} finally {
+			IOUtils.closeQuietly(fileOutputStream);
+			IOUtils.closeQuietly(inputStream);
+		}
+
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm");
+		processName = fileName + dateFormat.format(new Date());
+		BatchTaskStatus batchTaskStatus = new BatchTaskStatus(processName);
+		batchTaskStatusRepository.save(batchTaskStatus);
+
+		importFile(processName, tempFile);
+
+		return true;
+	}
+
+	private void importFile(final String name, final File file) {
 		logger.info("Staring to import task: {}", name);
 
 		Workbook workbook;
@@ -107,10 +119,10 @@ public class FileImportTask implements Runnable {
 			workbook = WorkbookFactory.create(fileInputStream);
 			sheet = workbook.getSheetAt(2);
 		} catch (IOException e) {
-			updateTaskErrorMessage("Invalid import file: " + name);
+			updateTaskErrorMessage(name, "Invalid import file: " + name);
 			throw new RuntimeException("Cannot read the XLS file", e);
 		} catch (InvalidFormatException e) {
-			updateTaskErrorMessage("Invalid import file: " + name);
+			updateTaskErrorMessage(name, "Invalid import file: " + name);
 			throw new RuntimeException("Cannot open the XLS file", e);
 		} finally {
 			IOUtils.closeQuietly(fileInputStream);
@@ -134,7 +146,7 @@ public class FileImportTask implements Runnable {
 
 		List<ShopmetricsUserDto> users = new LinkedList<ShopmetricsUserDto>();
 
-		start();
+		start(name);
 		boolean salir = false;
 		try {
 			while (rowIterator.hasNext() && !salir) {
@@ -150,7 +162,7 @@ public class FileImportTask implements Runnable {
 					users.add(new ShopmetricsUserDto(e.getIdentifier(), null, null));
 				}
 				if ((currentRowIndex % intervalRowCount) == 0) {
-					updatePorcentage((currentRowIndex * 100) / rowCount);
+					updatePorcentage(name, (currentRowIndex * 100) / rowCount);
 				}
 			}
 		} catch (Exception e) {
@@ -158,25 +170,25 @@ public class FileImportTask implements Runnable {
 		} finally {
 			logger.info("Finish file {} import", name);
 		}
-		finish(users);
+		finish(name, users);
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	private void updateTaskErrorMessage(final String errorMessage) {
+	private void updateTaskErrorMessage(final String name, final String errorMessage) {
 		BatchTaskStatus batchTaskStatus = batchTaskStatusRepository.getByName(name);
 		batchTaskStatus.error(errorMessage);
 		batchTaskStatusRepository.update(batchTaskStatus);
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	private void updatePorcentage(final int porcentage) {
+	private void updatePorcentage(final String name, final int porcentage) {
 		BatchTaskStatus batchTaskStatus = batchTaskStatusRepository.getByName(name);
 		batchTaskStatus.setProcentage(porcentage);
 		batchTaskStatusRepository.update(batchTaskStatus);
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	private void start() {
+	private void start(final String name) {
 		BatchTaskStatus batchTaskStatus = batchTaskStatusRepository.getByName(name);
 		batchTaskStatus.start();
 		batchTaskStatusRepository.update(batchTaskStatus);
@@ -203,7 +215,7 @@ public class FileImportTask implements Runnable {
 	}
 
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-	private void finish(final List<ShopmetricsUserDto> users) {
+	private void finish(final String name, final List<ShopmetricsUserDto> users) {
 		BatchTaskStatus batchTaskStatus = batchTaskStatusRepository.getByName(name);
 		batchTaskStatus.finish();
 		batchTaskStatus.setAdditionalInfo(getImportErrorInfo(users));
@@ -435,6 +447,34 @@ public class FileImportTask implements Runnable {
 			currentPos++;
 		}
 		return headers;
+	}
+
+	public void setDebtRepository(DebtRepository debtRepository) {
+		this.debtRepository = debtRepository;
+	}
+
+	public void setClientRepository(ClientRepository clientRepository) {
+		this.clientRepository = clientRepository;
+	}
+
+	public void setBranchRepository(BranchRepository branchRepository) {
+		this.branchRepository = branchRepository;
+	}
+
+	public void setShopperRepository(ShopperRepository shopperRepository) {
+		this.shopperRepository = shopperRepository;
+	}
+
+	public void setBatchTaskStatusRepository(BatchTaskStatusRepository batchTaskStatusRepository) {
+		this.batchTaskStatusRepository = batchTaskStatusRepository;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public void setInputStream(InputStream inputStream) {
+		this.inputStream = inputStream;
 	}
 
 }

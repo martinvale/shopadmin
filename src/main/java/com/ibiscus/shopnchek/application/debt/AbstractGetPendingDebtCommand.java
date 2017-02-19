@@ -1,12 +1,13 @@
 package com.ibiscus.shopnchek.application.debt;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +23,7 @@ import com.ibiscus.shopnchek.domain.debt.FeedRepository;
 
 public abstract class AbstractGetPendingDebtCommand implements Command<Boolean> {
 
-	private static Logger logger = Logger.getLogger(AbstractGetPendingDebtCommand.class.getName());
+	private static Logger logger = LoggerFactory.getLogger(AbstractGetPendingDebtCommand.class);
 
 	private DataSource dataSource;
 
@@ -40,7 +41,7 @@ public abstract class AbstractGetPendingDebtCommand implements Command<Boolean> 
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public Boolean execute() {
-		logger.info("Get pending debt for feed " + getCode());
+		logger.debug("Get pending debt for feed " + getCode());
 		boolean endReached = true;
 		Feed feed = feedRepository.getByCode(getCode());
 		if (!feed.isActive()) {
