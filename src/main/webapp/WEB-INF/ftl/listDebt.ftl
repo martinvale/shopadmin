@@ -188,7 +188,7 @@
         <thead>
           <tr>
             <th scope="col">Shopper</th>
-            <th scope="col"><a id="order-client" href="#" class="js-order <#if model['orderBy'] == 'client'>selected</#if>">Cliente <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
+            <th scope="col"><a id="order-clientDescription" href="#" class="js-order <#if model['orderBy'] == 'clientDescription'>selected</#if>">Cliente <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
             <th scope="col">Sucursal</th>
             <th scope="col"><a id="order-tipoPago" href="#" class="js-order <#if model['orderBy'] == 'tipoPago'>selected</#if>">Pago <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
             <th scope="col">Importe</th>

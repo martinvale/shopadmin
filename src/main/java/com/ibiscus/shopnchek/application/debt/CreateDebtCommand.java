@@ -47,13 +47,17 @@ public class CreateDebtCommand implements Command<List<Debt>> {
 		List<Debt> debts = new ArrayList<Debt>();
 
 		TipoItem tipoItem = TipoItem.manual;
+		String clientDescription = visitaDto.getClientDescription();
 		Client client = null;
 		if (visitaDto.getClientId() != null) {
 			client = clientRepository.get(visitaDto.getClientId());
+			clientDescription = client.getName();
 		}
+		String branchDescription = visitaDto.getBranchDescription();
 		Branch branch = null;
 		if (visitaDto.getBranchId() != null) {
 			branch = branchRepository.get(visitaDto.getBranchId());
+			branchDescription = branch.getAddress();
 		}
 		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Date fecha;
@@ -66,8 +70,7 @@ public class CreateDebtCommand implements Command<List<Debt>> {
 			TipoPago tipoPago = TipoPago.valueOf(debtDto.getTipoPago());
 			Debt debt = new Debt(tipoItem, tipoPago, visitaDto.getShopperDni(),
 					debtDto.getImporte(), fecha, debtDto.getObservacion(),
-					null, client, visitaDto.getClientDescription(), branch,
-					visitaDto.getBranchDescription(),
+					null, client, clientDescription, branch, branchDescription,
 					null, operator.getUsername());
 			debtRepository.save(debt);
 			Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());

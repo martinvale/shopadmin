@@ -952,7 +952,7 @@ textarea.LV_invalid_field:active {
     <#include "header.ftl" />
 
     <div class="container-box-plantilla js-orden-pago">
-      <h2 class="container-tit">Orden de pago ${order.numero?c} (${order.estado.description}) <#if order.estaAbierta()><a href="edit/${order.numero?c}">editar</a></#if></h2>
+      <h2 class="container-tit">Orden de pago ${order.numero?c} (${order.estado.description}) <a href="edit/${order.numero?c}">editar</a></h2>
       <!-- FILA 1 -->
       <div class="cell">
         <div class="box-green">

@@ -69,10 +69,12 @@ public class SaveDebtCommand implements Command<Debt> {
 		Client client = null;
 		if (clientId != null) {
 			client = clientRepository.get(clientId);
+			clientDescription = client.getName();
 		}
 		Branch branch = null;
 		if (branchId != null) {
 			branch = branchRepository.get(branchId);
+			branchDescription = branch.getAddress();
 		}
 		Debt debt;
 		if (debtId == null) {

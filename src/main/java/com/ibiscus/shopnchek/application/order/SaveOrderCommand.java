@@ -39,8 +39,6 @@ public class SaveOrderCommand implements Command<OrdenPago> {
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public OrdenPago execute() {
-		OrderState state = orderRepository.getOrderState(1);
-
 		OrdenPago order = null;
 		if (numero == null) {
 			AsociacionMedioPago asociacion = orderRepository.findAsociacion(
@@ -50,6 +48,7 @@ public class SaveOrderCommand implements Command<OrdenPago> {
 				medioPago = orderRepository.getMedioPago(asociacion.getMedioPago());
 			}
 
+			OrderState state = orderRepository.getOrderState(1);
 			order = new OrdenPago(tipoProveedor, proveedor, tipoFactura, medioPago,
 					fechaPago, state, iva, numeroFactura, localidad, observaciones,
 					observacionesShopper);
@@ -57,7 +56,7 @@ public class SaveOrderCommand implements Command<OrdenPago> {
 		} else {
 			order = orderRepository.get(numero);
 			order.update(tipoProveedor, proveedor, tipoFactura,
-					fechaPago, state, iva, numeroFactura, localidad, observaciones,
+					fechaPago, iva, numeroFactura, localidad, observaciones,
 					observacionesShopper);
 			orderRepository.save(order);
 		}

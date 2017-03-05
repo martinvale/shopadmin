@@ -106,13 +106,4 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 				getTipoItem(), ownerUsername);
 	}
 
-	@Override
-	protected String getOrderBy() {
-		String orderBy = super.getOrderBy();
-		if (orderBy.equals("client")) {
-			orderBy = "c.name";
-		}
-		return orderBy;
-	}
-
 }

@@ -108,14 +108,13 @@ public class OrdenPago {
 
   public void update(final int theTipoProveedor, final int theProveedor,
       final String theTipoFactura, final Date thePayDate,
-      final OrderState theState, final double theIva, final String unNumeroFactura,
+      final double theIva, final String unNumeroFactura,
       final String unaLocalidad, final String unaObservacion,
       final String unaObservacionShopper) {
     tipoProveedor = theTipoProveedor;
     proveedor = theProveedor;
     tipoFactura = theTipoFactura;
     fechaPago = thePayDate;
-    estado = theState;
     iva = theIva;
     numeroFactura = unNumeroFactura;
     localidad = unaLocalidad;
