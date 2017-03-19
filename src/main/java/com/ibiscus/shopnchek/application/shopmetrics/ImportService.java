@@ -16,8 +16,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import javax.servlet.ServletContext;
 
@@ -34,11 +32,8 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
@@ -94,7 +89,7 @@ public class ImportService {
 
   private BatchTaskStatusRepository batchTaskStatusRepository;
 
-  private ExecutorService executor = Executors.newFixedThreadPool(10);
+//  private ExecutorService executor = Executors.newFixedThreadPool(10);
 
   public ImportService() {
 	  
@@ -123,7 +118,7 @@ public class ImportService {
 		this.batchTaskStatusRepository = batchTaskStatusRepository;
 	}
 
-  /** Creates an import process to be executed asynchronously.
+/** Creates an import process to be executed asynchronously.
    *
    * @param inputStream The input stream to parse, cannot be null.
    *
@@ -544,7 +539,7 @@ public class ImportService {
         row = sheet.createRow(currentRow++);
         createCell(workbook, styles, row, 0, order.getNumero());
         String titular = null;
-        String cuit = null;
+        String cuit = order.getCuit();
         if (order.getTipoProveedor().equals(OrdenPago.SHOPPER)) {
           Shopper shopper = shopperRepository.get(order.getProveedor());
           titular = shopper.getName();
@@ -552,7 +547,6 @@ public class ImportService {
         } else {
           Proveedor proveedor = proveedorRepository.get(order.getProveedor());
           titular = proveedor.getDescription();
-          cuit = proveedor.getCuit();
         }
         createCell(workbook, styles, row, 1, titular);
         createCell(workbook, styles, row, 2, order.getNumeroChequera());

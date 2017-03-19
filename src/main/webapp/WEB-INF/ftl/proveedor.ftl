@@ -39,13 +39,9 @@
     <div class="container-box-plantilla">
       <h2 class="container-tit">Proveedor</h2>
       <#assign description = ""/>
-      <#assign cuit = ""/>
-      <#assign tipoFactura = "" />
       <#assign endpoint = "create" />
       <#if proveedor??>
         <#assign description = "${proveedor.description}"/>
-        <#assign cuit = "${proveedor.cuit}"/>
-        <#assign tipoFactura = "${proveedor.factura}" />
         <#assign endpoint = "update" />
       </#if>
       <form class="form-shop form-shop-big" action="${endpoint}" method="POST">
@@ -62,22 +58,6 @@
             <div class="field">
               <label class="field-name" for="description">Nombre: </label>
               <input type="text" id="description" name="descripcion" value="${description}" />
-            </div>
-            <div class="field">
-              <label class="field-name" for="cuit">CUIT: </label>
-              <input type="text" id="cuit" name="cuit" value="${cuit}" />
-            </div>
-            <div class="field">
-              <label class="field-name" for="tipoFactura">Tipo de factura:</label>
-              <select id="tipoFactura" name="factura">
-                <option value="A" <#if tipoFactura = "A">selected="true"</#if>>Factura A</option>
-                <option value="C" <#if tipoFactura = "C">selected="true"</#if>>Factura C</option>
-                <option value="M" <#if tipoFactura = "M">selected="true"</#if>>Factura M</option>
-              <select>
-            </div>
-            <div class="field">
-              <label class="field-name" for="banco">Banco: </label>
-              <input type="text" id="banco" name="banco" value="${(proveedor.banco)!''}" />
             </div>
           </div>
         </div>

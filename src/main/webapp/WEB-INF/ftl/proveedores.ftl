@@ -66,7 +66,7 @@ App.widget.Proveedores = function (container, proveedores) {
 
       jQuery(document).ready(function() {
         var proveedores = [
-        <#list model["proveedores"].data as proveedor>
+        <#list model["proveedores"].items as proveedor>
           {
             id: ${proveedor.id?c},
             name: '${proveedor.name!''}',
@@ -115,7 +115,7 @@ App.widget.Proveedores = function (container, proveedores) {
           </tr>
         </thead>
         <tbody>
-          <#list model["proveedores"].data as proveedor>
+          <#list model["proveedores"].items as proveedor>
           <tr id="proveedor-${proveedor.id?c}">
             <td><a href="${proveedor.id?c}">${proveedor.description}</a> <a class="js-delete-${proveedor.id?c}" href="#">borrar</a></td>
           </tr>
@@ -124,23 +124,23 @@ App.widget.Proveedores = function (container, proveedores) {
       </table>
       <div class="paginator">
         <a href="search?page=1&name=${model["name"]!''}">&lt;&lt;</a>
-        <#list 1..model["proveedores"].size as i>
+        <#list 1..model["proveedores"].count as i>
           <#assign page = (i - 1) / model["pageSize"] />
           <#if (i - 1) % model["pageSize"] == 0>
             <a href="search?page=${page + 1}&name=${model["name"]!''}">${page + 1}</a>
           </#if>
         </#list>
-        <#assign lastPage = (model["proveedores"].size / model["pageSize"])?int />
-        <#if model["proveedores"].size % model["pageSize"] &gt; 0>
+        <#assign lastPage = (model["proveedores"].count / model["pageSize"])?int />
+        <#if model["proveedores"].count % model["pageSize"] &gt; 0>
           <#assign lastPage = lastPage + 1 />
         </#if>
         <a href="search?page=${lastPage}&name=${model["name"]!''}">&gt;&gt;</a>
 
         <#assign maxIndex = model["page"] * model["pageSize"] />
-        <#if maxIndex &gt; model["proveedores"].size>
-          <#assign maxIndex = model["proveedores"].size />
+        <#if maxIndex &gt; model["proveedores"].count>
+          <#assign maxIndex = model["proveedores"].count />
         </#if>
-        <span class="resultset">Usuarios de ${model["start"]?c} a ${maxIndex} de ${model["proveedores"].size}</span>
+        <span class="resultset">Usuarios de ${model["start"]?c} a ${maxIndex} de ${model["proveedores"].count}</span>
       </div>
     </div>
     <div id="confirm-delete-proveedor" title="Borrar proveedor">

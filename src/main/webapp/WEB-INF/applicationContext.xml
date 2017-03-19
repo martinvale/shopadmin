@@ -123,6 +123,10 @@
     <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
 
+  <bean id="accountRepository" class="com.ibiscus.shopnchek.domain.account.AccountRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
   <!-- Services -->
   <bean id="itemsOrdenService" class="com.ibiscus.shopnchek.application.order.ItemsOrdenService">
     <constructor-arg index="0" ref="dataSource" />
@@ -259,6 +263,34 @@
 
   <bean id="saveShopperCommand" class="com.ibiscus.shopnchek.application.shopper.SaveShopperCommand" scope="prototype">
     <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
+  <bean id="getTitularCommand" class="com.ibiscus.shopnchek.application.proveedor.GetTitularCommand" scope="prototype">
+    <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="accountRepository" ref="accountRepository" />
+  </bean>
+
+  <bean id="saveTitularCommand" class="com.ibiscus.shopnchek.application.proveedor.SaveTitularCommand" scope="prototype">
+    <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="accountRepository" ref="accountRepository" />
+  </bean>
+
+  <bean id="getProveedorCommand" class="com.ibiscus.shopnchek.application.proveedor.GetProveedorCommand" scope="prototype">
+    <property name="proveedorRepository" ref="proveedorRepository" />
+  </bean>
+
+  <bean id="saveProveedorCommand" class="com.ibiscus.shopnchek.application.proveedor.SaveProveedorCommand" scope="prototype">
+    <property name="proveedorRepository" ref="proveedorRepository" />
+  </bean>
+
+  <bean id="deleteProveedorCommand" class="com.ibiscus.shopnchek.application.proveedor.DeleteProveedorCommand" scope="prototype">
+    <property name="proveedorRepository" ref="proveedorRepository" />
+  </bean>
+
+  <bean id="searchProveedorCommand" class="com.ibiscus.shopnchek.application.proveedor.SearchProveedorCommand" scope="prototype">
+    <property name="proveedorRepository" ref="proveedorRepository" />
   </bean>
 
   <bean id="importFileCommand" class="com.ibiscus.shopnchek.application.shopmetrics.ImportFileCommand" scope="prototype">

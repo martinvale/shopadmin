@@ -13,35 +13,18 @@ public class Proveedor {
   @Column(name="id")
   private long id;
 
-  @Column(name="cuit")
-  private String cuit;
-
   @Column(name="descripcion")
   private String description;
-
-  @Column(name="factura")
-  private String factura;
-
-  @Column(name="banco", length=200)
-  private String banco;
 
   Proveedor() {
   }
 
-  public Proveedor(final String unCuit, final String unaDescripcion,
-      final String unaFactura, final String banco) {
-    this.cuit = unCuit;
+  public Proveedor(final String unaDescripcion) {
     this.description = unaDescripcion;
-    this.factura = unaFactura;
-    this.banco = banco;
   }
 
-  public void update(final String unCuit, final String unaDescripcion,
-      final String unaFactura, final String banco) {
-    this.cuit = unCuit;
+  public void update(final String unaDescripcion) {
     this.description = unaDescripcion;
-    this.factura = unaFactura;
-    this.banco = banco;
   }
 
   public void updateId(final long theId) {
@@ -52,19 +35,8 @@ public class Proveedor {
     return id;
   }
 
-  public String getCuit() {
-    return cuit;
-  }
-
   public String getDescription() {
     return description;
   }
 
-  public String getFactura() {
-    return factura;
-  }
-
-  public String getBanco() {
-    return banco;
-  }
 }

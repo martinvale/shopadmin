@@ -167,7 +167,8 @@ public class OrdenPagoController {
       int tipoTitular, int titularId, String tipoFactura,
       @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
       @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva, String numeroFactura,
-      String localidad, String observaciones, String observacionesShopper) {
+      String localidad, String cuit, String banco, String cbu, String accountNumber, String observaciones,
+      String observacionesShopper) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
@@ -178,6 +179,10 @@ public class OrdenPagoController {
     saveOrderCommand.setTipoFactura(tipoFactura);
     saveOrderCommand.setFechaPago(fechaPago);
     saveOrderCommand.setIva(iva);
+    saveOrderCommand.setCuit(cuit);
+    saveOrderCommand.setCbu(cbu);
+    saveOrderCommand.setBanco(banco);
+    saveOrderCommand.setAccountNumber(accountNumber);
     saveOrderCommand.setNumeroFactura(numeroFactura);
     saveOrderCommand.setLocalidad(localidad);
     saveOrderCommand.setObservaciones(observaciones);
@@ -195,9 +200,8 @@ public class OrdenPagoController {
   public String update(@ModelAttribute("model") final ModelMap model,
       long numeroOrden, int tipoTitular, int titularId, String tipoFactura,
       @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
-      @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva,
-      String numeroFactura, String localidad, String observaciones,
-      String observacionesShopper) {
+      @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva, String numeroFactura, String localidad,
+      String cuit, String banco, String cbu, String accountNumber, String observaciones, String observacionesShopper) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
@@ -208,6 +212,10 @@ public class OrdenPagoController {
     saveOrderCommand.setTipoFactura(tipoFactura);
     saveOrderCommand.setFechaPago(fechaPago);
     saveOrderCommand.setIva(iva);
+    saveOrderCommand.setCuit(cuit);
+    saveOrderCommand.setCbu(cbu);
+    saveOrderCommand.setBanco(banco);
+    saveOrderCommand.setAccountNumber(accountNumber);
     saveOrderCommand.setNumeroFactura(numeroFactura);
     saveOrderCommand.setLocalidad(localidad);
     saveOrderCommand.setObservaciones(observaciones);
@@ -454,7 +462,6 @@ public class OrdenPagoController {
     } else {
       Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
       model.addAttribute("titularNombre", proveedor.getDescription());
-      model.addAttribute("bancoAsociado", proveedor.getBanco());
     }
     return "remito";
   }

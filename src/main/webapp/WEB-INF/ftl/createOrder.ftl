@@ -75,14 +75,18 @@ App.widget.TitularSelector = function (container, callback) {
         source: suggestEndpoint,
         minLength: 2,
         select: function(event, ui) {
-          currentTitular = ui.item;
           if (ui.item.name) {
             selector.val(ui.item.name);
           } else {
             selector.val(ui.item.description);
           }
           container.find(".js-titular-id").val(ui.item.id);
-          onSelect(me.getTitularSelected(), currentTitular);
+          jQuery.get("<@spring.url '/titular/view'/>?titularTipo=" + tipoTitularSelector.val()
+              + "&titularId=" + ui.item.id,
+            function (result) {
+              currentTitular = result;
+              onSelect(me.getTitularSelected(), currentTitular);
+            });
           return false;
         }
       });
@@ -161,9 +165,13 @@ App.widget.OrdenPago = function (container) {
   };
 
   var onTitularSelected = function (titular, titularObject) {
-    currentTitular = null;
-    if (titular.tipo == "2") {
-      currentTitular = titularObject;
+    currentTitular = titularObject;
+
+    container.find("input[name=cuit]").val(titularObject.cuit);
+    container.find("input[name=cbu]").val(titularObject.cbu);
+    container.find("input[name=banco]").val(titularObject.banco);
+    container.find("input[name=accountNumber]").val(titularObject.number);
+    if (titularObject.factura) {
       var tipoFacturaField = container.find("select[name=tipoFactura]");
       tipoFacturaField.val(titularObject.factura);
       tipoFacturaField.change();
@@ -284,6 +292,22 @@ textarea.LV_invalid_field:active {
               <div class="form-shop-row">
                 <label for="iva" class="mandatory">IVA %</label>
                 <input type="text" name="iva" id="iva" value="${(order.iva)!'0'}"/>
+              </div>
+              <div class="form-shop-row">
+                <label for="cuit">CUIT/CUIL</label>
+                <input type="text" name="cuit" id="cuit" value="${(order.cuit)!''}"/>
+              </div>
+              <div class="form-shop-row">
+                <label for="banco">Banco</label>
+                <input type="text" name="banco" id="banco" value="${(order.banco)!''}"/>
+              </div>
+              <div class="form-shop-row">
+                <label for="cbu">CBU/Alias</label>
+                <input type="text" name="cbu" id="cbu" value="${(order.cbu)!''}"/>
+              </div>
+              <div class="form-shop-row">
+                <label for="accountNumber">Nro de Cuenta</label>
+                <input type="text" name="accountNumber" id="accountNumber" value="${(order.accountNumber)!''}"/>
               </div>
               <div class="form-shop-row">
                 <label for="localidad">Localidad</label>

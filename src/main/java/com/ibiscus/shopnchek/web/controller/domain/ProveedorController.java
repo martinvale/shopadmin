@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ibiscus.shopnchek.application.ResultSet;
+import com.ibiscus.shopnchek.application.proveedor.DeleteProveedorCommand;
+import com.ibiscus.shopnchek.application.proveedor.GetProveedorCommand;
+import com.ibiscus.shopnchek.application.proveedor.SaveProveedorCommand;
+import com.ibiscus.shopnchek.application.proveedor.SearchProveedorCommand;
 import com.ibiscus.shopnchek.domain.admin.Proveedor;
-import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.security.User;
-import com.ibiscus.shopnchek.domain.util.ResultSet;
 
 @Controller
 @RequestMapping(value="/proveedores")
@@ -25,13 +28,25 @@ public class ProveedorController {
   /** The maximum users to retrieve per page. */
   private final static int PAGE_SIZE = 20;
 
-  /** Repository of shoppers. */
   @Autowired
-  private ProveedorRepository proveedorRepository;
+  private GetProveedorCommand getProveedorCommand;
+
+  @Autowired
+  private SaveProveedorCommand saveProveedorCommand;
+
+  @Autowired
+  private DeleteProveedorCommand deleteProveedorCommand;
+
+  @Autowired
+  private SearchProveedorCommand searchProveedorCommand;
 
   @RequestMapping(value = "/suggest", method = RequestMethod.GET)
   public @ResponseBody List<Proveedor> suggest(@RequestParam String term) {
-    return proveedorRepository.find(1, PAGE_SIZE, term);
+    searchProveedorCommand.setPage(1);
+    searchProveedorCommand.setPageSize(PAGE_SIZE);
+    searchProveedorCommand.setName(term);
+    ResultSet<Proveedor> rsProveedores = searchProveedorCommand.execute();
+    return rsProveedores.getItems();
   }
 
   @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -39,9 +54,11 @@ public class ProveedorController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
-    List<Proveedor> proveedores = proveedorRepository.find(1, PAGE_SIZE, null);
-    int size = proveedorRepository.getProveedoresCount(null);
-    model.addAttribute("proveedores", new ResultSet<Proveedor>(proveedores, size));
+    searchProveedorCommand.setPage(1);
+    searchProveedorCommand.setPageSize(PAGE_SIZE);
+    searchProveedorCommand.setName(null);
+    ResultSet<Proveedor> rsProveedores = searchProveedorCommand.execute();
+    model.addAttribute("proveedores", rsProveedores);
     model.addAttribute("start", 1);
     model.addAttribute("page", 1);
     model.addAttribute("pageSize", PAGE_SIZE);
@@ -55,10 +72,12 @@ public class ProveedorController {
     model.addAttribute("user", user);
 
     model.addAttribute("name", name);
+    searchProveedorCommand.setPage(page);
+    searchProveedorCommand.setPageSize(PAGE_SIZE);
+    searchProveedorCommand.setName(name);
+    ResultSet<Proveedor> rsProveedores = searchProveedorCommand.execute();
+    model.addAttribute("proveedores", rsProveedores);
     int start = ((page - 1) * PAGE_SIZE) + 1;
-    List<Proveedor> proveedores = proveedorRepository.find(start, PAGE_SIZE, name);
-    int size = proveedorRepository.getProveedoresCount(name);
-    model.addAttribute("proveedores", new ResultSet<Proveedor>(proveedores, size));
     model.addAttribute("start", start);
     model.addAttribute("page", page);
     model.addAttribute("pageSize", PAGE_SIZE);
@@ -79,7 +98,8 @@ public class ProveedorController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
-    Proveedor proveedor = proveedorRepository.get(id);
+    getProveedorCommand.setId(id);
+    Proveedor proveedor = getProveedorCommand.execute();
     model.addAttribute("proveedor", proveedor);
     return "proveedor";
   }
@@ -87,31 +107,31 @@ public class ProveedorController {
   @RequestMapping(value = "/proveedor/{id}", method = RequestMethod.DELETE)
   public @ResponseBody boolean delete(@ModelAttribute("model") final ModelMap model,
       @PathVariable long id) {
-    proveedorRepository.delete(id);
-    return true;
+    deleteProveedorCommand.setId(id);
+    return deleteProveedorCommand.execute();
   }
 
   @RequestMapping(value = "/create", method = RequestMethod.POST)
-  public String create(@ModelAttribute("model") final ModelMap model,
-      String cuit, String descripcion, String factura, String banco) {
+  public String create(@ModelAttribute("model") final ModelMap model, String descripcion) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
-    Proveedor proveedor = new Proveedor(cuit, descripcion, factura, banco);
-    long id = proveedorRepository.save(proveedor);
+    saveProveedorCommand.setId(null);
+    saveProveedorCommand.setDescription(descripcion);
+    Proveedor proveedor = saveProveedorCommand.execute();
     model.addAttribute("proveedor", proveedor);
-    return "redirect:" + id;
+    return "redirect:" + proveedor.getId();
   }
 
   @RequestMapping(value = "/update", method = RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
-      long id, String cuit, String descripcion, String factura, String banco) {
+      long id, String descripcion) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
-    Proveedor proveedor = proveedorRepository.get(id);
-    proveedor.update(cuit, descripcion, factura, banco);
-    proveedorRepository.update(proveedor);
+    saveProveedorCommand.setId(id);
+    saveProveedorCommand.setDescription(descripcion);
+    Proveedor proveedor = saveProveedorCommand.execute();
     model.addAttribute("proveedor", proveedor);
     return "redirect:" + id;
   }

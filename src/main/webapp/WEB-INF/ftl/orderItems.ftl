@@ -968,6 +968,16 @@ textarea.LV_invalid_field:active {
                 <td width="33%"><label>Factura Nro: </label>${order.numeroFactura!''}</td>
                 <td width="33%"><label>Localidad: </label>${order.localidad!''}</td>
               </tr>
+              <tr>
+                <td width="33%"><label>Banco: </label>${order.banco!''}</td>
+                <td width="33%"><label>CBU/Alias: </label>${order.cbu!''}</td>
+                <td width="33%"><label>Nro de Cuenta: </label>${order.accountNumber!''}</td>
+              </tr>
+              <tr>
+                <td width="33%"><label>CUIT/CUIL: </label>${order.cuit!''}</td>
+                <td width="33%">&nbsp;</td>
+                <td width="33%">&nbsp;</td>
+              </tr>
             <#if order.estaPagada() >
               <#if order.medioPago.id = 3>
               <tr>

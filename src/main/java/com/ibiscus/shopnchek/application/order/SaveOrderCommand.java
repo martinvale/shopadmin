@@ -36,6 +36,14 @@ public class SaveOrderCommand implements Command<OrdenPago> {
 
 	private String observacionesShopper;
 
+	private String cuit;
+
+	private String banco;
+
+	private String cbu;
+
+	private String accountNumber;
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public OrdenPago execute() {
@@ -51,14 +59,13 @@ public class SaveOrderCommand implements Command<OrdenPago> {
 			OrderState state = orderRepository.getOrderState(1);
 			order = new OrdenPago(tipoProveedor, proveedor, tipoFactura, medioPago,
 					fechaPago, state, iva, numeroFactura, localidad, observaciones,
-					observacionesShopper);
+					observacionesShopper, cuit, banco, cbu, accountNumber);
 			orderRepository.save(order);
 		} else {
 			order = orderRepository.get(numero);
 			order.update(tipoProveedor, proveedor, tipoFactura,
 					fechaPago, iva, numeroFactura, localidad, observaciones,
-					observacionesShopper);
-			orderRepository.save(order);
+					observacionesShopper, cuit, banco, cbu, accountNumber);
 		}
 		return order;
 	}
@@ -105,6 +112,22 @@ public class SaveOrderCommand implements Command<OrdenPago> {
 
 	public void setObservacionesShopper(String observacionesShopper) {
 		this.observacionesShopper = observacionesShopper;
+	}
+
+	public void setCuit(String cuit) {
+		this.cuit = cuit;
+	}
+
+	public void setBanco(String banco) {
+		this.banco = banco;
+	}
+
+	public void setCbu(String cbu) {
+		this.cbu = cbu;
+	}
+
+	public void setAccountNumber(String accountNumber) {
+		this.accountNumber = accountNumber;
 	}
 
 }

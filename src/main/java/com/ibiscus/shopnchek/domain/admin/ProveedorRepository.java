@@ -20,7 +20,7 @@ public class ProveedorRepository extends HibernateDaoSupport {
       criteria.add(Expression.like("description", "%" + pattern + "%"));
     }
     criteria.addOrder(Order.asc("description"));
-    criteria.setFirstResult(start - 1);
+    criteria.setFirstResult(start);
     criteria.setMaxResults(size);
     return criteria.list();
   }

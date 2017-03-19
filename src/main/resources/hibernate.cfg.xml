@@ -32,5 +32,8 @@
     <mapping class="com.ibiscus.shopnchek.domain.admin.AutorizacionAdicional"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.SucursalMCD"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.admin.SucursalShopmetrics"></mapping>
+
+    <mapping class="com.ibiscus.shopnchek.domain.account.Account"></mapping>
+
   </session-factory>
 </hibernate-configuration>

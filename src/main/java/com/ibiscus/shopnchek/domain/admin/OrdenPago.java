@@ -70,6 +70,18 @@ public class OrdenPago {
   @Column(name="transferencia_id", length=15)
   private String idTransferencia;
 
+  @Column(name = "cuit", length = 25)
+  private String cuit;
+
+  @Column(name = "banco", length = 200)
+  private String banco;
+
+  @Column(name = "cbu", length = 100)
+  private String cbu;
+
+  @Column(name = "account_number", length = 50)
+  private String accountNumber;
+
   @Column(name="observaciones")
   private String observaciones;
 
@@ -92,7 +104,8 @@ public class OrdenPago {
   public OrdenPago(final int theTipoProveedor, final int theProveedor,
       final String theTipoFactura, final MedioPago medioPago, final Date thePayDate,
       final OrderState theState, final double theIva, final String numeroFactura,
-      final String localidad, final String observaciones, final String observacionesShopper) {
+      final String localidad, final String observaciones, final String observacionesShopper,
+      final String cuit, final String banco, final String cbu, final String accountNumber) {
     this.tipoProveedor = theTipoProveedor;
     this.proveedor = theProveedor;
     this.tipoFactura = theTipoFactura;
@@ -104,13 +117,18 @@ public class OrdenPago {
     this.localidad = localidad;
     this.observaciones = observaciones;
     this.observacionesShopper = observacionesShopper;
+    this.cuit = cuit;
+    this.banco = banco;
+    this.cbu = cbu;
+    this.accountNumber = accountNumber;
   }
 
   public void update(final int theTipoProveedor, final int theProveedor,
       final String theTipoFactura, final Date thePayDate,
       final double theIva, final String unNumeroFactura,
       final String unaLocalidad, final String unaObservacion,
-      final String unaObservacionShopper) {
+      final String unaObservacionShopper, final String cuit,
+      final String banco, final String cbu, final String accountNumber) {
     tipoProveedor = theTipoProveedor;
     proveedor = theProveedor;
     tipoFactura = theTipoFactura;
@@ -120,6 +138,10 @@ public class OrdenPago {
     localidad = unaLocalidad;
     observaciones = unaObservacion;
     observacionesShopper = unaObservacionShopper;
+    this.cuit = cuit;
+    this.banco = banco;
+    this.cbu = cbu;
+    this.accountNumber = accountNumber;
   }
 
   public void pagar(final OrderState state, final MedioPago medioPago, final String idTransferencia,
@@ -272,6 +294,22 @@ public class OrdenPago {
   public MedioPago getMedioPago() {
     return medioPago;
   }
+
+	public String getCuit() {
+		return cuit;
+	}
+	
+	public String getBanco() {
+		return banco;
+	}
+	
+	public String getCbu() {
+		return cbu;
+	}
+	
+	public String getAccountNumber() {
+		return accountNumber;
+	}
 
   /**
    * @return the observacionesShopper
