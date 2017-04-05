@@ -427,6 +427,8 @@ public class OrdenPagoController {
     searchOrderDtoCommand.setDniShopper(shopperDni);
     searchOrderDtoCommand.setNumeroCheque(numeroCheque);
     searchOrderDtoCommand.setStateId(estadoId);
+    searchOrderDtoCommand.setFechaPagoDesde(null);
+    searchOrderDtoCommand.setFechaPagoHasta(null);
     ResultSet<OrderDto> rsOrdenes = searchOrderDtoCommand.execute();
 
     model.put("result", rsOrdenes);
@@ -578,7 +580,9 @@ public class OrdenPagoController {
   }
 
   @RequestMapping(value="/download")
-  public void download(HttpServletResponse response, Date desde, Date hasta) {
+  public void download(HttpServletResponse response, final Integer tipoTitular,
+          final Integer titularId, final String shopperDni, final String numeroCheque,
+          final Long estadoId, Date desde, Date hasta) {
     String fileName = "ordenesDePago.xls";
     response.setContentType("application/vnd.openxmlformats-officedocument."
         + "spreadsheetml.sheet");
@@ -588,7 +592,8 @@ public class OrdenPagoController {
     response.setHeader(headerKey, headerValue);
 
     try {
-      importService.exportOrdenes(response.getOutputStream(), desde, hasta);
+      importService.exportOrdenes(response.getOutputStream(), tipoTitular, titularId, shopperDni,
+              numeroCheque, estadoId, desde, hasta);
     } catch (IOException e) {
       throw new RuntimeException("Cannot write the XLS file", e);
     }

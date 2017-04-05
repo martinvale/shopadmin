@@ -38,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
+import com.ibiscus.shopnchek.domain.admin.OrderState;
 import com.ibiscus.shopnchek.domain.admin.Proveedor;
 import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
@@ -500,15 +501,20 @@ public class ImportService {
 		return headers;
 	}
 
-  public void exportOrdenes(final OutputStream outputStream,
-      final Date desde, final Date hasta) {
+  public void exportOrdenes(final OutputStream outputStream, final Integer tipoTitular,
+          final Integer titularId, final String shopperDni, final String numeroCheque,
+          final Long estadoId, final Date desde, final Date hasta) {
     Map<Class<?>, CellStyle> styles = new HashMap<Class<?>, CellStyle>();
 
     Workbook workbook = new SXSSFWorkbook();
     Sheet sheet = workbook.createSheet("Ordenes");
 
-    List<OrdenPago> orders = orderRepository.find(null, null, "numero", true, null, null, null, null,
-        null, desde, hasta);
+    OrderState state = null;
+    if (estadoId != null) {
+        state = orderRepository.getOrderState(estadoId);
+    }
+    List<OrdenPago> orders = orderRepository.find(null, null, "numero", true, tipoTitular,
+            titularId, shopperDni, numeroCheque, state, desde, hasta);
     try {
       int currentRow = 2;
 

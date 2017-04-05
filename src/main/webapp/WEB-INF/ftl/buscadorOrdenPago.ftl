@@ -141,7 +141,7 @@ App.widget.Buscador = function (container) {
       <#if model['ascending']>
         <#assign direction = 'up' />
       </#if>
-      <#assign parameters = "dniShopper=${model['dniShopper']!''}&tipoTitular=${model['tipoTitular']!''}&titularId=${model['titularId']!''}&estadoId=${model['state']!''}&numeroCheque=${model['numeroCheque']!''}" />
+      <#assign parameters = "shopperDni=${model['shopperDni']!''}&tipoTitular=${model['tipoTitular']!''}&titularId=${(model['titularId']?c)!''}&estadoId=${model['state']!''}&numeroCheque=${model['numeroCheque']!''}" />
       <table summary="Listado de ordenes de pago" class="table-form">
         <thead>
           <tr>
@@ -184,7 +184,7 @@ App.widget.Buscador = function (container) {
           <#assign start = ((model["page"] - 1) * model["pageSize"]) + 1 />
         </#if>
         <span class="resultset">Adicionales de ${(start)?c} a ${maxIndex} de ${resultSet.count}</span>
-        <a class="tool" href="export?${parameters}">descargar</a>
+        <a class="tool" href="download?${parameters}">descargar</a>
       </div>
 
     </div>
