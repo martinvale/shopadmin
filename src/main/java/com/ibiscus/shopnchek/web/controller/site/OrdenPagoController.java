@@ -1,6 +1,8 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -251,7 +253,7 @@ public class OrdenPagoController {
       @RequestParam(required = false) String numeroChequera,
       @RequestParam(required = false) String numeroCheque,
       @RequestParam(required = false) String transferId,
-      String observaciones, String observacionesShopper, Integer state) {
+      String observaciones, String observacionesShopper, Long state) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
@@ -269,6 +271,29 @@ public class OrdenPagoController {
     model.addAttribute("ordenPago", ordenPago);
 
     return "redirect:../" + orderId;
+  }
+
+  @RequestMapping(value="/silentpay/{orderId}", method = RequestMethod.POST)
+  public @ResponseBody boolean silentPayOrder(@ModelAttribute("model") final ModelMap model,
+      @PathVariable long orderId, @RequestParam(required = false) String transferId,
+      String observaciones, String observacionesShopper, @RequestParam(defaultValue = "false") boolean sendMail,
+      String receivers) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    payOrderCommand.setNumero(orderId);
+    payOrderCommand.setMedioPagoId(3);
+    payOrderCommand.setStateId(OrderState.PAGADA);
+    payOrderCommand.setIdTransferencia(transferId);
+    payOrderCommand.setObservaciones(observaciones);
+    payOrderCommand.setObservacionesShopper(observacionesShopper);
+    payOrderCommand.setSendMail(sendMail);
+    payOrderCommand.setReceivers(receivers);
+    OrdenPago ordenPago = payOrderCommand.execute();
+    model.addAttribute("ordenPago", ordenPago);
+
+    return true;
   }
 
   @RequestMapping(value="/cancel/{orderId}", method = RequestMethod.POST)
@@ -419,6 +444,49 @@ public class OrdenPagoController {
     model.put("numeroCheque", numeroCheque);
 
     return "buscadorOrdenPago";
+  }
+
+  @RequestMapping(value="/pending")
+  public String search(@ModelAttribute("model") final ModelMap model,
+        @RequestParam(required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaDesde,
+        @RequestParam(required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaHasta) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    Calendar calendar = Calendar.getInstance();
+    Date fromDate = fechaDesde;
+    if (fromDate == null) {
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        fromDate = calendar.getTime();
+    }
+    Date toDate = fechaHasta;
+    if (toDate == null) {
+        calendar.setTime(new Date());
+        calendar.set(Calendar.HOUR, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        toDate = calendar.getTime();
+    }
+    searchOrderDtoCommand.setPage(1);
+    searchOrderDtoCommand.setPageSize(50);
+    searchOrderDtoCommand.setOrderBy("fechaPago", false);
+    searchOrderDtoCommand.setStateId(OrderState.CERRADA);
+    searchOrderDtoCommand.setFechaPagoDesde(fromDate);
+    searchOrderDtoCommand.setFechaPagoHasta(toDate);
+    ResultSet<OrderDto> rsOrdenes = searchOrderDtoCommand.execute();
+
+    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    model.put("fechaDesde", dateFormat.format(fromDate));
+    model.put("fechaHasta", dateFormat.format(toDate));
+    model.put("result", rsOrdenes);
+
+    return "pendientesPago";
   }
 
   @RequestMapping(value="/caratula/{orderId}")

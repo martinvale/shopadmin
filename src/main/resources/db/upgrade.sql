@@ -29,3 +29,5 @@ from ordenes
 alter table proveedores drop column cuit;
 alter table proveedores drop column factura;
 alter table proveedores drop column banco;
+
+alter table proveedores add email nvarchar(100) null;

@@ -95,6 +95,11 @@ textarea.LV_invalid_field:active {
                 <label for="login">Login shopmetrics</label>
                 <input id="login" type="text" name="login" value="${titular.loginShopmetrics!''}" />
               </div>
+              <#else>
+              <div class="form-shop-row">
+                <label for="email">Email</label>
+                <input id="email" type="text" name="email" value="${titular.email!''}" />
+              </div>
               </#if>
               <div class="form-shop-row">
                 <label for="cuit">CUIT/CUIL</label>

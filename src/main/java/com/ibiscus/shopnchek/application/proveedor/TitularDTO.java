@@ -1,87 +1,99 @@
 package com.ibiscus.shopnchek.application.proveedor;
 
-
 public class TitularDTO {
 
-	private long titularId;
+    public static final int SHOPPER = 1;
 
-	private int titularTipo;
+    public static final int PROVEEDOR = 2;
 
-	private String name;
+    private long titularId;
 
-	private String loginShopmetrics;
+    private int titularTipo;
 
-	private String cuit;
+    private String name;
 
-	private String factura;
+    private String email;
 
-	private String banco;
+    private String loginShopmetrics;
 
-	private String cbu;
+    private String cuit;
 
-	private String number;
+    private String factura;
 
-	public TitularDTO(long titularId, int titularTipo, String name, String loginShopmetrics, String cuit,
-			String factura, String banco, String cbu, String number) {
-		super();
-		this.titularId = titularId;
-		this.titularTipo = titularTipo;
-		this.name = name;
-		this.loginShopmetrics = loginShopmetrics;
-		this.cuit = cuit;
-		this.factura = factura;
-		this.banco = banco;
-		this.cbu = cbu;
-		this.number = number;
-	}
+    private String banco;
 
-	public void update(long titularId, int titularTipo, String name, String loginShopmetrics, String cuit,
-			String factura, String banco, String cbu, String number) {
-		this.titularId = titularId;
-		this.titularTipo = titularTipo;
-		this.name = name;
-		this.loginShopmetrics = loginShopmetrics;
-		this.cuit = cuit;
-		this.factura = factura;
-		this.banco = banco;
-		this.cbu = cbu;
-		this.number = number;
-	}
+    private String cbu;
 
-	public long getTitularId() {
-		return titularId;
-	}
+    private String number;
 
-	public int getTitularTipo() {
-		return titularTipo;
-	}
+    public TitularDTO(long titularId, int titularTipo, String name, String email,
+            String loginShopmetrics, String cuit, String factura, String banco,
+            String cbu, String number) {
+        super();
+        this.titularId = titularId;
+        this.titularTipo = titularTipo;
+        this.name = name;
+        this.email = email;
+        this.loginShopmetrics = loginShopmetrics;
+        this.cuit = cuit;
+        this.factura = factura;
+        this.banco = banco;
+        this.cbu = cbu;
+        this.number = number;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void update(long titularId, int titularTipo, String name,
+            String loginShopmetrics, String cuit, String factura, String banco,
+            String cbu, String number) {
+        this.titularId = titularId;
+        this.titularTipo = titularTipo;
+        this.name = name;
+        this.loginShopmetrics = loginShopmetrics;
+        this.cuit = cuit;
+        this.factura = factura;
+        this.banco = banco;
+        this.cbu = cbu;
+        this.number = number;
+    }
 
-	public String getLoginShopmetrics() {
-		return loginShopmetrics;
-	}
+    public long getTitularId() {
+        return titularId;
+    }
 
-	public String getCuit() {
-		return cuit;
-	}
+    public int getTitularTipo() {
+        return titularTipo;
+    }
 
-	public String getFactura() {
-		return factura;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getBanco() {
-		return banco;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public String getCbu() {
-		return cbu;
-	}
+    public String getLoginShopmetrics() {
+        return loginShopmetrics;
+    }
 
-	public String getNumber() {
-		return number;
-	}
+    public String getCuit() {
+        return cuit;
+    }
+
+    public String getFactura() {
+        return factura;
+    }
+
+    public String getBanco() {
+        return banco;
+    }
+
+    public String getCbu() {
+        return cbu;
+    }
+
+    public String getNumber() {
+        return number;
+    }
 
 }

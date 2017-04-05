@@ -15,6 +15,8 @@ public class SaveProveedorCommand implements Command<Proveedor> {
 
 	private String description;
 
+	private String email;
+
 	public SaveProveedorCommand() {
 	}
 
@@ -24,9 +26,9 @@ public class SaveProveedorCommand implements Command<Proveedor> {
 		Proveedor proveedor = null;
 		if (id != null) {
 			proveedor = proveedorRepository.get(id);
-			proveedor.update(description);
+			proveedor.update(description, email);
 		} else {
-			proveedor = new Proveedor(description);
+			proveedor = new Proveedor(description, email);
 			proveedorRepository.save(proveedor);
 		}
 		return proveedor;
@@ -44,4 +46,7 @@ public class SaveProveedorCommand implements Command<Proveedor> {
 		this.description = description;
 	}
 
+    public void setEmail(final String email) {
+        this.email = email;
+    }
 }

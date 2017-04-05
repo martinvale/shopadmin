@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <#import "/spring.ftl" as spring />
     <meta charset="utf-8">
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
@@ -43,10 +44,10 @@ App.widget.Buscador = function (container) {
   return {
     render: function() {
       titularSelector = new App.widget.TitularSelector(
-          container.find(".js-titular-selector"));
+          container.find(".js-titular-selector"), "<@spring.url '/titular/suggest'/>");
       titularSelector.render();
 
-      var shopperSelector = new App.widget.ShopperSelector(jQuery(".js-shopper-selector"));
+      var shopperSelector = new App.widget.ShopperSelector(jQuery(".js-shopper-selector"), true);
       shopperSelector.render();
 
       initEventListeners();
@@ -94,25 +95,13 @@ App.widget.Buscador = function (container) {
         <div class="cell box-green buscador">
           <fieldset>
             <legend>B&uacute;squeda avanzada</legend>
-            <div class="form-shop-options-left titular-widget js-titular-selector">
-              <p class="mandatory">Titular</p>
-              <ul>
-                <#assign tipoTitular = model['tipoTitular']!1 />
-                <li class="form-shop">
-                  <input type="radio" name="tipoTitular" id="shopper" value="1" class="js-shopper" <#if tipoTitular == 1>checked="checked"</#if>>
-                  <label for="shopper">Shopper</label>
-                </li>
-                <li class="form-shop">
-                  <input type="radio" name="tipoTitular" id="proveedor" value="2" class="js-proveedor" <#if tipoTitular == 2>checked="checked"</#if>>
-                  <label for="proveedor">Proveedor</label>
-                </li>
-              </ul>
-              <div class="combo-titular">
-                <#assign titularId = "${(model['titularId']?c)!''}" />
-                <#assign titularNombre = "${model['titularNombre']!''}" />
-                <input type="text" value="${titularNombre}" class="nombre-titular js-titulares" />
-                <input type="hidden" name="titularId" value="${titularId}" class="js-titular-id" />
-              </div>
+            <div class="field js-titular-selector">
+              <label for="titularNombre">Titular</label>
+              <#assign titularId = "${(model['titularId']?c)!''}" />
+              <#assign titularNombre = "${model['titularNombre']!''}" />
+              <input id="titularNombre" type="text" value="${titularNombre}" class="nombre-titular js-titular-nombre" />
+              <input type="hidden" name="titularId" value="${titularId}" class="js-titular-id" />
+              <input type="hidden" name="tipoTitular" value="${model['tipoTitular']!1}" class="js-titular-tipo" />
             </div>
             <div class="field js-shopper-selector">
               <label for="shopper">Shopper incluido en la orden</label>
@@ -167,8 +156,8 @@ App.widget.Buscador = function (container) {
           <#list resultSet.items as orden>
           <tr>
             <td>${orden.numero?c} <a href="${orden.numero?c}">editar</a></td>
-            <td class="js-importe">${orden.importe?string.currency}</td>
-            <td class="js-fecha">${orden.fechaPago?string("dd/MM/yyyy")}</td>
+            <td class="js-importe">$ ${orden.importe}</td>
+            <td class="js-fecha">${orden.fechaPago}</td>
             <td class="js-estado">${orden.state}</td>
           </tr>
           </#list>

@@ -112,12 +112,13 @@ public class ProveedorController {
   }
 
   @RequestMapping(value = "/create", method = RequestMethod.POST)
-  public String create(@ModelAttribute("model") final ModelMap model, String descripcion) {
+  public String create(@ModelAttribute("model") final ModelMap model, String descripcion, String email) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     saveProveedorCommand.setId(null);
     saveProveedorCommand.setDescription(descripcion);
+    saveProveedorCommand.setEmail(email);
     Proveedor proveedor = saveProveedorCommand.execute();
     model.addAttribute("proveedor", proveedor);
     return "redirect:" + proveedor.getId();
@@ -125,12 +126,13 @@ public class ProveedorController {
 
   @RequestMapping(value = "/update", method = RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
-      long id, String descripcion) {
+      long id, String descripcion, String email) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     model.addAttribute("user", user);
 
     saveProveedorCommand.setId(id);
     saveProveedorCommand.setDescription(descripcion);
+    saveProveedorCommand.setEmail(email);
     Proveedor proveedor = saveProveedorCommand.execute();
     model.addAttribute("proveedor", proveedor);
     return "redirect:" + id;

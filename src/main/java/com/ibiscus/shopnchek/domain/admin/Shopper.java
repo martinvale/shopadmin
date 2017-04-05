@@ -27,6 +27,9 @@ public class Shopper {
   @Column(name="login_shopmetrics")
   private String login;
 
+  @Column(name="\"e-mail\"")
+  private String email;
+
   @Column(name="pais")
   private Integer pais;
 
@@ -51,6 +54,10 @@ public class Shopper {
 
   public String getLogin() {
     return login;
+  }
+
+  public String getEmail() {
+    return email;
   }
 
   public Integer getPais() {

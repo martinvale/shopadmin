@@ -32,88 +32,6 @@
 
       App.widget = App.widget || {};
 
-App.widget.TitularSelector = function (container, callback) {
-
-  var currentTitular = null;
-
-  var selector = container.find(".js-titulares");
-
-  var endpoints = {
-    1: "<@spring.url '/services/shoppers/suggest'/>",
-    2: "<@spring.url '/proveedores/suggest'/>"
-  };
-
-  var tipoTitularSelector = container.find(".js-tipo-titular");
-
-  var filter;
-
-  var onSelect = callback || function () {};
-
-  var initEventListeners = function () {
-    tipoTitularSelector.change(function (event) {
-      reset();
-      var tipoTitular = jQuery(this).val();
-      filter = selector.autocomplete('option', 'source', endpoints[tipoTitular]);
-    });
-  };
-
-  var reset = function () {
-    selector.val('');
-    container.find(".js-titular-id").val('');
-  };
-
-  var highlight = function (value, term) {
-    var matcher = new RegExp("(" + $.ui.autocomplete.escapeRegex(term) + ")", "ig");
-    return value.replace(matcher, "<strong>$1</strong>");
-  };
-
-  return {
-    render: function () {
-      var me = this;
-      var suggestEndpoint = endpoints[tipoTitularSelector.val()];
-      filter = selector.autocomplete({
-        source: suggestEndpoint,
-        minLength: 2,
-        select: function(event, ui) {
-          if (ui.item.name) {
-            selector.val(ui.item.name);
-          } else {
-            selector.val(ui.item.description);
-          }
-          container.find(".js-titular-id").val(ui.item.id);
-          jQuery.get("<@spring.url '/titular/view'/>?titularTipo=" + tipoTitularSelector.val()
-              + "&titularId=" + ui.item.id,
-            function (result) {
-              currentTitular = result;
-              onSelect(me.getTitularSelected(), currentTitular);
-            });
-          return false;
-        }
-      });
-      filter.data( "ui-autocomplete" )._renderItem = function(ul, item) {
-        var display = ((item.name) ? item.name : item.description);
-        display = highlight(display, selector.val());
-        return $("<li>")
-          .append("<a>" + display + "</a>")
-          .appendTo(ul);
-      };
-
-      initEventListeners();
-    },
-    getTitularSelected: function() {
-      current = null;
-      if (container.find(".js-titular-id").val()) {
-        current = {
-          id: container.find(".js-titular-id").val(),
-          tipo: tipoTitularSelector.val(),
-          name: selector.val()
-        }
-      }
-      return current;
-    }
-  };
-}
-
 App.widget.OrdenPago = function (container) {
 
   var validations = [];
@@ -164,7 +82,7 @@ App.widget.OrdenPago = function (container) {
     validations.push(ivaValidation);
   };
 
-  var onTitularSelected = function (titular, titularObject) {
+  var onTitularSelected = function (titularObject) {
     currentTitular = titularObject;
 
     container.find("input[name=cuit]").val(titularObject.cuit);
@@ -181,7 +99,7 @@ App.widget.OrdenPago = function (container) {
   return {
     render: function () {
       var titularSelector = App.widget.TitularSelector(container.find(".js-titular-selector"),
-          onTitularSelected);
+          "<@spring.url '/titular/suggest'/>", onTitularSelected);
       titularSelector.render();
 
       container.find(".js-date" ).datepicker({
@@ -206,8 +124,7 @@ App.widget.OrdenPago = function (container) {
 
     </script>
 
-    <!--script src="../script/TitularSelector.js"></script>
-    <script src="../script/OrdenPago.js"></script-->
+    <script src="<@spring.url '/script/TitularSelector.js'/>"></script>
     <script src="<@spring.url '/script/LoadingIndicator.js'/>"></script>
 
 <style>
@@ -263,13 +180,9 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row titular-selector js-titular-selector">
                 <label class="mandatory">Titular</label>
-                <select name="tipoTitular" class="js-tipo-titular">
-                  <option value="1" <#if ((order.tipoProveedor?c)!'') == '1'>selected="selected"</#if>>Shopper</option>
-                  <option value="2" <#if ((order.tipoProveedor?c)!'') == '2'>selected="selected"</#if>>Proveedor</option>
-                </select>
-                <#assign titularNombre = "${model['titularNombre']!''}" />
-                <input id="titular" type="text" value="${titularNombre}" class="item-field js-titulares" />
+                <input id="titular" type="text" value="${model['titularNombre']!''}" class="item-field js-titular-nombre" />
                 <input type="hidden" name="titularId" value="${(order.proveedor?c)!''}" class="js-titular-id" />
+                <input type="hidden" name="tipoTitular" value="${(order.tipoProveedor?c)!''}" class="js-titular-tipo" />
               </div>
               <div class="form-shop-row">
                 <label for="tipoFactura" class="mandatory">Factura</label>

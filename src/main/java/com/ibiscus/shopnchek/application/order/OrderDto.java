@@ -1,44 +1,85 @@
 package com.ibiscus.shopnchek.application.order;
 
-import java.util.Date;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 
 public class OrderDto {
 
-	private long numero;
+    private static final DateFormat dateFormat = new SimpleDateFormat(
+            "dd/MM/yyyy");
 
-	private double importe;
+    private static final DecimalFormat numberFormat = new DecimalFormat("#.00");
 
-	private Date fechaPago;
+    private long numero;
 
-	private String state;
+    private String titular;
 
-	public OrderDto(final OrdenPago order, final double importe) {
-		this(order);
-		this.importe = importe;
-	}
+    private String importe = "0";
 
-	public OrderDto(final OrdenPago order) {
-		this.numero = order.getNumero();
-		this.importe = order.getImporte();
-		this.fechaPago = order.getFechaPago();
-		this.state = order.getEstado().getDescription();
-	}
+    private String fechaPago;
 
-	public long getNumero() {
-		return numero;
-	}
+    private String state;
 
-	public double getImporte() {
-		return importe;
-	}
+    private String cuit;
 
-	public Date getFechaPago() {
-		return fechaPago;
-	}
+    private String banco;
 
-	public String getState() {
-		return state;
-	}
+    private String cbu;
+
+    public OrderDto(final OrdenPago order, final String titular, final String cuit,
+            final String banco, final String cbu, final double importe) {
+        this(order, titular, cuit, banco, cbu);
+        if (importe > 0) {
+            this.importe = numberFormat.format(importe);
+        }
+    }
+
+    public OrderDto(final OrdenPago order, final String titular, final String cuit,
+            final String banco, final String cbu) {
+        this.numero = order.getNumero();
+        this.titular = titular;
+        this.cuit = cuit;
+        this.banco = banco;
+        this.cbu = cbu;
+        if (order.getImporte() > 0) {
+            this.importe = numberFormat.format(order.getImporte());
+        }
+        this.fechaPago = dateFormat.format(order.getFechaPago());
+        this.state = order.getEstado().getDescription();
+    }
+
+    public long getNumero() {
+        return numero;
+    }
+
+    public String getTitular() {
+        return titular;
+    }
+
+    public String getImporte() {
+        return importe;
+    }
+
+    public String getFechaPago() {
+        return fechaPago;
+    }
+
+    public String getCuit() {
+        return cuit;
+    }
+
+    public String getBanco() {
+        return banco;
+    }
+
+    public String getCbu() {
+        return cbu;
+    }
+
+    public String getState() {
+        return state;
+    }
 }

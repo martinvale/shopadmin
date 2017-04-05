@@ -136,6 +136,14 @@
     <constructor-arg index="0" ref="dataSource" />
   </bean>
 
+  <bean id="communicationService" class="com.ibiscus.shopnchek.application.email.CommunicationService">
+    <constructor-arg index="0" value="smtp.office365.com" />
+    <constructor-arg index="1" value="587" />
+    <constructor-arg index="2" value="pagosshopnchek@shopnchek.com.ar" />
+    <constructor-arg index="3" value="DOejj339" />
+    <!-- constructor-arg index="3" value="Hopa9059" /-->
+  </bean>
+
   <bean id="importerService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportService">
     <property name="orderRepository" ref="orderRepository" />
     <property name="debtRepository" ref="debtRepository" />
@@ -158,10 +166,16 @@
 
   <bean id="searchOrderDtoCommand" class="com.ibiscus.shopnchek.application.order.SearchOrderDtoCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
+    <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
   </bean>
 
   <bean id="payOrderCommand" class="com.ibiscus.shopnchek.application.order.PayOrderCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
+    <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="communicationService" ref="communicationService" />
+    <property name="from" value="pagosshopnchek@shopnchek.com.ar" />
   </bean>
 
   <bean id="transitionOrderCommand" class="com.ibiscus.shopnchek.application.order.TransitionOrderCommand" scope="prototype">
@@ -272,6 +286,12 @@
   </bean>
 
   <bean id="saveTitularCommand" class="com.ibiscus.shopnchek.application.proveedor.SaveTitularCommand" scope="prototype">
+    <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="accountRepository" ref="accountRepository" />
+  </bean>
+
+  <bean id="searchTitularCommand" class="com.ibiscus.shopnchek.application.proveedor.SearchTitularCommand" scope="prototype">
     <property name="proveedorRepository" ref="proveedorRepository" />
     <property name="shopperRepository" ref="shopperRepository" />
     <property name="accountRepository" ref="accountRepository" />

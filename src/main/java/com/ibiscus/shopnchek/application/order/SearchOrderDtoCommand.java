@@ -1,93 +1,134 @@
 package com.ibiscus.shopnchek.application.order;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.ibiscus.shopnchek.application.SearchCommand;
+import com.ibiscus.shopnchek.application.proveedor.TitularDTO;
 import com.ibiscus.shopnchek.domain.admin.ItemOrden;
 import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
 import com.ibiscus.shopnchek.domain.admin.OrderState;
+import com.ibiscus.shopnchek.domain.admin.Proveedor;
+import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
+import com.ibiscus.shopnchek.domain.admin.Shopper;
+import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 
 public class SearchOrderDtoCommand extends SearchCommand<OrderDto> {
 
-	private OrderRepository orderRepository;
+    private OrderRepository orderRepository;
 
-	private Integer tipoTitular;
+    private ShopperRepository shopperRepository;
 
-	private Integer titularId;
+    private ProveedorRepository proveedorRepository;
 
-	private String dniShopper;
+    private Integer tipoTitular;
 
-	private String numeroCheque;
+    private Integer titularId;
 
-	private Long stateId;
+    private String dniShopper;
 
-	public SearchOrderDtoCommand() {
-	}
+    private String numeroCheque;
 
-	public void setOrderRepository(final OrderRepository orderRepository) {
-		this.orderRepository = orderRepository;
-	}
+    private Long stateId;
 
-	public void setTipoTitular(final Integer tipoTitular) {
-		this.tipoTitular = tipoTitular;
-	}
+    private Date fechaPagoDesde;
 
-	public void setTitularId(final Integer titularId) {
-		this.titularId = titularId;
-	}
+    private Date fechaPagoHasta;
 
-	public void setDniShopper(final String dniShopper) {
-		this.dniShopper = dniShopper;
-	}
+    public SearchOrderDtoCommand() {
+    }
 
-	public void setNumeroCheque(final String numeroCheque) {
-		this.numeroCheque = numeroCheque;
-	}
+    public void setOrderRepository(final OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
+    }
 
-	public void setStateId(final Long stateId) {
-		this.stateId = stateId;
-	}
+    public void setShopperRepository(ShopperRepository shopperRepository) {
+        this.shopperRepository = shopperRepository;
+    }
 
-	@Override
-	protected List<OrderDto> getItems() {
-		List<OrderDto> orderDtoItems = new ArrayList<OrderDto>();
+    public void setProveedorRepository(ProveedorRepository proveedorRepository) {
+        this.proveedorRepository = proveedorRepository;
+    }
 
-		List<OrdenPago> orderItems = orderRepository.find(getStart(), getPageSize(),
-				getOrderBy(), isAscending(), tipoTitular, titularId, dniShopper,
-				numeroCheque, getState(), null, null);
-		for (OrdenPago order : orderItems) {
-			OrderDto orderDto = null;
-			if (!StringUtils.isBlank(dniShopper)) {
-				double importe = 0;
-				for (ItemOrden itemOrden : order.getItems()) {
-					if (dniShopper.equals(itemOrden.getShopperDni())) {
-						importe = importe + itemOrden.getImporte();
-					}
-				}
-				orderDto = new OrderDto(order, importe);
-			} else {
-				orderDto = new OrderDto(order);
-			}
-			orderDtoItems.add(orderDto);
-		}
-		return orderDtoItems;
-	}
+    public void setTipoTitular(final Integer tipoTitular) {
+        this.tipoTitular = tipoTitular;
+    }
 
-	@Override
-	protected int getCount() {
-		return orderRepository.getCount(tipoTitular, titularId, dniShopper,
-				numeroCheque, getState(), null, null);
-	}
+    public void setTitularId(final Integer titularId) {
+        this.titularId = titularId;
+    }
 
-	private OrderState getState() {
-		OrderState state = null;
-		if (stateId != null) {
-			state = orderRepository.getOrderState(stateId);
-		}
-		return state;
-	}
+    public void setDniShopper(final String dniShopper) {
+        this.dniShopper = dniShopper;
+    }
+
+    public void setNumeroCheque(final String numeroCheque) {
+        this.numeroCheque = numeroCheque;
+    }
+
+    public void setStateId(final Long stateId) {
+        this.stateId = stateId;
+    }
+
+    public void setFechaPagoDesde(Date fechaPagoDesde) {
+        this.fechaPagoDesde = fechaPagoDesde;
+    }
+
+    public void setFechaPagoHasta(Date fechaPagoHasta) {
+        this.fechaPagoHasta = fechaPagoHasta;
+    }
+
+    @Override
+    protected List<OrderDto> getItems() {
+        List<OrderDto> orderDtoItems = new ArrayList<OrderDto>();
+
+        List<OrdenPago> orderItems = orderRepository.find(getStart(),
+                getPageSize(), getOrderBy(), isAscending(), tipoTitular,
+                titularId, dniShopper, numeroCheque, getState(), fechaPagoDesde, fechaPagoHasta);
+        for (OrdenPago order : orderItems) {
+            OrderDto orderDto = null;
+            String titular = null;
+            if (order.getTipoProveedor().intValue() == TitularDTO.SHOPPER) {
+                Shopper shopper = shopperRepository.get(order.getProveedor());
+                if (shopper != null) {
+                    titular = shopper.getName();
+                }
+            } else {
+                Proveedor proveedor = proveedorRepository.get(order.getProveedor());
+                titular = proveedor.getDescription();
+            }
+            if (!StringUtils.isBlank(dniShopper)) {
+                double importe = 0;
+                for (ItemOrden itemOrden : order.getItems()) {
+                    if (dniShopper.equals(itemOrden.getShopperDni())) {
+                        importe = importe + itemOrden.getImporte();
+                    }
+                }
+                orderDto = new OrderDto(order, titular, order.getCuit(), order.getBanco(), order.getCbu(), importe);
+            } else {
+                orderDto = new OrderDto(order, titular, order.getCuit(), order.getBanco(), order.getCbu());
+            }
+            orderDtoItems.add(orderDto);
+        }
+        return orderDtoItems;
+    }
+
+    @Override
+    protected int getCount() {
+        return orderRepository.getCount(tipoTitular, titularId, dniShopper,
+                numeroCheque, getState(), null, null);
+    }
+
+    private OrderState getState() {
+        OrderState state = null;
+        if (stateId != null) {
+            state = orderRepository.getOrderState(stateId);
+        }
+        return state;
+    }
+
 }

@@ -25,6 +25,8 @@ public class SaveTitularCommand implements Command<TitularDTO> {
 
 	private String name;
 
+	private String email;
+
 	private String loginShopmetrics;
 
 	private String cuit;
@@ -55,9 +57,9 @@ public class SaveTitularCommand implements Command<TitularDTO> {
 			shopper.update(loginShopmetrics);
 		} else {
 			Proveedor proveedor = proveedorRepository.get(titularId);
-			proveedor.update(name);
+			proveedor.update(name, email);
 		}
-		return new TitularDTO(titularId, titularTipo, name, loginShopmetrics, cuit, factura, banco, cbu, number);
+		return new TitularDTO(titularId, titularTipo, name, email, loginShopmetrics, cuit, factura, banco, cbu, number);
 	}
 
 	public void setTitularId(final long titularId) {
@@ -72,7 +74,11 @@ public class SaveTitularCommand implements Command<TitularDTO> {
 		this.name = name;
 	}
 
-	public void setLoginShopmetrics(String loginShopmetrics) {
+	public void setEmail(final String email) {
+	    this.email = email;
+	}
+
+    public void setLoginShopmetrics(String loginShopmetrics) {
 		this.loginShopmetrics = loginShopmetrics;
 	}
 

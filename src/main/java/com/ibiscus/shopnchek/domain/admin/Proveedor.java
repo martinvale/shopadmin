@@ -16,15 +16,20 @@ public class Proveedor {
   @Column(name="descripcion")
   private String description;
 
+  @Column(name="email", length=100)
+  private String email;
+
   Proveedor() {
   }
 
-  public Proveedor(final String unaDescripcion) {
+  public Proveedor(final String unaDescripcion, final String email) {
     this.description = unaDescripcion;
+    this.email = email;
   }
 
-  public void update(final String unaDescripcion) {
+  public void update(final String unaDescripcion, final String email) {
     this.description = unaDescripcion;
+    this.email = email;
   }
 
   public void updateId(final long theId) {
@@ -39,4 +44,7 @@ public class Proveedor {
     return description;
   }
 
+  public String getEmail() {
+    return email;
+  }
 }

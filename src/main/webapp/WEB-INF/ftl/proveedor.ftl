@@ -39,9 +39,11 @@
     <div class="container-box-plantilla">
       <h2 class="container-tit">Proveedor</h2>
       <#assign description = ""/>
+      <#assign email = ""/>
       <#assign endpoint = "create" />
       <#if proveedor??>
         <#assign description = "${proveedor.description}"/>
+        <#assign email = "${proveedor.email!''}"/>
         <#assign endpoint = "update" />
       </#if>
       <form class="form-shop form-shop-big" action="${endpoint}" method="POST">
@@ -58,6 +60,10 @@
             <div class="field">
               <label class="field-name" for="description">Nombre: </label>
               <input type="text" id="description" name="descripcion" value="${description}" />
+            </div>
+            <div class="field">
+              <label class="field-name" for="email">Email: </label>
+              <input type="text" id="email" name="email" value="${email}" />
             </div>
           </div>
         </div>

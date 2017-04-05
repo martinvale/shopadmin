@@ -1,5 +1,7 @@
 package com.ibiscus.shopnchek.web.controller.domain;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -7,10 +9,13 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ibiscus.shopnchek.application.ResultSet;
 import com.ibiscus.shopnchek.application.proveedor.GetTitularCommand;
 import com.ibiscus.shopnchek.application.proveedor.SaveTitularCommand;
+import com.ibiscus.shopnchek.application.proveedor.SearchTitularCommand;
 import com.ibiscus.shopnchek.application.proveedor.TitularDTO;
 import com.ibiscus.shopnchek.domain.security.User;
 
@@ -24,12 +29,24 @@ public class TitularController {
   @Autowired
   private GetTitularCommand getTitularCommand;
 
+  @Autowired
+  private SearchTitularCommand searchTitularCommand;
+
   @RequestMapping(value = "/", method = RequestMethod.GET)
   public String search(@ModelAttribute("model") final ModelMap model) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
             .getPrincipal();
     model.addAttribute("user", user);
     return "buscadorTitulares";
+  }
+
+  @RequestMapping(value = "/suggest", method = RequestMethod.GET)
+  public @ResponseBody List<TitularDTO> suggest(@RequestParam String term) {
+    searchTitularCommand.setPage(1);
+    searchTitularCommand.setPageSize(50);
+    searchTitularCommand.setName(term);
+    ResultSet<TitularDTO> rsTitulares = searchTitularCommand.execute();
+    return rsTitulares.getItems();
   }
 
   @RequestMapping(value = "/view", method = RequestMethod.GET)
@@ -53,7 +70,7 @@ public class TitularController {
 
   @RequestMapping(value = "/update", method = RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model, final long titularId, final int titularTipo,
-		String name, String login, String cuit, String tipoFactura, String banco, String cbu, String number) {
+		String name, String email, String login, String cuit, String tipoFactura, String banco, String cbu, String number) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
     		.getPrincipal();
     model.addAttribute("user", user);
@@ -61,6 +78,7 @@ public class TitularController {
     saveTitularCommand.setTitularTipo(titularTipo);
     saveTitularCommand.setTitularId(titularId);
     saveTitularCommand.setName(name);
+    saveTitularCommand.setEmail(email);
     saveTitularCommand.setLoginShopmetrics(login);
     saveTitularCommand.setCuit(cuit);
     saveTitularCommand.setFactura(tipoFactura);

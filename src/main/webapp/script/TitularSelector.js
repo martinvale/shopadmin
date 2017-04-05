@@ -1,21 +1,12 @@
-App.widget.TitularSelector = function (container, callback) {
+App.widget.TitularSelector = function (container, searchUrl, callback) {
 
-  var selector = container.find(".js-titulares");
+  var currentTitular = null;
 
-  var filter;
+  var selector = container.find(".js-titular-nombre");
 
   var onSelect = callback || function () {};
 
   var initEventListeners = function () {
-    container.find(".js-proveedor").change(function (event) {
-      reset();
-      filter = selector.autocomplete('option', 'source', "../proveedores/suggest");
-    });
-
-    container.find(".js-shopper").change(function (event) {
-      reset();
-      filter = selector.autocomplete('option', 'source', "../services/shoppers/suggest");
-    });
   };
 
   var reset = function () {
@@ -31,22 +22,16 @@ App.widget.TitularSelector = function (container, callback) {
   return {
     render: function () {
       var me = this;
-      var suggestEndpoint = "../proveedores/suggest";
-      var shopperSelected = container.find(".js-shopper").prop("checked");
-      if (shopperSelected) {
-        suggestEndpoint = "../services/shoppers/suggest";
-      }
-      filter = selector.autocomplete({
-        source: suggestEndpoint,
+      var filter = selector.autocomplete({
+        source: searchUrl,
         minLength: 2,
         select: function(event, ui) {
-          if (ui.item.name) {
-            selector.val(ui.item.name);
-          } else {
-            selector.val(ui.item.description);
-          }
-          container.find(".js-titular-id").val(ui.item.id);
-          onSelect(me.getTitularSelected());
+          selector.val(ui.item.name);
+          container.find(".js-titular-id").val(ui.item.titularId);
+          container.find(".js-titular-tipo").val(ui.item.titularTipo);
+          container.find(".js-titular-nombre").val(ui.item.name);
+          currentTitular = ui.item;
+          onSelect(currentTitular);
           return false;
         }
       });
@@ -61,15 +46,7 @@ App.widget.TitularSelector = function (container, callback) {
       initEventListeners();
     },
     getTitularSelected: function() {
-      current = null;
-      if (container.find(".js-titular-id").val()) {
-        current = {
-          id: container.find(".js-titular-id").val(),
-          tipo: container.find("input:radio[name=tipoTitular]:checked").val(),
-          name: selector.val()
-        }
-      }
-      return current;
+      return currentTitular;
     }
   };
 }
