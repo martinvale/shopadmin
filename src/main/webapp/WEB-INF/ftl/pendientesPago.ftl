@@ -222,8 +222,9 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
         <input type="checkbox" id="sendmail" name="sendmail" checked="" />
       </div>
       <div class="field">
-        <label for="receivers">Receivers: </label>
+        <label for="receivers">Otros e-mails: </label>
         <input type="text" id="receivers" name="receivers" value="" />
+        <p class="note">Ej: juan@gmail.com;maria@gmail.com</p>
       </div>
     </div>
 
