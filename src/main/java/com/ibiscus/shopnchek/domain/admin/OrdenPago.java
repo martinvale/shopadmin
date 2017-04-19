@@ -97,6 +97,9 @@ public class OrdenPago {
   @Fetch(value = FetchMode.SELECT)
   private List<ItemOrden> items = new LinkedList<ItemOrden>();
 
+  @Column(name="notified")
+  private boolean notified;
+
   /** Default constructor for Hibernate. */
   OrdenPago() {
   }
@@ -386,5 +389,13 @@ public class OrdenPago {
 
   public boolean estaAnulada() {
     return estado.getId() == OrderState.ANULADA;
+  }
+
+  public boolean isNotified() {
+    return notified;
+  }
+
+  public void markAsNotified() {
+    notified = true;
   }
 }

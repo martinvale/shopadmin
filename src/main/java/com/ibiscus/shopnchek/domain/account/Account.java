@@ -22,6 +22,9 @@ public class Account {
   @Column(name = "titular_tipo", nullable = false)
   private int titularTipo;
 
+  @Column(name = "linked")
+  private boolean linked;
+
   @Column(name = "cuit", length = 25)
   private String cuit;
 
@@ -37,11 +40,18 @@ public class Account {
   @Column(name = "number", length = 50)
   private String number;
 
+  @Column(name = "billing_id")
+  private Long billingId;
+
+  @Column(name = "billing_tipo")
+  private Integer billingTipo;
+
   Account() {
   }
 
   public Account(final long titularId, final int titularTipo, final String unCuit,
-      final String unaFactura, final String banco, final String cbu, final String number) {
+      final String unaFactura, final String banco, final String cbu, final String number,
+      final boolean linked, final Long billingId, final Integer billingTipo) {
     this.titularId = titularId;
     this.titularTipo = titularTipo;
     this.cuit = unCuit;
@@ -49,19 +59,30 @@ public class Account {
     this.banco = banco;
     this.cbu = cbu;
     this.number = number;
+    this.linked = linked;
+    this.billingId = billingId;
+    this.billingTipo = billingTipo;
   }
 
   public void update(final String unCuit, final String unaFactura, final String banco,
-      final String cbu, final String number) {
+      final String cbu, final String number, final boolean linked, final Long billingId,
+      final Integer billingTipo) {
     this.cuit = unCuit;
     this.factura = unaFactura;
     this.banco = banco;
     this.cbu = cbu;
     this.number = number;
+    this.linked = linked;
+    this.billingId = billingId;
+    this.billingTipo = billingTipo;
   }
 
   public long getId() {
     return id;
+  }
+
+  public boolean isLinked() {
+      return linked;
   }
 
   public String getCuit() {
@@ -90,6 +111,14 @@ public class Account {
 
   public String getNumber() {
     return number;
+  }
+
+  public Long getBillingId() {
+      return billingId;
+  }
+
+  public Integer getBillingTipo() {
+      return billingTipo;
   }
 
 }

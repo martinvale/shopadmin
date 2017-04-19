@@ -721,8 +721,6 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
 
 App.widget.EditorPagarOrden = function (container) {
 
-  var medioPagoValidation;
-
   var chequeraValidation;
 
   var chequeValidation;
@@ -771,7 +769,6 @@ App.widget.EditorPagarOrden = function (container) {
 
     jQuery(".js-pay-order").click(function () {
       var validations = [];
-      validations.push(medioPagoValidation);
       /*var tipoPagoSeleccionado = container.find(".js-medio-pago").val();
       if (tipoPagoSeleccionado == '1' || tipoPagoSeleccionado == '2') {
         validations.push(chequeraValidation);
@@ -816,21 +813,12 @@ App.widget.EditorPagarOrden = function (container) {
     });
 
     jQuery(".js-close-order").click(function () {
-      var stateField = container.find("input[name='state']");
-      stateField.val(3);
-      var validations = [];
-      //validations.push(medioPagoValidation);
-      /*var tipoPagoSeleccionado = container.find(".js-medio-pago").val();
-      if (tipoPagoSeleccionado == '1' || tipoPagoSeleccionado == '2') {
-        validations.push(chequeraValidation);
-        validations.push(chequeValidation);
-        validations.push(fechaChequeValidation);
-      } else {
-        validations.push(transferIdValidation);
-      }*/
-      if (LiveValidation.massValidate(validations)) {
-        container.submit();
-      }
+      jQuery.ajax({
+        url: "close/${order.numero?c}",
+        type: 'POST'
+      }).done(function () {
+        location.href = "${order.numero?c}";
+      });
     });
 
     container.find(".js-pausar-order").click(function () {
@@ -845,12 +833,6 @@ App.widget.EditorPagarOrden = function (container) {
   };
 
   var initValidators = function () {
-    medioPagoValidation = new LiveValidation("medioPago");
-    medioPagoValidation.add(Validate.Exclusion, {
-        within: ["Seleccionar"],
-        failureMessage: "El medio de pago es obligatorio"
-    });
-
     /*chequeraValidation = new LiveValidation("numeroChequera");
     chequeraValidation.add(Validate.Presence, {
         failureMessage: "El nro de la chequera es obligatorio"

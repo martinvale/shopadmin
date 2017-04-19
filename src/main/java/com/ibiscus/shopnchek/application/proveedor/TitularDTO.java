@@ -26,9 +26,18 @@ public class TitularDTO {
 
     private String number;
 
+    private boolean linked;
+
+    private Long billingId;
+
+    private Integer billingTipo;
+
+    private String billingName;
+
     public TitularDTO(long titularId, int titularTipo, String name, String email,
             String loginShopmetrics, String cuit, String factura, String banco,
-            String cbu, String number) {
+            String cbu, String number, boolean linked, Long billingId, Integer billingTipo,
+            String billingName) {
         super();
         this.titularId = titularId;
         this.titularTipo = titularTipo;
@@ -40,11 +49,16 @@ public class TitularDTO {
         this.banco = banco;
         this.cbu = cbu;
         this.number = number;
+        this.linked = linked;
+        this.billingId = billingId;
+        this.billingTipo = billingTipo;
+        this.billingName = billingName;
     }
 
     public void update(long titularId, int titularTipo, String name,
             String loginShopmetrics, String cuit, String factura, String banco,
-            String cbu, String number) {
+            String cbu, String number, boolean linked, Long billingId, Integer billingTipo,
+            String billingName) {
         this.titularId = titularId;
         this.titularTipo = titularTipo;
         this.name = name;
@@ -54,6 +68,10 @@ public class TitularDTO {
         this.banco = banco;
         this.cbu = cbu;
         this.number = number;
+        this.linked = linked;
+        this.billingId = billingId;
+        this.billingTipo = billingTipo;
+        this.billingName = billingName;
     }
 
     public long getTitularId() {
@@ -96,4 +114,19 @@ public class TitularDTO {
         return number;
     }
 
+    public Long getBillingId() {
+        return billingId;
+    }
+
+    public Integer getBillingTipo() {
+        return billingTipo;
+    }
+
+    public String getBillingName() {
+        return billingName;
+    }
+
+    public boolean isLinked() {
+        return linked;
+    }
 }

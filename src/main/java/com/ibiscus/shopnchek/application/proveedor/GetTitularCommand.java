@@ -47,6 +47,10 @@ public class GetTitularCommand implements Command<TitularDTO> {
         String banco = null;
         String cbu = null;
         String number = null;
+        boolean linked = false;
+        Long billingId = null;
+        Integer billingTipo = null;
+        String billingName = null;
         Account account = accountRepository.findByTitular(titularTipo,
                 titularId);
         if (account != null) {
@@ -55,10 +59,22 @@ public class GetTitularCommand implements Command<TitularDTO> {
             banco = account.getBanco();
             cbu = account.getCbu();
             number = account.getNumber();
+            linked = account.isLinked();
+            if (account.getBillingId() != null && account.getBillingTipo() != null) {
+                billingId = account.getBillingId();
+                billingTipo = account.getBillingTipo();
+                if (billingTipo == 1) {
+                    Shopper shopper = shopperRepository.get(billingId);
+                    billingName = shopper.getName();
+                } else {
+                    Proveedor proveedor = proveedorRepository.get(billingId);
+                    billingName = proveedor.getDescription();
+                }
+            }
         }
         TitularDTO titular = new TitularDTO(titularId, titularTipo,
                 titularNombre, email, loginShopmetrics, cuit, factura, banco,
-                cbu, number);
+                cbu, number, linked, billingId, billingTipo, billingName);
         return titular;
     }
 

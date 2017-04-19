@@ -70,12 +70,13 @@ public class PayOrderCommand implements Command<OrdenPago> {
         OrdenPago order = orderRepository.get(numero);
         order.pagar(state, medioPago, idTransferencia, numeroChequera,
                 numeroCheque, fechaCheque, observaciones, observacionesShopper);
-        if (sendMail) {
+        if (sendMail && !order.isNotified()) {
             Map<String, String> emailsToSend = getEmailsToSend(order);
             for (Entry<String, String> emailToSend : emailsToSend.entrySet()) {
                 communicationService.sendMail(from, emailToSend.getKey(),
                         "Detalle de la order de pago: " + order.getNumero(), emailToSend.getValue());
             }
+            order.markAsNotified();
         }
         return order;
     }
@@ -132,6 +133,9 @@ public class PayOrderCommand implements Command<OrdenPago> {
         StringBuilder builder = new StringBuilder();
         builder.append("<html>");
         builder.append("<body>");
+        if (!StringUtils.isBlank(order.getObservacionesShopper())) {
+            builder.append("<p>" + order.getObservacionesShopper() + "</p>");
+        }
         builder.append("<p>Listado de items pagados:</p>");
         builder.append("<table>");
         builder.append("<tr>");

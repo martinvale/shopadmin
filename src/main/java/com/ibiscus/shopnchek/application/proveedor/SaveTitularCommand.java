@@ -29,6 +29,8 @@ public class SaveTitularCommand implements Command<TitularDTO> {
 
 	private String loginShopmetrics;
 
+	private boolean linked;
+
 	private String cuit;
 
 	private String factura;
@@ -39,6 +41,10 @@ public class SaveTitularCommand implements Command<TitularDTO> {
 
 	private String number;
 
+	private Long billingId;
+
+	private Integer billingTipo;
+
 	public SaveTitularCommand() {
 	}
 
@@ -47,9 +53,10 @@ public class SaveTitularCommand implements Command<TitularDTO> {
 	public TitularDTO execute() {
 		Account account = accountRepository.findByTitular(titularTipo, titularId);
 		if (account != null) {
-			account.update(cuit, factura, banco, cbu, number);
+			account.update(cuit, factura, banco, cbu, number, linked, billingId, billingTipo);
 		} else {
-			account = new Account(titularId, titularTipo, cuit, factura, banco, cbu, number);
+			account = new Account(titularId, titularTipo, cuit, factura, banco, cbu, number,
+			        linked, billingId, billingTipo);
 			accountRepository.save(account);
 		}
 		if (titularTipo == 1) {
@@ -59,7 +66,18 @@ public class SaveTitularCommand implements Command<TitularDTO> {
 			Proveedor proveedor = proveedorRepository.get(titularId);
 			proveedor.update(name, email);
 		}
-		return new TitularDTO(titularId, titularTipo, name, email, loginShopmetrics, cuit, factura, banco, cbu, number);
+		String billingName = null;
+        if (billingId != null && billingTipo != null) {
+            if (billingTipo == 1) {
+                Shopper shopper = shopperRepository.get(billingId);
+                billingName = shopper.getName();
+            } else {
+                Proveedor proveedor = proveedorRepository.get(billingId);
+                billingName = proveedor.getDescription();
+            }
+        }
+		return new TitularDTO(titularId, titularTipo, name, email, loginShopmetrics, cuit,
+		        factura, banco, cbu, number, linked, billingId, billingTipo, billingName);
 	}
 
 	public void setTitularId(final long titularId) {
@@ -82,7 +100,19 @@ public class SaveTitularCommand implements Command<TitularDTO> {
 		this.loginShopmetrics = loginShopmetrics;
 	}
 
-	public void setCuit(String cuit) {
+    public void setLinked(boolean linked) {
+        this.linked = linked;
+    }
+
+    public void setBillingId(Long billingId) {
+        this.billingId = billingId;
+    }
+
+    public void setBillingTipo(Integer billingTipo) {
+        this.billingTipo = billingTipo;
+    }
+
+    public void setCuit(String cuit) {
 		this.cuit = cuit;
 	}
 

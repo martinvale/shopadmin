@@ -33,12 +33,14 @@
       App.widget = App.widget || {};
 
       jQuery(document).ready(function() {
+        var titularSelector = App.widget.TitularSelector(jQuery(".js-billing-selector"),
+            "<@spring.url '/titular/suggest'/>");
+        titularSelector.render();
       });
 
     </script>
 
-    <!--script src="../script/TitularSelector.js"></script>
-    <script src="../script/OrdenPago.js"></script-->
+    <script src="<@spring.url '/script/TitularSelector.js'/>"></script>
     <script src="<@spring.url '/script/LoadingIndicator.js'/>"></script>
 
 <style>
@@ -101,31 +103,46 @@ textarea.LV_invalid_field:active {
                 <input id="email" type="text" name="email" value="${titular.email!''}" />
               </div>
               </#if>
-              <div class="form-shop-row">
-                <label for="cuit">CUIT/CUIL</label>
-                <input id="cuit" type="text" name="cuit" value="${titular.cuit!''}" />
+            </fieldset>
+            <fieldset>
+              <legend>Datos de facturaci&oacute;n:</legend>
+              <div>
+                <input type="radio" name="linked" value="true" <#if titular.linked>checked="checked"</#if>> Vinculado a otro titular <br/>
+                <div class="form-shop-row js-billing-selector">
+                  <label for="billingname">Nombre</label>
+                  <input id="billingName" name="billingName" type="text" value="${titular.billingName!''}" class="item-field js-titular-nombre" />
+                  <input type="hidden" name="billingId" value="${(titular.billingId?c)!''}" class="js-titular-id" />
+                  <input type="hidden" name="billingTipo" value="${(titular.billingTipo?c)!''}" class="js-titular-tipo" />
+                </div>
               </div>
-              <div class="form-shop-row">
-                <label for="tipoFactura">Factura</label>
-                <select id="tipoFactura" name="tipoFactura">
-                  <option value=""></option>
-                  <option value="A" <#if ((titular.factura)!'') == 'A'>selected="selected"</#if>>A</option>
-                  <option value="C" <#if ((titular.factura)!'') == 'C'>selected="selected"</#if>>C</option>
-                  <option value="M" <#if ((titular.factura)!'') == 'M'>selected="selected"</#if>>M</option>
-                </select>
-              </div>
-              <div class="form-shop-row">
-                <label for="banco">Banco</label>
-                <input id="banco" type="text" name="banco" value="${titular.banco!''}" />
-              </div>
-              <div class="form-shop-row">
-                <label for="cbu">CBU/Alias</label>
-                <input type="text" name="cbu" id="cbu" value="${titular.cbu!''}"/>
-              </div>
-              <div class="form-shop-row">
-                <label for="number">Nro de cuenta</label>
-                <input type="text" name="number" id="number" value="${titular.number!''}"/>
-              </div>
+              <div>
+                <input type="radio" name="linked" value="false" <#if !titular.linked>checked="checked"</#if>> Usando mi propia cuenta
+                <div class="form-shop-row">
+                  <label for="cuit">CUIT/CUIL</label>
+                  <input id="cuit" type="text" name="cuit" value="${titular.cuit!''}" />
+                </div>
+                <div class="form-shop-row">
+                  <label for="tipoFactura">Factura</label>
+                  <select id="tipoFactura" name="tipoFactura">
+                    <option value=""></option>
+                    <option value="A" <#if ((titular.factura)!'') == 'A'>selected="selected"</#if>>A</option>
+                    <option value="C" <#if ((titular.factura)!'') == 'C'>selected="selected"</#if>>C</option>
+                    <option value="M" <#if ((titular.factura)!'') == 'M'>selected="selected"</#if>>M</option>
+                  </select>
+                </div>
+                <div class="form-shop-row">
+                  <label for="banco">Banco</label>
+                  <input id="banco" type="text" name="banco" value="${titular.banco!''}" />
+                </div>
+                <div class="form-shop-row">
+                  <label for="cbu">CBU/Alias</label>
+                  <input type="text" name="cbu" id="cbu" value="${titular.cbu!''}"/>
+                </div>
+                <div class="form-shop-row">
+                  <label for="number">Nro de cuenta</label>
+                  <input type="text" name="number" id="number" value="${titular.number!''}"/>
+                </div>
+              </divs>
             </fieldset>
           </div>
           <ul class="action-columns">

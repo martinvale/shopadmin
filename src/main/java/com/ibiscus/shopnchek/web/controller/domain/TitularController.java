@@ -70,7 +70,8 @@ public class TitularController {
 
   @RequestMapping(value = "/update", method = RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model, final long titularId, final int titularTipo,
-		String name, String email, String login, String cuit, String tipoFactura, String banco, String cbu, String number) {
+		String name, String email, String login, String cuit, String tipoFactura, String banco, String cbu, String number,
+		boolean linked, Long billingId, Integer billingTipo) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
     		.getPrincipal();
     model.addAttribute("user", user);
@@ -80,11 +81,14 @@ public class TitularController {
     saveTitularCommand.setName(name);
     saveTitularCommand.setEmail(email);
     saveTitularCommand.setLoginShopmetrics(login);
+    saveTitularCommand.setLinked(linked);
     saveTitularCommand.setCuit(cuit);
     saveTitularCommand.setFactura(tipoFactura);
     saveTitularCommand.setBanco(banco);
     saveTitularCommand.setCbu(cbu);
     saveTitularCommand.setNumber(number);
+    saveTitularCommand.setBillingId(billingId);
+    saveTitularCommand.setBillingTipo(billingTipo);
     saveTitularCommand.execute();
 
     return "redirect:.";
