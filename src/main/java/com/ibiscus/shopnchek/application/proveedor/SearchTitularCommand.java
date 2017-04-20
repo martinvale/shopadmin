@@ -61,15 +61,24 @@ public class SearchTitularCommand extends SearchCommand<TitularDTO> {
         boolean linked = false;
         Long billingId = null;
         Integer billingTipo = null;
-        String billingName = null;
+        String billingName = name;
         Account account = accountRepository.findByTitular(titularTipo, titularId);
         if (account != null) {
-            cuit = account.getCuit();
-            factura = account.getFactura();
-            banco = account.getBanco();
-            cbu = account.getCbu();
-            number = account.getNumber();
             linked = account.isLinked();
+            if (linked && account.getBillingId() != null && account.getBillingTipo() != null) {
+                Account billingAccount = accountRepository.findByTitular(account.getBillingTipo(), account.getBillingId());
+                cuit = billingAccount.getCuit();
+                factura = billingAccount.getFactura();
+                banco = billingAccount.getBanco();
+                cbu = billingAccount.getCbu();
+                number = billingAccount.getNumber();
+            } else {
+                cuit = account.getCuit();
+                factura = account.getFactura();
+                banco = account.getBanco();
+                cbu = account.getCbu();
+                number = account.getNumber();
+            }
             if (account.getBillingId() != null && account.getBillingTipo() != null) {
                 billingId = account.getBillingId();
                 billingTipo = account.getBillingTipo();

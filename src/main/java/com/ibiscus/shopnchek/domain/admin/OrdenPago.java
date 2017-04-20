@@ -1,5 +1,6 @@
 package com.ibiscus.shopnchek.domain.admin;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -100,6 +101,9 @@ public class OrdenPago {
   @Column(name="notified")
   private boolean notified;
 
+  @Column(name="fecha_pago_confirmada")
+  private boolean fechaPagoConfirmada;
+
   /** Default constructor for Hibernate. */
   OrdenPago() {
   }
@@ -162,6 +166,15 @@ public class OrdenPago {
       if (item.getDebt() != null) {
         item.getDebt().pagado();
       }
+    }
+    if (!fechaPagoConfirmada) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        fechaPago = calendar.getTime();
+        fechaPagoConfirmada = true;
     }
   }
 

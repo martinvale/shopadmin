@@ -78,13 +78,14 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
         var order = orders[index];
         itemDialog.find("input[name=numero]").val(order.numero);
         itemDialog.find("input[name=titular]").val(order.titular);
+        itemDialog.find("input[name=titularCuenta]").val(order.titularCuenta);
         itemDialog.find("input[name=cuit]").val(order.cuit);
         itemDialog.find("input[name=banco]").val(order.banco);
         itemDialog.find("input[name=cbu]").val(order.cbu);
         itemDialog.find("input[name=importe]").val(order.importe);
         itemDialog.find("input[name=transferid]").val("");
-        itemDialog.find("textarea[name=observaciones]").val("");
-        itemDialog.find("textarea[name=obsshopper]").val("");
+        itemDialog.find("textarea[name=observaciones]").val(order.observaciones);
+        itemDialog.find("textarea[name=obsshopper]").val(order.observacionesShopper);
         itemDialog.find("input[name=sendmail]").prop("checked", "");
         itemDialog.find("input[name=receivers]").val("");
         itemDialog.dialog("open");
@@ -111,10 +112,13 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
         orders.push({
           numero: ${item.numero?c},
           titular: "${item.titular!''}",
+          titularCuenta: "${item.titularCuenta!''}",
           cuit: "${item.cuit!''}",
           banco: "${item.banco!''}",
           cbu: "${item.cbu!''}",
-          importe: "${item.importe}"
+          importe: "${item.importe}",
+          observaciones: "${item.observaciones}",
+          observacionesShopper: "${item.observacionesShopper}"
         });
         </#list>
 
@@ -167,17 +171,20 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
           </tr>
         </thead>
         <tbody>
+          <#assign totalPago = 0 />
           <#list model["result"].items as item>
           <tr class="js-order-${item.numero?c}">
             <td>${item.numero?c}</td>
             <td>${item.titular!''}</td>
             <td style="text-align: right">$ ${item.importe}</td>
             <td><a id="js-order-${item_index}" href="#" class="js-pay">pagar</a></td>
+            <#assign totalPago = totalPago + item.importe?replace(",", ".")?number />
           </tr>
           </#list>
         </tbody>
       </table>
-
+      <p>&nbsp;</p>
+      <p style="text-align: right">Total a pagar: $ ${totalPago?c?replace(".", ",")}</p>
     </div>
 
     <div id="pay-detail" title="Confirmar el pago de la orden">
@@ -188,6 +195,10 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
       <div class="field">
         <label for="titular">Titular: </label>
         <input type="text" id="titular" name="titular" readOnly="true" value="" />
+      </div>
+      <div class="field">
+        <label for="titularCuenta">Titular Cuenta: </label>
+        <input type="text" id="titularCuenta" name="titularCuenta" readOnly="true" value="" />
       </div>
       <div class="field">
         <label for="cuit">CUIT: </label>

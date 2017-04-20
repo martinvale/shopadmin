@@ -1,5 +1,3 @@
-alter table ordenes add notified bit not null default 0;
+alter table ordenes add fecha_pago_confirmada bit not null default 0;
 
-alter table account add linked bit not null default 0;
-alter table account add billing_id int;
-alter table account add billing_tipo tinyint;
+update ordenes set fecha_pago_confirmada = 1 where estado = 4;

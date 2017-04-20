@@ -89,6 +89,7 @@ App.widget.OrdenPago = function (container) {
     container.find("input[name=cbu]").val(titularObject.cbu);
     container.find("input[name=banco]").val(titularObject.banco);
     container.find("input[name=accountNumber]").val(titularObject.number);
+    container.find(".js-billing").html(titularObject.billingName);
     if (titularObject.factura) {
       var tipoFacturaField = container.find("select[name=tipoFactura]");
       tipoFacturaField.val(titularObject.factura);
@@ -185,6 +186,16 @@ textarea.LV_invalid_field:active {
                 <input type="hidden" name="tipoTitular" value="${(order.tipoProveedor?c)!''}" class="js-titular-tipo" />
               </div>
               <div class="form-shop-row">
+                <label for="fechaPago" class="mandatory">Fecha pago</label>
+                <input type="text" id="fechaPago" name="fechaPago" class="js-date" value="${(order.fechaPago?string('dd/MM/yyyy'))!''}" <#if !canEdit>disabled="true"</#if>/>
+              </div>
+            </fieldset>
+            <fieldset>
+              <legend>Datos de facturaci&oacute;n:</legend>
+              <div class="form-shop-row">
+                <label>Titular cuenta: </label><span class="js-billing"></span>
+              </div>
+              <div class="form-shop-row">
                 <label for="tipoFactura" class="mandatory">Factura</label>
                 <select id="tipoFactura" name="tipoFactura">
                   <option value="S/F" <#if ((order.tipoFactura)!'') == 'S/F'>selected="selected"</#if>>S/F</option>
@@ -193,10 +204,6 @@ textarea.LV_invalid_field:active {
                   <option value="M" <#if ((order.tipoFactura)!'') == 'M'>selected="selected"</#if>>M</option>
                 </select>
                 <span class="hint js-tipo-factura-hint" style="display:none">El tipo de factura seleccionado no es el sugerido para este titular</span>
-              </div>
-              <div class="form-shop-row">
-                <label for="fechaPago" class="mandatory">Fecha pago</label>
-                <input type="text" id="fechaPago" name="fechaPago" class="js-date" value="${(order.fechaPago?string('dd/MM/yyyy'))!''}" <#if !canEdit>disabled="true"</#if>/>
               </div>
               <div class="form-shop-row">
                 <label for="numeroFactura">Factura N&deg;</label>
@@ -222,6 +229,9 @@ textarea.LV_invalid_field:active {
                 <label for="accountNumber">Nro de Cuenta</label>
                 <input type="text" name="accountNumber" id="accountNumber" value="${(order.accountNumber)!''}"/>
               </div>
+            </fieldset>
+            <fieldset>
+              <legend>Otros datos:</legend>
               <div class="form-shop-row">
                 <label for="localidad">Localidad</label>
                 <select id="localidad" name="localidad">
