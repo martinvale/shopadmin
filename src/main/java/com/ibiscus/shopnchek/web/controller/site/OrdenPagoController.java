@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ibiscus.shopnchek.application.ResultSet;
 import com.ibiscus.shopnchek.application.order.AsociarMedioPagoCommand;
 import com.ibiscus.shopnchek.application.order.GetOrderCommand;
+import com.ibiscus.shopnchek.application.order.GetOrderDtoCommand;
 import com.ibiscus.shopnchek.application.order.ItemsOrdenService;
 import com.ibiscus.shopnchek.application.order.OrderDto;
 import com.ibiscus.shopnchek.application.order.PayOrderCommand;
@@ -78,6 +79,9 @@ public class OrdenPagoController {
 
   @Autowired
   private GetOrderCommand getOrderCommand;
+
+  @Autowired
+  private GetOrderDtoCommand getOrderDtoCommand;
 
   @Autowired
   private SearchOrderDtoCommand searchOrderDtoCommand;
@@ -477,7 +481,7 @@ public class OrdenPagoController {
     }
     searchOrderDtoCommand.setPage(1);
     searchOrderDtoCommand.setPageSize(50);
-    searchOrderDtoCommand.setOrderBy("fechaPago", false);
+    searchOrderDtoCommand.setOrderBy("titular", true);
     searchOrderDtoCommand.setStateId(OrderState.CERRADA);
     searchOrderDtoCommand.setFechaPagoDesde(fromDate);
     searchOrderDtoCommand.setFechaPagoHasta(toDate);
@@ -526,13 +530,10 @@ public class OrdenPagoController {
     OrdenPago ordenPago = getOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
-    if (ordenPago.getTipoProveedor() == 1) {
-      Shopper shopper = shopperRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", shopper.getName());
-    } else {
-      Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
-      model.addAttribute("titularNombre", proveedor.getDescription());
-    }
+    getOrderDtoCommand.setNumero(orderId);
+    OrderDto ordenPagoDto = getOrderDtoCommand.execute();
+    model.addAttribute("ordenPagoDto", ordenPagoDto);
+
     return "remito";
   }
 

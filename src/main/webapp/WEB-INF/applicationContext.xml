@@ -164,6 +164,13 @@
     <property name="shopperRepository" ref="shopperRepository" />
   </bean>
 
+  <bean id="getOrderDtoCommand" class="com.ibiscus.shopnchek.application.order.GetOrderDtoCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="accountRepository" ref="accountRepository" />
+  </bean>
+
   <bean id="searchOrderDtoCommand" class="com.ibiscus.shopnchek.application.order.SearchOrderDtoCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
     <property name="proveedorRepository" ref="proveedorRepository" />

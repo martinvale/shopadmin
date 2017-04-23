@@ -1,6 +1,8 @@
 package com.ibiscus.shopnchek.application.order;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -94,8 +96,12 @@ public class SearchOrderDtoCommand extends SearchCommand<OrderDto> {
     protected List<OrderDto> getItems() {
         List<OrderDto> orderDtoItems = new ArrayList<OrderDto>();
 
+        String orderBy = getOrderBy();
+        if ("titular".equals(orderBy)) {
+            orderBy = null;
+        }
         List<OrdenPago> orderItems = orderRepository.find(getStart(),
-                getPageSize(), getOrderBy(), isAscending(), tipoTitular,
+                getPageSize(), orderBy, isAscending(), tipoTitular,
                 titularId, dniShopper, numeroCheque, getState(), fechaPagoDesde, fechaPagoHasta);
         for (OrdenPago order : orderItems) {
             OrderDto orderDto = null;
@@ -137,6 +143,16 @@ public class SearchOrderDtoCommand extends SearchCommand<OrderDto> {
                         order.getObservaciones(), order.getObservacionesShopper());
             }
             orderDtoItems.add(orderDto);
+        }
+        if ("titular".equals(getOrderBy())) {
+            Collections.sort(orderDtoItems, new Comparator<OrderDto>() {
+
+                @Override
+                public int compare(OrderDto o1, OrderDto o2) {
+                    return o1.getTitular().toLowerCase().compareTo(o2.getTitular().toLowerCase());
+                }
+
+            });
         }
         return orderDtoItems;
     }

@@ -88,7 +88,7 @@
         <span class="fechaPago"><span class="name">Fecha de pago:</span> ${model['ordenPago'].fechaPago?string('dd/MM/yyyy')}</span>
       </p>
       <p class="heading">
-        <span class="name">Titular:</span> ${model['titularNombre']}
+        <span class="name">Titular:</span> ${model['ordenPagoDto'].titular}
       </p>
       <hr/>
       <div class="totales">
@@ -133,9 +133,11 @@
        <p class="heading">
     <#if model["ordenPago"].medioPago??>
       <#if model["ordenPago"].medioPago.id == 3>
-        <#if model["ordenPago"].idTransferencia??>
-          <span class="name">ID Transfer:</span> ${model["ordenPago"].idTransferencia}
-        </#if>
+        <span class="name">Titular cuenta:</span> ${model["ordenPagoDto"].titularCuenta}
+        <span class="left"><span class="name">CUIT:</span> ${model["ordenPagoDto"].cuit!''}</span><br />
+        <span class="name">Banco:</span> ${model["ordenPagoDto"].banco!''}
+        <span class="left"><span class="name">CBU/Alias:</span> ${model["ordenPagoDto"].cbu!''}</span><br />
+        <span class="name">ID Transfer:</span> ${model["ordenPago"].idTransferencia!''}
       <#else>
         <#if model["ordenPago"].numeroChequera??>
           <span class="name">Chequera Nro:</span> ${model["ordenPago"].numeroChequera}
