@@ -1161,6 +1161,7 @@ textarea.LV_invalid_field:active {
             <li><input type="button" class="btn-shop js-close-order" value="Cerrar" /></li>
           </#if>
           <#if order.estaCerrada() >
+            <li><input type="button" class="btn-shop js-reopen-order" value="Reabrir" /></li>
             <li><input type="button" class="btn-shop js-pay-order" value="Pagar" <#if !canPay>disabled="true"</#if>></li>
           </#if>
           <#if order.estaSuspendida() >

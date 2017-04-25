@@ -149,6 +149,12 @@ public class SearchOrderDtoCommand extends SearchCommand<OrderDto> {
 
                 @Override
                 public int compare(OrderDto o1, OrderDto o2) {
+                    if (o1.getTitular() == null) {
+                        return -1;
+                    }
+                    if (o2.getTitular() == null) {
+                        return 1;
+                    }
                     return o1.getTitular().toLowerCase().compareTo(o2.getTitular().toLowerCase());
                 }
 

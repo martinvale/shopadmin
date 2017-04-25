@@ -146,6 +146,7 @@ App.widget.Buscador = function (container) {
         <thead>
           <tr>
             <th scope="col"><a href="search?${parameters}&orderBy=numero&ascending=${(!ascending)?c}" <#if orderBy == 'numero'>class="selected"</#if>>Nro de Orden <#if orderBy == 'numero'><i class="fa fa-angle-${direction}"></i></#if></a></th>
+            <th scope="col">Titular</th>
             <th scope="col">Importe</th>
             <th scope="col"><a href="search?${parameters}&orderBy=fechaPago&ascending=${(!ascending)?c}" <#if orderBy == 'fechaPago'>class="selected"</#if>>Fecha de Pago <#if orderBy == 'fechaPago'><i class="fa fa-angle-${direction}"></i></#if></a></th>
             <th scope="col"><a href="search?${parameters}&orderBy=estado&ascending=${(!ascending)?c}" <#if orderBy == 'estado'>class="selected"</#if>>Estado <#if orderBy == 'estado'><i class="fa fa-angle-${direction}"></i></#if></a></th>
@@ -156,6 +157,7 @@ App.widget.Buscador = function (container) {
           <#list resultSet.items as orden>
           <tr>
             <td>${orden.numero?c} <a href="${orden.numero?c}">editar</a></td>
+            <td>${orden.titular!''}</td>
             <td class="js-importe">$ ${orden.importe}</td>
             <td class="js-fecha">${orden.fechaPago}</td>
             <td class="js-estado">${orden.state}</td>

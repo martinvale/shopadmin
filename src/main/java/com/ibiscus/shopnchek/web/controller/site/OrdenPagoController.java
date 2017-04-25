@@ -482,6 +482,10 @@ public class OrdenPagoController {
     searchOrderDtoCommand.setPage(1);
     searchOrderDtoCommand.setPageSize(50);
     searchOrderDtoCommand.setOrderBy("titular", true);
+    searchOrderDtoCommand.setTipoTitular(null);
+    searchOrderDtoCommand.setTitularId(null);
+    searchOrderDtoCommand.setDniShopper(null);
+    searchOrderDtoCommand.setNumeroCheque(null);
     searchOrderDtoCommand.setStateId(OrderState.CERRADA);
     searchOrderDtoCommand.setFechaPagoDesde(fromDate);
     searchOrderDtoCommand.setFechaPagoHasta(toDate);
