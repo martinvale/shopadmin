@@ -104,6 +104,9 @@ public class OrdenPago {
   @Column(name="fecha_pago_confirmada")
   private boolean fechaPagoConfirmada;
 
+  @Column(name="closed_automatically")
+  private boolean closedAutomatically;
+
   /** Default constructor for Hibernate. */
   OrdenPago() {
   }
@@ -131,7 +134,7 @@ public class OrdenPago {
   }
 
   public void update(final int theTipoProveedor, final int theProveedor,
-      final String theTipoFactura, final Date thePayDate,
+      final String theTipoFactura, final MedioPago medioPago, final Date thePayDate,
       final double theIva, final String unNumeroFactura,
       final String unaLocalidad, final String unaObservacion,
       final String unaObservacionShopper, final String cuit,
@@ -139,6 +142,7 @@ public class OrdenPago {
     tipoProveedor = theTipoProveedor;
     proveedor = theProveedor;
     tipoFactura = theTipoFactura;
+    this.medioPago = medioPago;
     fechaPago = thePayDate;
     iva = theIva;
     numeroFactura = unNumeroFactura;
@@ -410,5 +414,9 @@ public class OrdenPago {
 
   public void markAsNotified() {
     notified = true;
+  }
+
+  public boolean isClosedAutomatically() {
+      return closedAutomatically;
   }
 }

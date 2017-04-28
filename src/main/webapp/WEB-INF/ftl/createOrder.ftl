@@ -196,6 +196,28 @@ textarea.LV_invalid_field:active {
                 <label>Titular cuenta: </label><span class="js-billing"></span>
               </div>
               <div class="form-shop-row">
+                <label for="medioPago" class="mandatory">M. de pago</label>
+                <select id="medioPago" name="medioPagoId" class="js-medio-pago">
+                  <#list model["mediosPago"] as medioPago>
+                    <option value="${medioPago.id}" <#if medioPago.id?c == (order.medioPago.id?c)!'3'>selected="selected"</#if>>${medioPago.description}</option>
+                  </#list>
+                </select>
+                <!--div class="js-medio-pago-asociado">
+                  <#if model["medioPagoPredeterminado"]??>
+                    <span class="medio-pago js-medio-pago-predeterminado">Medio de pago predeterminado: ${model["medioPagoPredeterminado"]}</span>
+                    <a href="#" class="asociar-medio js-asociar-medio" style="display:none">Asociar medio de pago al titular</a>
+                  <#else>
+                    <span class="medio-pago js-medio-pago-predeterminado" style="display:none">Medio de pago predeterminado: </span>
+                    <#if ((order.medioPago.id?c)!'') != "">
+                      <a href="#" class="asociar-medio js-asociar-medio">Asociar medio de pago al titular</a>
+                    <#else>
+                      <span class="sin-medio-pago js-sin-medio-pago">(El titular no tiene un medio de pago asociado)</span>
+                      <a href="#" class="asociar-medio js-asociar-medio" style="display:none">Asociar medio de pago al titular</a>
+                    </#if>
+                  </#if>
+                </div-->
+              </div>
+              <div class="form-shop-row">
                 <label for="tipoFactura" class="mandatory">Factura</label>
                 <select id="tipoFactura" name="tipoFactura">
                   <option value="S/F" <#if ((order.tipoFactura)!'') == 'S/F'>selected="selected"</#if>>S/F</option>

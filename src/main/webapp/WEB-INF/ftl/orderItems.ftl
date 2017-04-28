@@ -934,7 +934,7 @@ textarea.LV_invalid_field:active {
     <#include "header.ftl" />
 
     <div class="container-box-plantilla js-orden-pago">
-      <h2 class="container-tit">Orden de pago ${order.numero?c} (${order.estado.description}) <a href="edit/${order.numero?c}">editar</a></h2>
+      <h2 class="container-tit">Orden de pago ${order.numero?c} (${order.estado.description}<#if order.closedAutomatically><span title="Esta orden fue pagada automaticamente">*</span></#if>) <a href="edit/${order.numero?c}">editar</a></h2>
       <!-- FILA 1 -->
       <div class="cell">
         <div class="box-green">
@@ -957,7 +957,7 @@ textarea.LV_invalid_field:active {
               </tr>
               <tr>
                 <td width="33%"><label>CUIT/CUIL: </label>${order.cuit!''}</td>
-                <td width="33%">&nbsp;</td>
+                <td width="33%"><label>Medio de Pago: </label>${(order.medioPago.description)!''}</td>
                 <td width="33%">&nbsp;</td>
               </tr>
             <#if order.estaPagada() >

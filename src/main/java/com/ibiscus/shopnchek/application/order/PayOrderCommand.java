@@ -74,7 +74,7 @@ public class PayOrderCommand implements Command<OrdenPago> {
             Map<String, String> emailsToSend = getEmailsToSend(order);
             for (Entry<String, String> emailToSend : emailsToSend.entrySet()) {
                 communicationService.sendMail(from, emailToSend.getKey(),
-                        "Detalle de la order de pago: " + order.getNumero(), emailToSend.getValue());
+                        "Detalle de la orden de pago: " + order.getNumero(), emailToSend.getValue());
             }
             order.markAsNotified();
         }
@@ -137,28 +137,44 @@ public class PayOrderCommand implements Command<OrdenPago> {
             builder.append("<p>" + order.getObservacionesShopper() + "</p>");
         }
         builder.append("<p>Listado de items pagados:</p>");
-        builder.append("<table>");
-        builder.append("<tr>");
+        builder.append("<table style=\"text-align: center;\">");
+        builder.append("<tr style=\"background-color: #FFF2CC; font-weight: bold;\">");
         builder.append("<td width=\"200px\">Shopper</td>");
+        builder.append("<td width=\"100px\">Fecha</td>");
         builder.append("<td width=\"200px\">Cliente</td>");
         builder.append("<td width=\"200px\">Sucursal</td>");
         builder.append("<td width=\"100px\">Pago</td>");
         builder.append("<td width=\"100px\">Importe</td>");
-        builder.append("<td width=\"100px\">Fecha</td>");
         builder.append("</tr>");
+        boolean even = false;
+        double total = 0;
         for (ItemOrden item : order.getItems()) {
             Shopper shopper = shopperRepository.findByDni(item.getShopperDni());
             if (isTitular || (shopper.getEmail() != null && shopper.getEmail().equals(email))) {
-                builder.append("<tr>");
+                builder.append("<tr");
+                if (even) {
+                    builder.append(" style=\"background-color: #EDEDED;\"");
+                }
+                builder.append(">");
                 builder.append("<td>" + shopper.getName() + "</td>");
+                builder.append("<td>" + item.getFecha() + "</td>");
                 builder.append("<td>" + item.getCliente() + "</td>");
                 builder.append("<td>" + item.getSucursal() + "</td>");
                 builder.append("<td>" + item.getTipoPago().getDescription() + "</td>");
                 builder.append("<td>" + numberFormat.format(item.getImporte()) + "</td>");
-                builder.append("<td>" + item.getFecha() + "</td>");
                 builder.append("</tr>");
+                total = total + item.getImporte();
+                even = !even;
             }
         }
+        builder.append("<tr>");
+        builder.append("<td>&nbsp;</td>");
+        builder.append("<td>&nbsp;</td>");
+        builder.append("<td>&nbsp;</td>");
+        builder.append("<td>&nbsp;</td>");
+        builder.append("<td>&nbsp;</td>");
+        builder.append("<td style=\"background-color: #E2EFDA;\">Total: $ " + numberFormat.format(total) + "</td>");
+        builder.append("</tr>");
         builder.append("</table>");
         builder.append("</body>");
         builder.append("</html>");

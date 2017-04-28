@@ -116,6 +116,7 @@ public class OrdenPagoController {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
+    model.addAttribute("mediosPago", orderRepository.findMediosPago());
     return "createOrder";
   }
 
@@ -137,6 +138,8 @@ public class OrdenPagoController {
       Proveedor proveedor = proveedorRepository.get(ordenPago.getProveedor());
       model.addAttribute("titularNombre", proveedor.getDescription());
     }
+
+    model.addAttribute("mediosPago", orderRepository.findMediosPago());
 
     return "createOrder";
   }
@@ -171,7 +174,7 @@ public class OrdenPagoController {
   @RequestMapping(value="create", method=RequestMethod.POST)
   public String createOrden(@ModelAttribute("model") final ModelMap model,
       int tipoTitular, int titularId, String tipoFactura,
-      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago, int medioPagoId,
       @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva, String numeroFactura,
       String localidad, String cuit, String banco, String cbu, String accountNumber, String observaciones,
       String observacionesShopper) {
@@ -183,6 +186,7 @@ public class OrdenPagoController {
     saveOrderCommand.setTipoProveedor(tipoTitular);
     saveOrderCommand.setProveedor(titularId);
     saveOrderCommand.setTipoFactura(tipoFactura);
+    saveOrderCommand.setMedioPagoId(medioPagoId);
     saveOrderCommand.setFechaPago(fechaPago);
     saveOrderCommand.setIva(iva);
     saveOrderCommand.setCuit(cuit);
@@ -205,7 +209,7 @@ public class OrdenPagoController {
   @RequestMapping(value="save", method=RequestMethod.POST)
   public String update(@ModelAttribute("model") final ModelMap model,
       long numeroOrden, int tipoTitular, int titularId, String tipoFactura,
-      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago,
+      @DateTimeFormat(pattern="dd/MM/yyyy") Date fechaPago, int medioPagoId,
       @NumberFormat(style=Style.NUMBER, pattern="#,##") double iva, String numeroFactura, String localidad,
       String cuit, String banco, String cbu, String accountNumber, String observaciones, String observacionesShopper) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
@@ -216,6 +220,7 @@ public class OrdenPagoController {
     saveOrderCommand.setTipoProveedor(tipoTitular);
     saveOrderCommand.setProveedor(titularId);
     saveOrderCommand.setTipoFactura(tipoFactura);
+    saveOrderCommand.setMedioPagoId(medioPagoId);
     saveOrderCommand.setFechaPago(fechaPago);
     saveOrderCommand.setIva(iva);
     saveOrderCommand.setCuit(cuit);
