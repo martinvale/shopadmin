@@ -144,7 +144,7 @@ public class PayOrderCommand implements Command<OrdenPago> {
         builder.append("<td width=\"200px\">Cliente</td>");
         builder.append("<td width=\"200px\">Sucursal</td>");
         builder.append("<td width=\"100px\">Pago</td>");
-        builder.append("<td width=\"100px\">Importe</td>");
+        builder.append("<td width=\"100px\">Importe c/IVA</td>");
         builder.append("</tr>");
         boolean even = false;
         double total = 0;
@@ -173,7 +173,8 @@ public class PayOrderCommand implements Command<OrdenPago> {
         builder.append("<td>&nbsp;</td>");
         builder.append("<td>&nbsp;</td>");
         builder.append("<td>&nbsp;</td>");
-        builder.append("<td style=\"background-color: #E2EFDA;\">Total: $ " + numberFormat.format(total) + "</td>");
+        double impuestos = total * (order.getIva() / 100);
+        builder.append("<td style=\"background-color: #E2EFDA;\">Total c/IVA: $ " + numberFormat.format(total + impuestos) + "</td>");
         builder.append("</tr>");
         builder.append("</table>");
         builder.append("</body>");

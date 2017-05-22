@@ -83,10 +83,12 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
         itemDialog.find("input[name=banco]").val(order.banco);
         itemDialog.find("input[name=cbu]").val(order.cbu);
         itemDialog.find("input[name=importe]").val(order.importe);
+        itemDialog.find("input[name=importeConIva]").val(order.importeConIva);
+        itemDialog.find(".js-iva").text(order.iva);
         itemDialog.find("input[name=transferid]").val("");
         itemDialog.find("textarea[name=observaciones]").val(order.observaciones);
         itemDialog.find("textarea[name=obsshopper]").val(order.observacionesShopper);
-        itemDialog.find("input[name=sendmail]").prop("checked", "");
+        itemDialog.find("input[name=sendmail]").prop("checked", "checked");
         itemDialog.find("input[name=receivers]").val("");
         itemDialog.dialog("open");
       });
@@ -117,6 +119,8 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
           banco: "${item.banco!''}",
           cbu: "${item.cbu!''}",
           importe: "${item.importe}",
+          iva: "${item.iva}",
+          importeConIva: "${item.importeConIva}",
           observaciones: "${item.observaciones}",
           observacionesShopper: "${item.observacionesShopper}"
         });
@@ -166,7 +170,7 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
           <tr>
             <th scope="col" style="width: 10%">Nro de orden</th>
             <th scope="col" style="width: 75%">Titular</th>
-            <th scope="col" style="width: 10%">Importe</th>
+            <th scope="col" style="width: 10%">Importe c/IVA</th>
             <th scope="col" style="width: 5%">&nbsp;</th>
           </tr>
         </thead>
@@ -176,7 +180,7 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
           <tr class="js-order-${item.numero?c}">
             <td>${item.numero?c}</td>
             <td>${item.titular!''}</td>
-            <td style="text-align: right">$ ${item.importe}</td>
+            <td style="text-align: right">$ ${item.importeConIva}</td>
             <td><a id="js-order-${item_index}" href="#" class="js-pay">pagar</a></td>
             <#assign totalPago = totalPago + item.importe?replace(",", ".")?number />
           </tr>
@@ -217,6 +221,10 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
         <input type="text" id="importe" name="importe" readOnly="true" value="" />
       </div>
       <div class="field">
+        <label for="importeConIva">Total c/IVA (<span class="js-iva"></span>%): </label>
+        <input type="text" id="importeConIva" name="importeConIva" readOnly="true" value="" />
+      </div>
+      <div class="field">
         <label for="transferid">ID Transfer: </label>
         <input type="text" id="transferid" name="transferid" value="" />
       </div>
@@ -230,7 +238,7 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
       </div>
       <div class="field">
         <label for="sendmail">Enviar email: </label>
-        <input type="checkbox" id="sendmail" name="sendmail" checked="" />
+        <input type="checkbox" id="sendmail" name="sendmail" checked="checked" />
       </div>
       <div class="field">
         <label for="receivers">Otros e-mails: </label>
