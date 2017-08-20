@@ -41,12 +41,12 @@ public class OrderDto {
 
     public OrderDto(final OrdenPago order, final String titular, final String titularCuenta,
             final String cuit, final String banco, final String cbu, final String observaciones,
-            final String observacionesShopper, final double importe, final double iva) {
+            final String observacionesShopper, final double importe, final double honorarios, final double iva) {
         this(order, titular, titularCuenta, cuit, banco, cbu, observaciones, observacionesShopper);
         this.iva = iva;
         if (importe > 0) {
             this.importe = numberFormat.format(importe);
-            double impuestos = importe * (iva / 100);
+            double impuestos = honorarios * (iva / 100);
             this.importeConIva = numberFormat.format(importe + impuestos);
         }
     }
@@ -63,7 +63,7 @@ public class OrderDto {
         this.iva = order.getIva();
         if (order.getImporte() > 0) {
             this.importe = numberFormat.format(order.getImporte());
-            double impuestos = order.getImporte() * (order.getIva() / 100);
+            double impuestos = order.getHonorarios() * (order.getIva() / 100);
             this.importeConIva = numberFormat.format(order.getImporte() + impuestos);
         }
         this.fechaPago = dateFormat.format(order.getFechaPago());

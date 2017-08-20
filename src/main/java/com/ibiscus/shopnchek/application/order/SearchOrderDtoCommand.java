@@ -131,13 +131,17 @@ public class SearchOrderDtoCommand extends SearchCommand<OrderDto> {
             }
             if (!StringUtils.isBlank(dniShopper)) {
                 double importe = 0;
+                double honorarios = 0;
                 for (ItemOrden itemOrden : order.getItems()) {
                     if (dniShopper.equals(itemOrden.getShopperDni())) {
                         importe = importe + itemOrden.getImporte();
+                        if (itemOrden.getTipoPago().getDescription().equals("HONORARIOS")) {
+                            honorarios =+ itemOrden.getImporte();
+                        }
                     }
                 }
                 orderDto = new OrderDto(order, titular, titularCuenta, order.getCuit(), order.getBanco(),
-                        order.getCbu(), order.getObservaciones(), order.getObservacionesShopper(), importe, order.getIva());
+                        order.getCbu(), order.getObservaciones(), order.getObservacionesShopper(), importe, honorarios, order.getIva());
             } else {
                 orderDto = new OrderDto(order, titular, titularCuenta, order.getCuit(), order.getBanco(), order.getCbu(),
                         order.getObservaciones(), order.getObservacionesShopper());

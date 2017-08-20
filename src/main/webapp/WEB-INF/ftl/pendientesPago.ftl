@@ -182,7 +182,7 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
             <td>${item.titular!''}</td>
             <td style="text-align: right">$ ${item.importeConIva}</td>
             <td><a id="js-order-${item_index}" href="#" class="js-pay">pagar</a></td>
-            <#assign totalPago = totalPago + item.importe?replace(",", ".")?number />
+            <#assign totalPago = totalPago + item.importeConIva?replace(",", ".")?number />
           </tr>
           </#list>
         </tbody>
