@@ -276,6 +276,8 @@ public class OrdenPagoController {
     payOrderCommand.setIdTransferencia(transferId);
     payOrderCommand.setObservaciones(observaciones);
     payOrderCommand.setObservacionesShopper(observacionesShopper);
+    payOrderCommand.setSendMail(false);
+    payOrderCommand.setReceivers(null);
     OrdenPago ordenPago = payOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
@@ -292,8 +294,11 @@ public class OrdenPagoController {
     model.addAttribute("user", user);
 
     payOrderCommand.setNumero(orderId);
-    payOrderCommand.setMedioPagoId(3);
     payOrderCommand.setStateId(OrderState.PAGADA);
+    payOrderCommand.setMedioPagoId(3);
+    payOrderCommand.setNumeroChequera(null);
+    payOrderCommand.setNumeroCheque(null);
+    payOrderCommand.setFechaCheque(null);
     payOrderCommand.setIdTransferencia(transferId);
     payOrderCommand.setObservaciones(observaciones);
     payOrderCommand.setObservacionesShopper(observacionesShopper);
