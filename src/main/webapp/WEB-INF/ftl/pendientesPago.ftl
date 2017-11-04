@@ -29,14 +29,16 @@
 
       App.widget = App.widget || {};
 
-App.widget.PayAdmin = function (container, dialogTemplate, orders) {
+App.widget.PayDialog = function (container) {
 
   var itemDialog;
 
   var loadingIndicator = new App.widget.LoadingIndicator(container);
 
+  var closeCallback = {};
+
   var initialize = function () {
-    itemDialog = dialogTemplate.dialog({
+    itemDialog = container.dialog({
       autoOpen: false,
       title: 'Confirmar el pago de esta orden',
       width: 500,
@@ -46,6 +48,11 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
           loadingIndicator.start();
           var order = {};
           var numero = itemDialog.find("input[name=numero]").val();
+          var numeros = numero.split(",");
+          order['numero[]'] = [];
+          jQuery.each(numeros, function (index, value) {
+            order['numero[]'].push(value.trim());
+          })
           order['transferId'] = itemDialog.find("input[name=transferid]").val();
           order['observaciones'] = itemDialog.find("textarea[name=observaciones]").val();
           order['observacionesShopper'] = itemDialog.find("textarea[name=obsshopper]").val();
@@ -53,12 +60,12 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
           order['receivers'] = itemDialog.find("input[name=receivers]").val();
 
           jQuery.ajax({
-            url: "silentpay/" + numero,
+            url: "silentpay",
             type: 'POST',
             data: order
           }).done(function () {
             loadingIndicator.stop();
-            container.find(".js-order-" + numero).hide("slow");
+            closeCallback(order['numero[]']);
             itemDialog.dialog("close");
           });
         },
@@ -69,6 +76,51 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
     });
   };
 
+  return {
+    render: function () {
+      initialize();
+    },
+    onClose: function (callback) {
+      closeCallback = callback;
+    },
+    open: function (orders) {
+      var order = orders[0];
+      var numerosOrden;
+      var importe = 0;
+      var importeConIva = 0;
+      jQuery.each(orders, function (index, value) {
+        if (numerosOrden) {
+          numerosOrden += ", " + value.numero;
+        } else {
+          numerosOrden = value.numero;
+        }
+        importe += parseFloat(value.importe.replace(",", "."));
+        importeConIva += parseFloat(value.importeConIva.replace(",", "."));
+      });
+      itemDialog.find("input[name=numero]").val(numerosOrden);
+      itemDialog.find("input[name=titular]").val(order.titular);
+      itemDialog.find("input[name=titularCuenta]").val(order.titularCuenta);
+      itemDialog.find("input[name=cuit]").val(order.cuit);
+      itemDialog.find("input[name=banco]").val(order.banco);
+      itemDialog.find("input[name=cbu]").val(order.cbu);
+      itemDialog.find("input[name=importe]").val(importe.toFixed(2).replace(".", ","));
+      itemDialog.find("input[name=importeConIva]").val(importeConIva.toFixed(2).replace(".", ","));
+      itemDialog.find(".js-iva").text(order.iva);
+      itemDialog.find("input[name=transferid]").val("");
+      itemDialog.find("textarea[name=observaciones]").val(order.observaciones);
+      itemDialog.find("textarea[name=obsshopper]").val(order.observacionesShopper);
+      itemDialog.find("input[name=sendmail]").prop("checked", "checked");
+      itemDialog.find("input[name=receivers]").val("");
+      itemDialog.dialog("open");
+    }
+  };
+
+}
+
+App.widget.PayAdmin = function (container, itemDialog, orders) {
+
+  var itemDialog;
+
   var initEventListeners = function () {
     for (var i = 0; i < orders.length; i++) {
       var orderContainer = container.find(".js-order-" + orders[i].numero);
@@ -76,33 +128,50 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
         event.preventDefault();
         var index = this.id.substring(9);
         var order = orders[index];
-        itemDialog.find("input[name=numero]").val(order.numero);
-        itemDialog.find("input[name=titular]").val(order.titular);
-        itemDialog.find("input[name=titularCuenta]").val(order.titularCuenta);
-        itemDialog.find("input[name=cuit]").val(order.cuit);
-        itemDialog.find("input[name=banco]").val(order.banco);
-        itemDialog.find("input[name=cbu]").val(order.cbu);
-        itemDialog.find("input[name=importe]").val(order.importe);
-        itemDialog.find("input[name=importeConIva]").val(order.importeConIva);
-        itemDialog.find(".js-iva").text(order.iva);
-        itemDialog.find("input[name=transferid]").val("");
-        itemDialog.find("textarea[name=observaciones]").val(order.observaciones);
-        itemDialog.find("textarea[name=obsshopper]").val(order.observacionesShopper);
-        itemDialog.find("input[name=sendmail]").prop("checked", "checked");
-        itemDialog.find("input[name=receivers]").val("");
-        itemDialog.dialog("open");
+        itemDialog.open([order]);
       });
     }
+    container.find(".js-pay-selected").click(function (event) {
+        var selectedOrders = [];
+        container.find(":checked").each(function (index) {
+          var index = this.id.substring(18);
+          selectedOrders.push(orders[index]);
+        });
+        itemDialog.open(selectedOrders);
+    });
+    container.find(":checkbox").change(function (event) {
+      var checkedOrders = container.find(":checked");
+      var currentCheckbox = this;
+      if (this.checked) {
+        container.find(".js-pay-selected").prop("disabled", false);
+        var titularCuenta;
+        jQuery.each(checkedOrders, function (index, value) {
+          if (titularCuenta) {
+            var index = value.id.substring(18);
+            var order = orders[index];
+            if (titularCuenta != orders[index].titularCuenta) {
+              alert('No se pueden seleccionar cuentas de diferentes titulares');
+              event.preventDefault();
+              currentCheckbox.checked = false;
+            }
+          } else {
+            titularCuenta = orders[index].titularCuenta;
+          }
+        })
+      } else {
+        container.find(".js-pay-selected").prop("disabled", checkedOrders.length == 0);
+      }
+    });
+    itemDialog.onClose(function (orders) {
+      jQuery.each(orders, function (index, value) {
+        container.find(".js-order-" + value).hide("slow");
+      })
+    });
   };
 
   return {
     render: function () {
-      initialize();
       initEventListeners();
-    },
-    open: function () {
-      reset();
-      itemDialog.dialog("open");
     }
   };
 
@@ -126,9 +195,12 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
         });
         </#list>
 
-        var ordenesContainer = jQuery(".js-ordenes");
         var dialogTemplate = jQuery("#pay-detail");
-        var payAdmin = App.widget.PayAdmin(ordenesContainer, dialogTemplate, orders);
+        var payDialog = App.widget.PayDialog(dialogTemplate);
+        payDialog.render();
+
+        var ordenesContainer = jQuery(".js-ordenes");
+        var payAdmin = App.widget.PayAdmin(ordenesContainer, payDialog, orders);
         payAdmin.render();
 
         jQuery(".js-fecha" ).datepicker({
@@ -165,28 +237,35 @@ App.widget.PayAdmin = function (container, dialogTemplate, orders) {
           <li><input type="submit" value="Buscar" class="btn-shop-small"></li>
         </ul>
       </form>
-      <table summary="Listado de ordenes a pagar" class="table-form js-ordenes">
-        <thead>
-          <tr>
-            <th scope="col" style="width: 10%">Nro de orden</th>
-            <th scope="col" style="width: 75%">Titular</th>
-            <th scope="col" style="width: 10%">Importe c/IVA</th>
-            <th scope="col" style="width: 5%">&nbsp;</th>
-          </tr>
-        </thead>
-        <tbody>
-          <#assign totalPago = 0 />
-          <#list model["result"].items as item>
-          <tr class="js-order-${item.numero?c}">
-            <td>${item.numero?c}</td>
-            <td>${item.titular!''}</td>
-            <td style="text-align: right">$ ${item.importeConIva}</td>
-            <td><a id="js-order-${item_index}" href="#" class="js-pay">pagar</a></td>
-            <#assign totalPago = totalPago + item.importeConIva?replace(",", ".")?number />
-          </tr>
-          </#list>
-        </tbody>
-      </table>
+      <div class="js-ordenes">
+        <div class="box-green">
+          <input type="button" value="Pagar las seleccionadas" class="btn-shop-small js-pay-selected" disabled="true" />
+        </div>
+        <table summary="Listado de ordenes a pagar" class="table-form">
+          <thead>
+            <tr>
+              <th scope="col" style="width: 2%">&nbsp;</th>
+              <th scope="col" style="width: 10%">Nro de orden</th>
+              <th scope="col" style="width: 73%">Titular</th>
+              <th scope="col" style="width: 10%">Importe c/IVA</th>
+              <th scope="col" style="width: 5%">&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <#assign totalPago = 0 />
+            <#list model["result"].items as item>
+            <tr class="js-order-${item.numero?c}">
+              <td><input type="checkbox" id="js-selected-order-${item_index}" /></td>
+              <td>${item.numero?c}</td>
+              <td>${item.titular!''}</td>
+              <td style="text-align: right">$ ${item.importeConIva}</td>
+              <td><a id="js-order-${item_index}" href="#" class="js-pay">pagar</a></td>
+              <#assign totalPago = totalPago + item.importeConIva?replace(",", ".")?number />
+            </tr>
+            </#list>
+          </tbody>
+        </table>
+      </div>
       <p>&nbsp;</p>
       <p style="text-align: right">Total a pagar: $ ${totalPago?c?replace(".", ",")}</p>
     </div>

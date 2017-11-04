@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
@@ -267,43 +268,28 @@ public class OrdenPagoController {
         .getPrincipal();
     model.addAttribute("user", user);
 
-    payOrderCommand.setNumero(orderId);
-    payOrderCommand.setStateId(state);
-    payOrderCommand.setMedioPagoId(medioPagoId);
-    payOrderCommand.setNumeroChequera(numeroChequera);
-    payOrderCommand.setNumeroCheque(numeroCheque);
-    payOrderCommand.setFechaCheque(fechaCheque);
-    payOrderCommand.setIdTransferencia(transferId);
-    payOrderCommand.setObservaciones(observaciones);
-    payOrderCommand.setObservacionesShopper(observacionesShopper);
-    payOrderCommand.setSendMail(false);
-    payOrderCommand.setReceivers(null);
+    Set<Long> orderNumbers = new HashSet<Long>();
+    orderNumbers.add(orderId);
+    payOrderCommand.update(orderNumbers, medioPagoId, numeroChequera, numeroCheque,
+            fechaCheque, transferId, observaciones, observacionesShopper, state, false, null);
     OrdenPago ordenPago = payOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
     return "redirect:../" + orderId;
   }
 
-  @RequestMapping(value="/silentpay/{orderId}", method = RequestMethod.POST)
+  @RequestMapping(value="/silentpay", method = RequestMethod.POST)
   public @ResponseBody boolean silentPayOrder(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long orderId, @RequestParam(required = false) String transferId,
+      @RequestParam(value = "numero[]") Long[] numeros, @RequestParam(required = false) String transferId,
       String observaciones, String observacionesShopper, @RequestParam(defaultValue = "false") boolean sendMail,
       String receivers) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
 
-    payOrderCommand.setNumero(orderId);
-    payOrderCommand.setStateId(OrderState.PAGADA);
-    payOrderCommand.setMedioPagoId(3);
-    payOrderCommand.setNumeroChequera(null);
-    payOrderCommand.setNumeroCheque(null);
-    payOrderCommand.setFechaCheque(null);
-    payOrderCommand.setIdTransferencia(transferId);
-    payOrderCommand.setObservaciones(observaciones);
-    payOrderCommand.setObservacionesShopper(observacionesShopper);
-    payOrderCommand.setSendMail(sendMail);
-    payOrderCommand.setReceivers(receivers);
+    Set<Long> numbers = new HashSet<Long>(Arrays.asList(numeros));
+    payOrderCommand.update(numbers, 3, null, null, null, transferId, observaciones,
+            observacionesShopper, OrderState.PAGADA, sendMail, receivers);
     OrdenPago ordenPago = payOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
 
