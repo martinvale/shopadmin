@@ -178,6 +178,7 @@ textarea.LV_invalid_field:active {
               <div class="form-shop-row">
                 <label>N&uacute;mero</label>
                 <input type="text" name="numeroOrden" readOnly="true" value="${(order.numero?c)!''}"/>
+                <span class="info">&Uacute;ltima orden de pago: ${model["ultimaOrden"]?c}</span>
               </div>
               <div class="form-shop-row titular-selector js-titular-selector">
                 <label class="mandatory">Titular</label>

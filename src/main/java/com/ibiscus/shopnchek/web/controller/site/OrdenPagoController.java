@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
@@ -118,6 +119,9 @@ public class OrdenPagoController {
         .getPrincipal();
     model.addAttribute("user", user);
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
+    List<OrdenPago> orders = orderRepository.find(0, 1, "numero", false,
+            null, null, null, null, null, null, null);
+    model.addAttribute("ultimaOrden", orders.get(0).getNumero());
     return "createOrder";
   }
 
