@@ -37,6 +37,8 @@ App.widget.PayDialog = function (container) {
 
   var closeCallback = {};
 
+  var saveCallback = {};
+
   var initialize = function () {
     itemDialog = container.dialog({
       autoOpen: false,
@@ -44,6 +46,29 @@ App.widget.PayDialog = function (container) {
       width: 500,
       modal: true,
       buttons: {
+        'Guardar': function() {
+          loadingIndicator.start();
+          var order = {};
+          var numero = itemDialog.find("input[name=numero]").val();
+          var numeros = numero.split(",");
+          order['numero[]'] = [];
+          jQuery.each(numeros, function (index, value) {
+            order['numero[]'].push(value.trim());
+          })
+          order['transferId'] = itemDialog.find("input[name=transferid]").val();
+          order['observaciones'] = itemDialog.find("textarea[name=observaciones]").val();
+          order['observacionesShopper'] = itemDialog.find("textarea[name=obsshopper]").val();
+
+          jQuery.ajax({
+            url: "savepaydata",
+            type: 'POST',
+            data: order
+          }).done(function () {
+            loadingIndicator.stop();
+            saveCallback(order);
+            itemDialog.dialog("close");
+          });
+        },
         'Pagar': function() {
           loadingIndicator.start();
           var order = {};
@@ -83,6 +108,9 @@ App.widget.PayDialog = function (container) {
     onClose: function (callback) {
       closeCallback = callback;
     },
+    onSave: function (callback) {
+      saveCallback = callback;
+    },
     open: function (orders) {
       var order = orders[0];
       var numerosOrden;
@@ -106,7 +134,7 @@ App.widget.PayDialog = function (container) {
       itemDialog.find("input[name=importe]").val(importe.toFixed(2).replace(".", ","));
       itemDialog.find("input[name=importeConIva]").val(importeConIva.toFixed(2).replace(".", ","));
       itemDialog.find(".js-iva").text(order.iva);
-      itemDialog.find("input[name=transferid]").val("");
+      itemDialog.find("input[name=transferid]").val(order.transferId);
       itemDialog.find("textarea[name=observaciones]").val(order.observaciones);
       itemDialog.find("textarea[name=obsshopper]").val(order.observacionesShopper);
       itemDialog.find("input[name=sendmail]").prop("checked", "checked");
@@ -167,6 +195,17 @@ App.widget.PayAdmin = function (container, itemDialog, orders) {
         container.find(".js-order-" + value).hide("slow");
       })
     });
+    itemDialog.onSave(function (paymentData) {
+      jQuery.each(paymentData['numero[]'], function (index, numeroOrden) {
+        jQuery.each(orders, function (index, order) {
+          if (order.numero == numeroOrden) {
+            order.transferId = paymentData.transferId;
+            order.observaciones = paymentData.observaciones;
+            order.observacionesShopper = paymentData.observacionesShopper;
+          }
+        })
+      })
+    });
   };
 
   return {
@@ -190,6 +229,7 @@ App.widget.PayAdmin = function (container, itemDialog, orders) {
           importe: "${item.importe}",
           iva: "${item.iva}",
           importeConIva: "${item.importeConIva}",
+          transferId: "${item.transferId!''}",
           observaciones: "${item.observaciones}",
           observacionesShopper: "${item.observacionesShopper}"
         });

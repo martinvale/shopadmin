@@ -182,6 +182,14 @@ public class OrdenPago {
     }
   }
 
+  public void updatePaymentData(final MedioPago medioPago, final String idTransferencia,
+          final String observacion, final String observacionShopper) {
+      this.medioPago = medioPago;
+      this.idTransferencia = idTransferencia;
+      this.observaciones = observacion;
+      this.observacionesShopper = observacionShopper;
+  }
+
   public void transition(final OrderState state) {
     this.estado = state;
     if (state.getId() == OrderState.VERIFICADA) {

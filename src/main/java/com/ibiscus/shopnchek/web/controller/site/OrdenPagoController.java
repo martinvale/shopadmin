@@ -36,6 +36,7 @@ import com.ibiscus.shopnchek.application.order.OrderDto;
 import com.ibiscus.shopnchek.application.order.PayOrderCommand;
 import com.ibiscus.shopnchek.application.order.RemoveItemOrderCommand;
 import com.ibiscus.shopnchek.application.order.SaveOrderCommand;
+import com.ibiscus.shopnchek.application.order.SavePaymentDataCommand;
 import com.ibiscus.shopnchek.application.order.SearchOrderDtoCommand;
 import com.ibiscus.shopnchek.application.order.TransitionOrderCommand;
 import com.ibiscus.shopnchek.application.shopmetrics.ImportService;
@@ -90,6 +91,9 @@ public class OrdenPagoController {
 
   @Autowired
   private PayOrderCommand payOrderCommand;
+
+  @Autowired
+  private SavePaymentDataCommand savePaymentDataCommand;
 
   @Autowired
   private TransitionOrderCommand transitionOrderCommand;
@@ -296,6 +300,23 @@ public class OrdenPagoController {
             observacionesShopper, OrderState.PAGADA, sendMail, receivers);
     OrdenPago ordenPago = payOrderCommand.execute();
     model.addAttribute("ordenPago", ordenPago);
+
+    return true;
+  }
+
+  @RequestMapping(value="/savepaydata", method = RequestMethod.POST)
+  public @ResponseBody boolean savePaymentData(@ModelAttribute("model") final ModelMap model,
+      @RequestParam(value = "numero[]") Long[] numeros, @RequestParam(required = false) String transferId,
+      String observaciones, String observacionesShopper) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    model.addAttribute("user", user);
+
+    Set<Long> numbers = new HashSet<Long>(Arrays.asList(numeros));
+    savePaymentDataCommand.update(numbers, 3, transferId, observaciones,
+            observacionesShopper);
+    List<OrdenPago> ordenesPago = savePaymentDataCommand.execute();
+    model.addAttribute("ordenPago", ordenesPago.get(0));
 
     return true;
   }

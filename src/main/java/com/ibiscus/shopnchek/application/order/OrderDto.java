@@ -35,14 +35,16 @@ public class OrderDto {
 
     private String cbu;
 
+    private String transferId;
+
     private String observaciones;
 
     private String observacionesShopper;
 
     public OrderDto(final OrdenPago order, final String titular, final String titularCuenta,
-            final String cuit, final String banco, final String cbu, final String observaciones,
+            final String cuit, final String banco, final String cbu, String transferId, final String observaciones,
             final String observacionesShopper, final double importe, final double honorarios, final double iva) {
-        this(order, titular, titularCuenta, cuit, banco, cbu, observaciones, observacionesShopper);
+        this(order, titular, titularCuenta, cuit, banco, cbu, transferId, observaciones, observacionesShopper);
         this.iva = iva;
         if (importe > 0) {
             this.importe = numberFormat.format(importe);
@@ -52,7 +54,7 @@ public class OrderDto {
     }
 
     public OrderDto(final OrdenPago order, final String titular, final String titularCuenta,
-            final String cuit, final String banco, final String cbu, final String observaciones,
+            final String cuit, final String banco, final String cbu, String transferId, final String observaciones,
             final String observacionesShopper) {
         this.numero = order.getNumero();
         this.titular = titular;
@@ -68,6 +70,7 @@ public class OrderDto {
         }
         this.fechaPago = dateFormat.format(order.getFechaPago());
         this.state = order.getEstado().getDescription();
+        this.transferId = transferId;
         this.observaciones = observaciones;
         this.observacionesShopper = observacionesShopper;
     }
@@ -114,6 +117,10 @@ public class OrderDto {
 
     public String getState() {
         return state;
+    }
+
+    public String getTransferId() {
+        return transferId;
     }
 
     public String getObservaciones() {

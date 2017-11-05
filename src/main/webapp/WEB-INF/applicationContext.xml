@@ -186,6 +186,10 @@
     <property name="from" value="pagosshopnchek@shopnchek.com.ar" />
   </bean>
 
+  <bean id="savePaymentDataCommand" class="com.ibiscus.shopnchek.application.order.SavePaymentDataCommand" scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+  </bean>
+
   <bean id="transitionOrderCommand" class="com.ibiscus.shopnchek.application.order.TransitionOrderCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
   </bean>
