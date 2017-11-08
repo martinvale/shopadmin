@@ -239,152 +239,175 @@ public class ImportFileCommand implements Command<Boolean> {
 		if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
 			isOk = OK_FOR_BILLING.equals(cell.getStringCellValue());
 		}
-		if (surveyIdValue != null && isOk) {
-			cell = row.getCell(headers.get(Collogin));
-			String login = cell.getStringCellValue();
-			if (login != null && !login.isEmpty()) {
-				Shopper shopper = shopperRepository.findByLogin(login);
-				if (shopper == null) {
-					throw new ShopperNotFoundException(login);
-				}
-
-				String cliente = row.getCell(headers.get(ColCliente))
-						.getStringCellValue();
-				/*String apellido = row.getCell(headers.get(ColApellido))
-						.getStringCellValue();
-				String nombre = row.getCell(headers.get(ColNombre))
-						.getStringCellValue();*/
-				String fechaValue = row.getCell(headers.get(ColFecha))
-						.getStringCellValue();
-				Date fecha = null;
-				if (fechaValue != null) {
-					SimpleDateFormat dateFormat = new SimpleDateFormat(
-							"yyyy-MM-dd");
-					try {
-						fecha = dateFormat.parse(fechaValue);
-					} catch (ParseException e) {
-						throw new RuntimeException(
-								"Cannot parse the cell date", e);
-					}
-				}
-				String subCuestionario = row.getCell(
-						headers.get(ColSubcuestionario)).getStringCellValue();
-				String idSucursal = row.getCell(headers.get(ColIDSucursal))
-						.getStringCellValue();
-				/*String nombreSucursal = row.getCell(
-						headers.get(ColNombreSucursal)).getStringCellValue();*/
-				String direccionSucursal = row.getCell(
-						headers.get(ColDireccionSucursal)).getStringCellValue();
-				String ciudadSucursal = row.getCell(
-						headers.get(ColCiudadSucursal)).getStringCellValue();
-				String honorariosValue = row
-						.getCell(headers.get(ColHonorarios))
-						.getStringCellValue();
-				Double honorarios = null;
-				if (honorariosValue != null && !honorariosValue.isEmpty()) {
-					honorariosValue = honorariosValue.replaceAll(",", "");
-					honorarios = new Double(honorariosValue);
-				}
-				Double reintegros = null;
-				Integer reintegroPos = headers.get(ColReintegros);
-				if (reintegroPos != null) {
-					String reintegrosValue = row.getCell(reintegroPos)
-							.getStringCellValue();
-					if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
-						reintegrosValue = reintegrosValue.replaceAll(",", "");
-						reintegros = new Double(reintegrosValue);
-					}
-				}
-
-				Branch branch = null;
-				long startTime = System.currentTimeMillis();
-				Client client = clientRepository.getByName(cliente);
-				logger.debug("Get client by name in {} ms", System.currentTimeMillis() - startTime);
-				if (client == null) {
-					client = new Client(cliente);
-					startTime = System.currentTimeMillis();
-					clientRepository.save(client);
-					logger.debug("Save client in {} ms", System.currentTimeMillis() - startTime);
-				} else {
-					final String sucursalCode = idSucursal;
-					startTime = System.currentTimeMillis();
-					branch = branchRepository.findByCode(client, idSucursal);
-					/*branch = (Branch) CollectionUtils.find(client.getBranchs(),
-							new Predicate() {
-
-								@Override
-								public boolean evaluate(Object item) {
-									boolean result = false;
-									Branch branch = (Branch) item;
-									if (branch.getCode() != null) {
-										result = branch.getCode().equals(
-												sucursalCode);
-									}
-									return result;
-								}
-
-							});*/
-					logger.debug("Get branch by code {} for client {} in {} ms", sucursalCode,
-							client.getId(), System.currentTimeMillis() - startTime);
-				}
-				if (branch == null) {
-					branch = new Branch(client, idSucursal, ciudadSucursal,
-							direccionSucursal);
-					branchRepository.save(branch);
-				}
-
-				startTime = System.currentTimeMillis();
-				if (honorarios != null) {
-					long startGetTime = System.currentTimeMillis();
-					Debt debt = debtRepository.getByExternalId(
-							surveyIdValue.longValue(), TipoItem.shopmetrics,
-							TipoPago.honorarios);
-					logger.debug("Getting honorarios in {} ms", System.currentTimeMillis() - startGetTime);
-					if (debt == null) {
-						debt = new Debt(TipoItem.shopmetrics,
-								TipoPago.honorarios, shopper.getDni(),
-								honorarios, fecha, null, subCuestionario,
-								client, null, branch, null,
-								surveyIdValue.longValue(), null);
-						debtRepository.save(debt);
-					} else {
-						debt.update(TipoItem.shopmetrics, TipoPago.honorarios,
-								shopper.getDni(), honorarios, fecha, null,
-								subCuestionario, client, null, branch, null,
-								surveyIdValue.longValue(), null);
-						long startUpdateTime = System.currentTimeMillis();
-						debtRepository.update(debt);
-						logger.debug("Updating honorarios in {} ms", System.currentTimeMillis() - startUpdateTime);
-					}
-				}
-				logger.debug("Saving honorarios in {} ms", System.currentTimeMillis() - startTime);
-
-				startTime = System.currentTimeMillis();
-				if (reintegros != null) {
-					long startGetTime = System.currentTimeMillis();
-					Debt debt = debtRepository.getByExternalId(
-							surveyIdValue.longValue(), TipoItem.shopmetrics,
-							TipoPago.reintegros);
-					logger.debug("Getting reintegros in {} ms", System.currentTimeMillis() - startGetTime);
-					if (debt == null) {
-						debt = new Debt(TipoItem.shopmetrics,
-								TipoPago.reintegros, shopper.getDni(),
-								reintegros, fecha, null, subCuestionario,
-								client, null, branch, null,
-								surveyIdValue.longValue(), null);
-						debtRepository.save(debt);
-					} else {
-						debt.update(TipoItem.shopmetrics, TipoPago.reintegros,
-								shopper.getDni(), reintegros, fecha, null,
-								subCuestionario, client, null, branch, null,
-								surveyIdValue.longValue(), null);
-						long startUpdateTime = System.currentTimeMillis();
-						debtRepository.update(debt);
-						logger.debug("Updating reintegros in {} ms", System.currentTimeMillis() - startUpdateTime);
-					}
-				}
-				logger.debug("Saving reintegros in {} ms", System.currentTimeMillis() - startTime);
-			}
+		if (surveyIdValue != null) {
+            if (isOk) {
+    			cell = row.getCell(headers.get(Collogin));
+    			String login = cell.getStringCellValue();
+    			if (login != null && !login.isEmpty()) {
+    				Shopper shopper = shopperRepository.findByLogin(login);
+    				if (shopper == null) {
+    					throw new ShopperNotFoundException(login);
+    				}
+    
+    				String cliente = row.getCell(headers.get(ColCliente))
+    						.getStringCellValue();
+    				/*String apellido = row.getCell(headers.get(ColApellido))
+    						.getStringCellValue();
+    				String nombre = row.getCell(headers.get(ColNombre))
+    						.getStringCellValue();*/
+    				String fechaValue = row.getCell(headers.get(ColFecha))
+    						.getStringCellValue();
+    				Date fecha = null;
+    				if (fechaValue != null) {
+    					SimpleDateFormat dateFormat = new SimpleDateFormat(
+    							"yyyy-MM-dd");
+    					try {
+    						fecha = dateFormat.parse(fechaValue);
+    					} catch (ParseException e) {
+    						throw new RuntimeException(
+    								"Cannot parse the cell date", e);
+    					}
+    				}
+    				String subCuestionario = row.getCell(
+    						headers.get(ColSubcuestionario)).getStringCellValue();
+    				String idSucursal = row.getCell(headers.get(ColIDSucursal))
+    						.getStringCellValue();
+    				/*String nombreSucursal = row.getCell(
+    						headers.get(ColNombreSucursal)).getStringCellValue();*/
+    				String direccionSucursal = row.getCell(
+    						headers.get(ColDireccionSucursal)).getStringCellValue();
+    				String ciudadSucursal = row.getCell(
+    						headers.get(ColCiudadSucursal)).getStringCellValue();
+    				String honorariosValue = row
+    						.getCell(headers.get(ColHonorarios))
+    						.getStringCellValue();
+    				Double honorarios = null;
+    				if (honorariosValue != null && !honorariosValue.isEmpty()) {
+    					honorariosValue = honorariosValue.replaceAll(",", "");
+    					honorarios = new Double(honorariosValue);
+    				}
+    				Double reintegros = null;
+    				Integer reintegroPos = headers.get(ColReintegros);
+    				if (reintegroPos != null) {
+    					String reintegrosValue = row.getCell(reintegroPos)
+    							.getStringCellValue();
+    					if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
+    						reintegrosValue = reintegrosValue.replaceAll(",", "");
+    						reintegros = new Double(reintegrosValue);
+    					}
+    				}
+    
+    				Branch branch = null;
+    				long startTime = System.currentTimeMillis();
+    				Client client = clientRepository.getByName(cliente);
+    				logger.debug("Get client by name in {} ms", System.currentTimeMillis() - startTime);
+    				if (client == null) {
+    					client = new Client(cliente);
+    					startTime = System.currentTimeMillis();
+    					clientRepository.save(client);
+    					logger.debug("Save client in {} ms", System.currentTimeMillis() - startTime);
+    				} else {
+    					final String sucursalCode = idSucursal;
+    					startTime = System.currentTimeMillis();
+    					branch = branchRepository.findByCode(client, idSucursal);
+    					/*branch = (Branch) CollectionUtils.find(client.getBranchs(),
+    							new Predicate() {
+    
+    								@Override
+    								public boolean evaluate(Object item) {
+    									boolean result = false;
+    									Branch branch = (Branch) item;
+    									if (branch.getCode() != null) {
+    										result = branch.getCode().equals(
+    												sucursalCode);
+    									}
+    									return result;
+    								}
+    
+    							});*/
+    					logger.debug("Get branch by code {} for client {} in {} ms", sucursalCode,
+    							client.getId(), System.currentTimeMillis() - startTime);
+    				}
+    				if (branch == null) {
+    					branch = new Branch(client, idSucursal, ciudadSucursal,
+    							direccionSucursal);
+    					branchRepository.save(branch);
+    				}
+    
+    				startTime = System.currentTimeMillis();
+    				if (honorarios != null) {
+    					long startGetTime = System.currentTimeMillis();
+    					Debt debt = debtRepository.getByExternalId(
+    							surveyIdValue.longValue(), TipoItem.shopmetrics,
+    							TipoPago.honorarios);
+    					logger.debug("Getting honorarios in {} ms", System.currentTimeMillis() - startGetTime);
+    					if (debt == null) {
+    						debt = new Debt(TipoItem.shopmetrics,
+    								TipoPago.honorarios, shopper.getDni(),
+    								honorarios, fecha, null, subCuestionario,
+    								client, client.getName(), branch, null,
+    								surveyIdValue.longValue(), null);
+    						debtRepository.save(debt);
+    					} else {
+    						debt.update(TipoItem.shopmetrics, TipoPago.honorarios,
+    								shopper.getDni(), honorarios, fecha, null,
+    								subCuestionario, client, client.getName(), branch, null,
+    								surveyIdValue.longValue(), null);
+    						long startUpdateTime = System.currentTimeMillis();
+    						debtRepository.update(debt);
+    						logger.debug("Updating honorarios in {} ms", System.currentTimeMillis() - startUpdateTime);
+    					}
+    				}
+    				logger.debug("Saving honorarios in {} ms", System.currentTimeMillis() - startTime);
+    
+    				startTime = System.currentTimeMillis();
+    				if (reintegros != null) {
+    					long startGetTime = System.currentTimeMillis();
+    					Debt debt = debtRepository.getByExternalId(
+    							surveyIdValue.longValue(), TipoItem.shopmetrics,
+    							TipoPago.reintegros);
+    					logger.debug("Getting reintegros in {} ms", System.currentTimeMillis() - startGetTime);
+    					if (debt == null) {
+    						debt = new Debt(TipoItem.shopmetrics,
+    								TipoPago.reintegros, shopper.getDni(),
+    								reintegros, fecha, null, subCuestionario,
+    								client, client.getName(), branch, null,
+    								surveyIdValue.longValue(), null);
+    						debtRepository.save(debt);
+    					} else {
+    						debt.update(TipoItem.shopmetrics, TipoPago.reintegros,
+    								shopper.getDni(), reintegros, fecha, null,
+    								subCuestionario, client, client.getName(), branch, null,
+    								surveyIdValue.longValue(), null);
+    						long startUpdateTime = System.currentTimeMillis();
+    						debtRepository.update(debt);
+    						logger.debug("Updating reintegros in {} ms", System.currentTimeMillis() - startUpdateTime);
+    					}
+    				}
+    				logger.debug("Saving reintegros in {} ms", System.currentTimeMillis() - startTime);
+    			}
+            } else {
+                String honorariosValue = row.getCell(headers.get(ColHonorarios))
+                        .getStringCellValue();
+                if (honorariosValue != null && !honorariosValue.isEmpty()) {
+                    Debt debt = debtRepository.getByExternalId(surveyIdValue.longValue(),
+                            TipoItem.shopmetrics, TipoPago.honorarios);
+                    if (debt != null) {
+                        debt.anulada();
+                        debtRepository.update(debt);
+                    }
+                }
+                String reintegrosValue = row.getCell(headers.get(ColReintegros))
+                        .getStringCellValue();
+                if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
+                    Debt debt = debtRepository.getByExternalId(surveyIdValue.longValue(),
+                            TipoItem.shopmetrics, TipoPago.reintegros);
+                    if (debt != null) {
+                        debt.anulada();
+                        debtRepository.update(debt);
+                    }
+                }
+            }
 		}
 		return end;
 	}
