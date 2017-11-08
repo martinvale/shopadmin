@@ -172,20 +172,20 @@ App.widget.PayAdmin = function (container, itemDialog, orders) {
       var currentCheckbox = this;
       if (this.checked) {
         container.find(".js-pay-selected").prop("disabled", false);
-        var titularCuenta;
+        /*var titularCuenta;
         jQuery.each(checkedOrders, function (index, value) {
+          var index = value.id.substring(18);
+          var order = orders[index];
           if (titularCuenta) {
-            var index = value.id.substring(18);
-            var order = orders[index];
-            if (titularCuenta != orders[index].titularCuenta) {
+            if (titularCuenta != order.titularCuenta) {
               alert('No se pueden seleccionar cuentas de diferentes titulares');
               event.preventDefault();
               currentCheckbox.checked = false;
             }
           } else {
-            titularCuenta = orders[index].titularCuenta;
+            titularCuenta = order.titularCuenta;
           }
-        })
+        })*/
       } else {
         container.find(".js-pay-selected").prop("disabled", checkedOrders.length == 0);
       }

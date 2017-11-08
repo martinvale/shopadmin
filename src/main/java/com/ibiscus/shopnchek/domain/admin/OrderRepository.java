@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.ProjectionList;
@@ -166,4 +167,11 @@ public class OrderRepository extends HibernateDaoSupport {
     return criteria;
   }
 
+  public OrdenPago getMajorBillNumber() {
+      Query query = getSession().createSQLQuery("select top 1 * from ordenes "
+              + "where not factura_nro is null and isnumeric(factura_nro) = 1 "
+              + "order by convert(int, factura_nro) desc")
+              .addEntity(OrdenPago.class);
+      return (OrdenPago) query.uniqueResult();
+  }
 }
