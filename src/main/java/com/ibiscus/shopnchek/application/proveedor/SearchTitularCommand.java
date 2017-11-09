@@ -8,6 +8,8 @@ import java.util.List;
 import com.ibiscus.shopnchek.application.SearchCommand;
 import com.ibiscus.shopnchek.domain.account.Account;
 import com.ibiscus.shopnchek.domain.account.AccountRepository;
+import com.ibiscus.shopnchek.domain.admin.OrdenPago;
+import com.ibiscus.shopnchek.domain.admin.OrderRepository;
 import com.ibiscus.shopnchek.domain.admin.Proveedor;
 import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
@@ -20,6 +22,8 @@ public class SearchTitularCommand extends SearchCommand<TitularDTO> {
     private ShopperRepository shopperRepository;
 
     private AccountRepository accountRepository;
+
+    private OrderRepository orderRepository;
 
     private String name;
 
@@ -91,9 +95,14 @@ public class SearchTitularCommand extends SearchCommand<TitularDTO> {
                 }
             }
         }
+        String ultimaFactura = null;
+        OrdenPago order = orderRepository.getMajorBillNumber(titularTipo, titularId);
+        if (order != null) {
+            ultimaFactura = order.getNumeroFactura();
+        }
         return new TitularDTO(titularId, titularTipo, name, email,
                 loginShopmetrics, cuit, factura, banco, cbu, number, linked, billingId,
-                billingTipo, billingName);
+                billingTipo, billingName, ultimaFactura);
     }
 
     @Override
@@ -112,6 +121,10 @@ public class SearchTitularCommand extends SearchCommand<TitularDTO> {
 
     public void setAccountRepository(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
+    }
+
+    public void setOrderRepository(OrderRepository orderRepository) {
+        this.orderRepository = orderRepository;
     }
 
     public void setName(final String name) {

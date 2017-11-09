@@ -123,8 +123,6 @@ public class OrdenPagoController {
         .getPrincipal();
     model.addAttribute("user", user);
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
-    OrdenPago order = orderRepository.getMajorBillNumber();
-    model.addAttribute("ultimaFactura", order.getNumeroFactura());
     return "createOrder";
   }
 
@@ -148,8 +146,6 @@ public class OrdenPagoController {
     }
 
     model.addAttribute("mediosPago", orderRepository.findMediosPago());
-    OrdenPago order = orderRepository.getMajorBillNumber();
-    model.addAttribute("ultimaFactura", order.getNumeroFactura());
 
     return "createOrder";
   }

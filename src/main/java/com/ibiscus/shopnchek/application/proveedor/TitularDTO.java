@@ -34,10 +34,20 @@ public class TitularDTO {
 
     private String billingName;
 
+    private String ultimaFactura;
+
     public TitularDTO(long titularId, int titularTipo, String name, String email,
             String loginShopmetrics, String cuit, String factura, String banco,
             String cbu, String number, boolean linked, Long billingId, Integer billingTipo,
             String billingName) {
+        this(titularId, titularTipo, name, email, loginShopmetrics, cuit, factura,
+                banco, cbu, number, linked, billingId, billingTipo, billingName, null);
+    }
+
+    public TitularDTO(long titularId, int titularTipo, String name, String email,
+            String loginShopmetrics, String cuit, String factura, String banco,
+            String cbu, String number, boolean linked, Long billingId, Integer billingTipo,
+            String billingName, String ultimaFactura) {
         super();
         this.titularId = titularId;
         this.titularTipo = titularTipo;
@@ -53,6 +63,7 @@ public class TitularDTO {
         this.billingId = billingId;
         this.billingTipo = billingTipo;
         this.billingName = billingName;
+        this.ultimaFactura = ultimaFactura;
     }
 
     public void update(long titularId, int titularTipo, String name,
@@ -129,4 +140,9 @@ public class TitularDTO {
     public boolean isLinked() {
         return linked;
     }
+
+    public String getUltimaFactura() {
+        return ultimaFactura;
+    }
+
 }

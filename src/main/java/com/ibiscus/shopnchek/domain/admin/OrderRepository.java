@@ -167,11 +167,14 @@ public class OrderRepository extends HibernateDaoSupport {
     return criteria;
   }
 
-  public OrdenPago getMajorBillNumber() {
+  public OrdenPago getMajorBillNumber(int tipo, long titular) {
       Query query = getSession().createSQLQuery("select top 1 * from ordenes "
               + "where not factura_nro is null and isnumeric(factura_nro) = 1 "
+              + "and proveedor_tipo = :tipo and proveedor = :titular "
               + "order by convert(int, factura_nro) desc")
-              .addEntity(OrdenPago.class);
+              .addEntity(OrdenPago.class)
+              .setInteger("tipo", tipo)
+              .setLong("titular", titular);
       return (OrdenPago) query.uniqueResult();
   }
 }

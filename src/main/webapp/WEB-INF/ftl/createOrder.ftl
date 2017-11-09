@@ -90,6 +90,11 @@ App.widget.OrdenPago = function (container) {
     container.find("input[name=banco]").val(titularObject.banco);
     container.find("input[name=accountNumber]").val(titularObject.number);
     container.find(".js-billing").html(titularObject.billingName);
+    if (titularObject.ultimaFactura) {
+      container.find(".js-ultima-factura").html(titularObject.ultimaFactura);
+    } else {
+      container.find(".js-ultima-factura").html("-");
+    }
     if (titularObject.factura) {
       var tipoFacturaField = container.find("select[name=tipoFactura]");
       tipoFacturaField.val(titularObject.factura);
@@ -178,7 +183,6 @@ textarea.LV_invalid_field:active {
               <div class="form-shop-row">
                 <label>N&uacute;mero</label>
                 <input type="text" name="numeroOrden" readOnly="true" value="${(order.numero?c)!''}"/>
-                <span class="info">&Uacute;ltimo nro de factura: ${model["ultimaFactura"]}</span>
               </div>
               <div class="form-shop-row titular-selector js-titular-selector">
                 <label class="mandatory">Titular</label>
@@ -231,6 +235,7 @@ textarea.LV_invalid_field:active {
               <div class="form-shop-row">
                 <label for="numeroFactura">Factura N&deg;</label>
                 <input type="number" name="numeroFactura" id="numeroFactura" value="${(order.numeroFactura)!''}"/>
+                <span class="info">(&Uacute;ltima factura: <span class="js-ultima-factura">-</span>)
               </div>
               <div class="form-shop-row">
                 <label for="iva" class="mandatory">IVA %</label>
