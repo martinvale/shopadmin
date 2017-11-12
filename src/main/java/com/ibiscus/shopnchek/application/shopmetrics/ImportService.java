@@ -440,7 +440,7 @@ public class ImportService {
                             debt.update(TipoItem.shopmetrics,
                                     TipoPago.honorarios, shopper.getDni(),
                                     honorarios, fecha, null, subCuestionario,
-                                    client, null, branch, null,
+                                    client, null, branch, null, null,
                                     surveyIdValue.longValue(), null);
                             long startUpdateTime = System.currentTimeMillis();
                             debtRepository.update(debt);
@@ -471,7 +471,7 @@ public class ImportService {
                             debt.update(TipoItem.shopmetrics,
                                     TipoPago.reintegros, shopper.getDni(),
                                     reintegros, fecha, null, subCuestionario,
-                                    client, null, branch, null,
+                                    client, null, branch, null, null,
                                     surveyIdValue.longValue(), null);
                             long startUpdateTime = System.currentTimeMillis();
                             debtRepository.update(debt);
@@ -575,7 +575,6 @@ public class ImportService {
         Map<Class<?>, CellStyle> styles = new HashMap<Class<?>, CellStyle>();
 
         Workbook workbook = new SXSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Ordenes");
 
         OrderState state = null;
         if (estadoId != null) {
@@ -585,88 +584,145 @@ public class ImportService {
                 true, tipoTitular, titularId, shopperDni, numeroCheque, state,
                 desde, hasta);
         try {
-            int currentRow = 2;
-
+            Sheet sheet = workbook.createSheet("Ordenes");
             Row row = sheet.createRow(0);
             createCell(workbook, styles, row, 0, "Fecha de impresion");
             DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
             createCell(workbook, styles, row, 1, dateFormat.format(new Date()));
 
-            row = sheet.createRow(1);
-            createCell(workbook, styles, row, 0, "NUMERO");
-            createCell(workbook, styles, row, 1, "TITULAR");
-            createCell(workbook, styles, row, 2, "CHEQUERA");
-            createCell(workbook, styles, row, 3, "CHEQUE");
-            createCell(workbook, styles, row, 4, "ID TRANSF.");
-            createCell(workbook, styles, row, 5, "ESTADO");
-            createCell(workbook, styles, row, 6, "FACTURA");
-            createCell(workbook, styles, row, 7, "FAC. NRO.");
-            createCell(workbook, styles, row, 8, "IVA HONORARIOS");
-            createCell(workbook, styles, row, 9, "CUIT");
-            createCell(workbook, styles, row, 10, "FECHA PAGO");
-            createCell(workbook, styles, row, 11, "REINTEGROS");
-            createCell(workbook, styles, row, 12, "OTROS GASTOS");
-            createCell(workbook, styles, row, 13, "HONORARIOS");
-            createCell(workbook, styles, row, 14, "IMPORTE IVA");
-            createCell(workbook, styles, row, 15, "TOTAL");
+            createHeaderOrderSummary(sheet, workbook, styles);
 
+            int currentRow = 2;
             for (OrdenPago order : orders) {
-                row = sheet.createRow(currentRow++);
-                createCell(workbook, styles, row, 0, order.getNumero());
-                String titular = null;
-                String cuit = order.getCuit();
-                if (order.getTipoProveedor().equals(OrdenPago.SHOPPER)) {
-                    Shopper shopper = shopperRepository.get(order
-                            .getProveedor());
-                    titular = shopper.getName();
-                    // cuit = shopper.getCuit();
-                } else {
-                    Proveedor proveedor = proveedorRepository.get(order
-                            .getProveedor());
-                    titular = proveedor.getDescription();
-                }
-                createCell(workbook, styles, row, 1, titular);
-                createCell(workbook, styles, row, 2, order.getNumeroChequera());
-                createCell(workbook, styles, row, 3, order.getNumeroCheque());
-                createCell(workbook, styles, row, 4, order.getIdTransferencia());
-                createCell(workbook, styles, row, 5, order.getEstado()
-                        .getDescription());
-                createCell(workbook, styles, row, 6, order.getTipoFactura());
-                createCell(workbook, styles, row, 7, order.getNumeroFactura());
-                createCell(workbook, styles, row, 8, order.getIva());
-                createCell(workbook, styles, row, 9, cuit);
-                createCell(workbook, styles, row, 10, order.getFechaPago());
-                double honorarios = 0;
-                double reintegros = 0;
-                double otrosGastos = 0;
+                writeOrderSummary(sheet, workbook, styles, order, currentRow++);
+            }
+
+            sheet = workbook.createSheet("Detalle de otros gastos");
+            createHeaderOtrosGastos(sheet, workbook, styles);
+
+            currentRow = 1;
+            for (OrdenPago order : orders) {
                 for (ItemOrden item : order.getItems()) {
-                    if (item.getTipoPago()
-                            .getDescription()
-                            .equals(com.ibiscus.shopnchek.domain.admin.TipoPago.HONORARIOS)) {
-                        honorarios += item.getImporte();
-                    } else if (item
-                            .getTipoPago()
-                            .getDescription()
-                            .equals(com.ibiscus.shopnchek.domain.admin.TipoPago.REINTEGROS)) {
-                        reintegros += item.getImporte();
-                    } else {
-                        otrosGastos += item.getImporte();
+                    if (item.getTipoPago().getDescription().equals(
+                            com.ibiscus.shopnchek.domain.admin.TipoPago.OTROS_GASTOS)) {
+                        writeOtrosGastosDetail(sheet, workbook, styles,
+                                order.getNumero(), item, currentRow++);
                     }
                 }
-                createCell(workbook, styles, row, 11, reintegros);
-                createCell(workbook, styles, row, 12, otrosGastos);
-                createCell(workbook, styles, row, 13, honorarios);
-                double ivaHonorarios = (order.getIva() * honorarios) / 100;
-                createCell(workbook, styles, row, 14, ivaHonorarios);
-                double total = honorarios + reintegros + otrosGastos
-                        + ivaHonorarios;
-                createCell(workbook, styles, row, 15, total);
             }
 
             workbook.write(outputStream);
         } catch (IOException e) {
             logger.error("Cannot export the orders", e);
         }
+    }
+
+    private void createHeaderOrderSummary(Sheet sheet, Workbook workbook,
+            Map<Class<?>, CellStyle> styles) {
+        Row row = sheet.createRow(1);
+        createCell(workbook, styles, row, 0, "NUMERO");
+        createCell(workbook, styles, row, 1, "TITULAR");
+        createCell(workbook, styles, row, 2, "CHEQUERA");
+        createCell(workbook, styles, row, 3, "CHEQUE");
+        createCell(workbook, styles, row, 4, "ID TRANSF.");
+        createCell(workbook, styles, row, 5, "ESTADO");
+        createCell(workbook, styles, row, 6, "FACTURA");
+        createCell(workbook, styles, row, 7, "FAC. NRO.");
+        createCell(workbook, styles, row, 8, "IVA HONORARIOS");
+        createCell(workbook, styles, row, 9, "CUIT");
+        createCell(workbook, styles, row, 10, "FECHA PAGO");
+        createCell(workbook, styles, row, 11, "REINTEGROS");
+        createCell(workbook, styles, row, 12, "OTROS GASTOS");
+        createCell(workbook, styles, row, 13, "HONORARIOS");
+        createCell(workbook, styles, row, 14, "IMPORTE IVA");
+        createCell(workbook, styles, row, 15, "TOTAL");
+    }
+
+    private void createHeaderOtrosGastos(Sheet sheet, Workbook workbook,
+            Map<Class<?>, CellStyle> styles) {
+        Row row = sheet.createRow(0);
+        createCell(workbook, styles, row, 0, "Numero de Orden");
+        sheet.autoSizeColumn(0);
+        createCell(workbook, styles, row, 1, "Shopper");
+        sheet.autoSizeColumn(1);
+        createCell(workbook, styles, row, 2, "Fecha de visita");
+        sheet.autoSizeColumn(2);
+        createCell(workbook, styles, row, 3, "Importe");
+        sheet.autoSizeColumn(3);
+        createCell(workbook, styles, row, 4, "Recorrido");
+        sheet.autoSizeColumn(4);
+    }
+
+    private void writeOrderSummary(Sheet sheet, Workbook workbook,
+            Map<Class<?>, CellStyle> styles, OrdenPago order, int rowNumber) {
+        Row row = sheet.createRow(rowNumber);
+        createCell(workbook, styles, row, 0, order.getNumero());
+        String titular = null;
+        String cuit = order.getCuit();
+        if (order.getTipoProveedor().equals(OrdenPago.SHOPPER)) {
+            Shopper shopper = shopperRepository.get(order
+                    .getProveedor());
+            titular = shopper.getName();
+        } else {
+            Proveedor proveedor = proveedorRepository.get(order
+                    .getProveedor());
+            titular = proveedor.getDescription();
+        }
+        createCell(workbook, styles, row, 1, titular);
+        createCell(workbook, styles, row, 2, order.getNumeroChequera());
+        createCell(workbook, styles, row, 3, order.getNumeroCheque());
+        createCell(workbook, styles, row, 4, order.getIdTransferencia());
+        createCell(workbook, styles, row, 5, order.getEstado()
+                .getDescription());
+        createCell(workbook, styles, row, 6, order.getTipoFactura());
+        createCell(workbook, styles, row, 7, order.getNumeroFactura());
+        createCell(workbook, styles, row, 8, order.getIva());
+        createCell(workbook, styles, row, 9, cuit);
+        createCell(workbook, styles, row, 10, order.getFechaPago());
+        double honorarios = 0;
+        double reintegros = 0;
+        double otrosGastos = 0;
+        for (ItemOrden item : order.getItems()) {
+            if (item.getTipoPago()
+                    .getDescription()
+                    .equals(com.ibiscus.shopnchek.domain.admin.TipoPago.HONORARIOS)) {
+                honorarios += item.getImporte();
+            } else if (item
+                    .getTipoPago()
+                    .getDescription()
+                    .equals(com.ibiscus.shopnchek.domain.admin.TipoPago.REINTEGROS)) {
+                reintegros += item.getImporte();
+            } else {
+                otrosGastos += item.getImporte();
+            }
+        }
+        createCell(workbook, styles, row, 11, reintegros);
+        createCell(workbook, styles, row, 12, otrosGastos);
+        createCell(workbook, styles, row, 13, honorarios);
+        double ivaHonorarios = (order.getIva() * honorarios) / 100;
+        createCell(workbook, styles, row, 14, ivaHonorarios);
+        double total = honorarios + reintegros + otrosGastos
+                + ivaHonorarios;
+        createCell(workbook, styles, row, 15, total);
+    }
+
+    private void writeOtrosGastosDetail(Sheet sheet, Workbook workbook,
+            Map<Class<?>, CellStyle> styles, long numeroOrden, ItemOrden itemOrden, int rowNumber) {
+        Row row = sheet.createRow(rowNumber);
+        createCell(workbook, styles, row, 0, numeroOrden);
+        String shopperName = "-";
+        Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
+        if (itemShopper != null) {
+            shopperName = itemShopper.getName();
+        }
+        createCell(workbook, styles, row, 1, shopperName);
+        createCell(workbook, styles, row, 2, itemOrden.getFecha());
+        createCell(workbook, styles, row, 3, itemOrden.getImporte());
+        String route = "-";
+        if (itemOrden.getDebt() != null) {
+            route = itemOrden.getDebt().getRoute();
+        }
+        createCell(workbook, styles, row, 4, route);
     }
 
     public void exportDeuda(final OutputStream outputStream,

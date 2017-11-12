@@ -27,7 +27,7 @@ public class Branch {
 	@Column(name = "address", nullable = false, length = 255)
 	private String address;
 
-	@ManyToOne
+    @ManyToOne
 	@JoinColumn(name = "client_id")
 	private Client client;
 
