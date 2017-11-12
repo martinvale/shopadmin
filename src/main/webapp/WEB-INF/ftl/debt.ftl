@@ -183,6 +183,10 @@ App.widget.AdicionalEditor = function (container) {
                 <input type="text" name="branchDescription" value="${(debt.branchDescription)!''}" class="item-field" <#if readOnly>disabled="true"</#if>/>
               </div>
               <div class="form-shop-row">
+                <label for="route">Recorrido</label>
+                <input type="text" id="route" name="route" value="${(debt.route)!''}" class="item-field" <#if readOnly>disabled="true"</#if>/>
+              </div>
+              <div class="form-shop-row">
                 <label for="fecha">Fecha de la visita:</label>
                 <input type="text" id="fecha" name="fecha" value="${(debt.fecha?string('dd/MM/yyyy'))!""}" class="item-field js-date js-fecha-visita" <#if readOnly>disabled="true"</#if>/>
               </div>

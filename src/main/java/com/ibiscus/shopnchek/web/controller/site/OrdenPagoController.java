@@ -502,7 +502,7 @@ public class OrdenPagoController {
         toDate = calendar.getTime();
     }
     searchOrderDtoCommand.setPage(1);
-    searchOrderDtoCommand.setPageSize(50);
+    searchOrderDtoCommand.setPageSize(null);
     searchOrderDtoCommand.setOrderBy("titular", true);
     searchOrderDtoCommand.setTipoTitular(null);
     searchOrderDtoCommand.setTitularId(null);

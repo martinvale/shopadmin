@@ -307,8 +307,8 @@ public class DebtController {
 			@RequestParam(required = false) Long clientId,
 			@RequestParam(required = false) String clientDescription,
 			@RequestParam(required = false) Long branchId,
-			@RequestParam(required = false) String branchDescription, String tipoItem,
-			String tipoPago, @DateTimeFormat(pattern="dd/MM/yyyy") Date fecha,
+			@RequestParam(required = false) String branchDescription, String route,
+			String tipoItem, String tipoPago, @DateTimeFormat(pattern="dd/MM/yyyy") Date fecha,
 			double importe, String observaciones, String survey) {
 		User user = (User) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
@@ -318,6 +318,7 @@ public class DebtController {
 		saveDebtCommand.setClientDescription(clientDescription);
 		saveDebtCommand.setBranchId(branchId);
 		saveDebtCommand.setBranchDescription(branchDescription);
+		saveDebtCommand.setRoute(route);
 		saveDebtCommand.setTipoItemValue(tipoItem);
 		saveDebtCommand.setTipoPagoValue(tipoPago);
 		saveDebtCommand.setFecha(fecha);

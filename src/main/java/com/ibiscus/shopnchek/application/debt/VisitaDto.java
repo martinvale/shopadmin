@@ -16,6 +16,8 @@ public class VisitaDto {
 
 	private String branchDescription;
 
+	private String route;
+
 	private String fecha;
 
 	private List<DebtDto> items = new ArrayList<DebtDto>();
@@ -63,7 +65,15 @@ public class VisitaDto {
 		this.branchDescription = branchDescription;
 	}
 
-	public String getFecha() {
+    public String getRoute() {
+        return route;
+    }
+
+    public void setRoute(String route) {
+        this.route = route;
+    }
+
+    public String getFecha() {
 		return fecha;
 	}
 

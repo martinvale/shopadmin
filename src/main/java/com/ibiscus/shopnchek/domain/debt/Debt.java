@@ -66,6 +66,9 @@ public class Debt {
     @Column(name = "branch_description", length = 255)
     private String branchDescription;
 
+    @Column(name = "route", length = 100)
+    private String route;
+
     @Column(name = "external_id")
     private Long externalId;
 
@@ -112,11 +115,11 @@ public class Debt {
         this.usuario = operator;
     }
 
-    public void update(final TipoItem tipoItem, final TipoPago tipoPago,
+    public Debt(final TipoItem tipoItem, final TipoPago tipoPago,
             final String shopperDni, final double importe, final Date fecha,
             final String observaciones, final String survey,
             final Client client, final String clientDescription,
-            final Branch branch, final String branchDescription,
+            final Branch branch, final String branchDescription, String route,
             final Long externalId, final String operator) {
         this.tipoItem = tipoItem;
         this.tipoPago = tipoPago;
@@ -129,6 +132,31 @@ public class Debt {
         this.clientDescription = clientDescription;
         this.branch = branch;
         this.branchDescription = branchDescription;
+        this.route = route;
+        this.externalId = externalId;
+        this.fechaCreacion = new Date();
+        this.fechaModificacion = new Date();
+        this.usuario = operator;
+    }
+
+    public void update(final TipoItem tipoItem, final TipoPago tipoPago,
+            final String shopperDni, final double importe, final Date fecha,
+            final String observaciones, final String survey,
+            final Client client, final String clientDescription,
+            final Branch branch, final String branchDescription,
+            String route, final Long externalId, final String operator) {
+        this.tipoItem = tipoItem;
+        this.tipoPago = tipoPago;
+        this.shopperDni = shopperDni;
+        this.importe = importe;
+        this.fecha = fecha;
+        this.observaciones = observaciones;
+        this.survey = survey;
+        this.client = client;
+        this.clientDescription = clientDescription;
+        this.branch = branch;
+        this.branchDescription = branchDescription;
+        this.route = route;
         this.externalId = externalId;
         this.fechaModificacion = new Date();
         this.usuario = operator;
@@ -200,6 +228,10 @@ public class Debt {
             }
         }
         return address;
+    }
+
+    public String getRoute() {
+        return route;
     }
 
     public Long getExternalId() {

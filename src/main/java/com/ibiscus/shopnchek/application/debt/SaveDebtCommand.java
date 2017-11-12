@@ -53,6 +53,8 @@ public class SaveDebtCommand implements Command<Debt> {
 
 	private String branchDescription;
 
+	private String route;
+
 	private Long externalId;
 
 	private User operator;
@@ -80,13 +82,13 @@ public class SaveDebtCommand implements Command<Debt> {
 		if (debtId == null) {
 			debt = new Debt(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
 					survey, client, clientDescription, branch, branchDescription,
-					externalId, operator.getUsername());
+					route, externalId, operator.getUsername());
 			debtRepository.save(debt);
 		} else {
 			debt = debtRepository.get(debtId);
 			debt.update(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
 					survey, client, clientDescription, branch, branchDescription,
-					externalId, operator.getUsername());
+					route, externalId, operator.getUsername());
 		}
 		Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());
 		debt.updateShopper(shopper);
@@ -157,7 +159,11 @@ public class SaveDebtCommand implements Command<Debt> {
 		this.branchDescription = branchDescription;
 	}
 
-	public void setExternalId(final Long externalId) {
+    public void setRoute(final String route) {
+        this.route = route;
+    }
+
+    public void setExternalId(final Long externalId) {
 		this.externalId = externalId;
 	}
 

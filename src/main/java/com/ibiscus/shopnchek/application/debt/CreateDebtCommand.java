@@ -68,10 +68,14 @@ public class CreateDebtCommand implements Command<List<Debt>> {
 		}
 		for (DebtDto debtDto : visitaDto.getItems()) {
 			TipoPago tipoPago = TipoPago.valueOf(debtDto.getTipoPago());
+            String route = null;
+            if (TipoPago.otrosgastos == tipoPago) {
+                route = visitaDto.getRoute();
+            }
 			Debt debt = new Debt(tipoItem, tipoPago, visitaDto.getShopperDni(),
 					debtDto.getImporte(), fecha, debtDto.getObservacion(),
 					null, client, clientDescription, branch, branchDescription,
-					null, operator.getUsername());
+					route, null, operator.getUsername());
 			debtRepository.save(debt);
 			Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());
 			debt.updateShopper(shopper);

@@ -131,6 +131,7 @@ App.widget.AdicionalEditor = function (container) {
         "clientDescription": container.find(".js-clients").val(),
         "branchId": container.find(".js-sucursales").val(),
         "branchDescription": container.find(".js-sucursal-description").val(),
+        "route": container.find(".js-route").val(),
         "fecha": container.find(".js-fecha-visita").val(),
         "items": items
       }),
@@ -176,6 +177,11 @@ App.widget.AdicionalEditor = function (container) {
         select: function(event, ui) {
           clientsSelector.val(ui.item.name);
           container.find(".js-client-id").val(ui.item.id);
+          ui.item.branchs.sort(function (a, b) {
+            var branch1 = a.address.toLowerCase();
+            var branch2 = b.address.toLowerCase();
+            return branch1.localeCompare(branch2);
+          });
           updateBranchs(ui.item.branchs);
           return false;
         }
@@ -246,6 +252,10 @@ App.widget.AdicionalEditor = function (container) {
               <div class="form-shop-row">
                 <label>&nbsp;</label>
                 <input type="text" name="branchDescription" value="${(debt.branchDescription)!''}" class="item-field js-sucursal-description" <#if readOnly>disabled="true"</#if>/>
+              </div>
+              <div class="form-shop-row">
+                <label for="route">Recorrido</label>
+                <input type="text" id="route" name="route" value="${(debt.branch.route)!""}" class="item-field js-route" <#if readOnly>disabled="true"</#if>/>
               </div>
               <div class="form-shop-row">
                 <label for="fecha">Fecha de la visita:</label>

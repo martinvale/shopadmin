@@ -339,7 +339,7 @@ public class FileImportTask implements Runnable {
 						debt.update(TipoItem.shopmetrics, TipoPago.honorarios,
 								shopper.getDni(), honorarios, fecha, null,
 								subCuestionario, client, null, branch, null,
-								surveyIdValue.longValue(), null);
+								null, surveyIdValue.longValue(), null);
 						long startUpdateTime = System.currentTimeMillis();
 						debtRepository.update(debt);
 						logger.debug("Updating honorarios in {} ms", System.currentTimeMillis() - startUpdateTime);
@@ -365,7 +365,7 @@ public class FileImportTask implements Runnable {
 						debt.update(TipoItem.shopmetrics, TipoPago.reintegros,
 								shopper.getDni(), reintegros, fecha, null,
 								subCuestionario, client, null, branch, null,
-								surveyIdValue.longValue(), null);
+								null, surveyIdValue.longValue(), null);
 						long startUpdateTime = System.currentTimeMillis();
 						debtRepository.update(debt);
 						logger.debug("Updating reintegros in {} ms", System.currentTimeMillis() - startUpdateTime);
