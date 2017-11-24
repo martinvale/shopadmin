@@ -320,13 +320,12 @@ public class OrdenPagoController {
 
   @RequestMapping(value="/cancel/{orderId}", method = RequestMethod.POST)
   public @ResponseBody boolean cancel(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long orderId) {
+      @PathVariable long orderId, String comments) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
 
-    transitionOrderCommand.setNumero(orderId);
-    transitionOrderCommand.setStateId(OrderState.ANULADA);
+    transitionOrderCommand.update(orderId, OrderState.ANULADA, comments);
     transitionOrderCommand.execute();
 
     return true;
@@ -334,13 +333,12 @@ public class OrdenPagoController {
 
   @RequestMapping(value="/close/{orderId}", method = RequestMethod.POST)
   public @ResponseBody boolean close(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long orderId) {
+      @PathVariable long orderId, String comments) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
 
-    transitionOrderCommand.setNumero(orderId);
-    transitionOrderCommand.setStateId(OrderState.CERRADA);
+    transitionOrderCommand.update(orderId, OrderState.CERRADA, comments);
     transitionOrderCommand.execute();
 
     return true;
@@ -353,8 +351,7 @@ public class OrdenPagoController {
         .getPrincipal();
     model.addAttribute("user", user);
 
-    transitionOrderCommand.setNumero(orderId);
-    transitionOrderCommand.setStateId(OrderState.ABIERTA);
+    transitionOrderCommand.update(orderId, OrderState.ABIERTA);
     transitionOrderCommand.execute();
 
     return true;
@@ -362,13 +359,12 @@ public class OrdenPagoController {
 
   @RequestMapping(value="/verified/{orderId}", method = RequestMethod.POST)
   public @ResponseBody boolean verified(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long orderId) {
+      @PathVariable long orderId, String comments) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
 
-    transitionOrderCommand.setNumero(orderId);
-    transitionOrderCommand.setStateId(OrderState.VERIFICADA);
+    transitionOrderCommand.update(orderId, OrderState.VERIFICADA, comments);
     transitionOrderCommand.execute();
 
     return true;
@@ -376,13 +372,12 @@ public class OrdenPagoController {
 
   @RequestMapping(value="/pause/{orderId}", method = RequestMethod.POST)
   public @ResponseBody boolean pause(@ModelAttribute("model") final ModelMap model,
-      @PathVariable long orderId) {
+      @PathVariable long orderId, String comments) {
     User user = (User) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     model.addAttribute("user", user);
 
-    transitionOrderCommand.setNumero(orderId);
-    transitionOrderCommand.setStateId(OrderState.EN_ESPERA);
+    transitionOrderCommand.update(orderId, OrderState.EN_ESPERA, comments);
     transitionOrderCommand.execute();
 
     return true;

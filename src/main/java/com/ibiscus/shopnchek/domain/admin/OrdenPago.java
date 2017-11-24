@@ -190,8 +190,12 @@ public class OrdenPago {
       this.observacionesShopper = observacionShopper;
   }
 
-  public void transition(final OrderState state) {
+  public void transition(final OrderState state, boolean includeComments,
+          String comments) {
     this.estado = state;
+    if (includeComments) {
+        this.observaciones = comments;
+    }
     if (state.getId() == OrderState.VERIFICADA) {
       for (ItemOrden item : items) {
         if (item.getDebt() != null) {

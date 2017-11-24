@@ -16,13 +16,17 @@ public class TransitionOrderCommand implements Command<OrdenPago> {
 
 	private long stateId;
 
+	private boolean includeComments;
+
+	private String comments;
+
 	@Override
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRED)
 	public OrdenPago execute() {
 		OrderState state = orderRepository.getOrderState(stateId);
 
 		OrdenPago order = orderRepository.get(numero);
-		order.transition(state);
+		order.transition(state, includeComments, comments);
 		return order;
 	}
 
@@ -30,12 +34,16 @@ public class TransitionOrderCommand implements Command<OrdenPago> {
 		this.orderRepository = orderRepository;
 	}
 
-	public void setNumero(final long numero) {
-		this.numero = numero;
+	public void update(long numero, long stateId, String comments) {
+	    this.numero = numero;
+	    this.stateId = stateId;
+	    this.comments = comments;
+	    this.includeComments = true;
 	}
 
-	public void setStateId(final long stateId) {
-		this.stateId = stateId;
-	}
-
+    public void update(long numero, long stateId) {
+        this.numero = numero;
+        this.stateId = stateId;
+        this.includeComments = false;
+    }
 }

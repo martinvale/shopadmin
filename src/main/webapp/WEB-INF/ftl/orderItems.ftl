@@ -543,6 +543,9 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
     container.find(".js-anular-order").click(function () {
       jQuery.ajax({
         url: "cancel/${order.numero?c}",
+        data: {
+          comments: container.find(".js-comments").val()
+        },
         type: 'POST'
       }).done(function () {
         location.href = "${order.numero?c}";
@@ -552,6 +555,9 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
     container.find(".js-pausar-order").click(function () {
       jQuery.ajax({
         url: "pause/${order.numero?c}",
+        data: {
+          comments: container.find(".js-comments").val()
+        },
         type: 'POST'
       }).done(function () {
         location.href = "${order.numero?c}";
@@ -561,6 +567,9 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
     container.find(".js-verified-order").click(function () {
       jQuery.ajax({
         url: "verified/${order.numero?c}",
+        data: {
+          comments: container.find(".js-comments").val()
+        },
         type: 'POST'
       }).done(function () {
         location.href = "${order.numero?c}";
@@ -815,6 +824,9 @@ App.widget.EditorPagarOrden = function (container) {
     jQuery(".js-close-order").click(function () {
       jQuery.ajax({
         url: "close/${order.numero?c}",
+        data: {
+          comments: container.find(".js-observaciones").val()
+        },
         type: 'POST'
       }).done(function () {
         location.href = "${order.numero?c}";
@@ -824,6 +836,9 @@ App.widget.EditorPagarOrden = function (container) {
     container.find(".js-pausar-order").click(function () {
       jQuery.ajax({
         url: "pause/${order.numero?c}",
+        data: {
+          comments: container.find(".js-comments").val()
+        },
         type: 'POST'
       }).done(function () {
         location.href = "${order.numero?c}";
@@ -1137,7 +1152,7 @@ textarea.LV_invalid_field:active {
               </div>
               <div class="form-shop-row">
                 <label for="observaciones">Observaciones</label>
-                <textarea id="observaciones" name="observaciones" class="item-field">${(order.observaciones)!''}</textarea>
+                <textarea id="observaciones" name="observaciones" class="item-field js-observaciones">${(order.observaciones)!''}</textarea>
               </div>
               <div class="form-shop-row">
                 <label for="observacionesShopper">Obs. p/shopper</label>
@@ -1149,6 +1164,12 @@ textarea.LV_invalid_field:active {
       </#if>
 
         <div class="actions-form">
+          <#if order.estaAbierta() >
+          <div class="comments">
+            <label for="comments">Observaciones</label>
+            <textarea id="comments" class="js-comments">${(order.observaciones)!''}</textarea>
+          </div>
+          </#if>
           <ul class="action-columns">
           <#if order.estaAbierta() >
             <li><input type="button" class="btn-shop js-anular-order" value="Anular" /></li>

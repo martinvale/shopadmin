@@ -220,6 +220,21 @@ h2.subtitulo {
     margin: 0;
     border: none;
 }
+
+.actions-form .comments {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.actions-form .comments label {
+    display: block;
+    text-align: left;
+}
+
+.actions-form .comments textarea {
+    width: 100%;
+}
+
 .action-search-buscar  {
     text-align: center;
     padding:  20px 0 10px;
