@@ -1,5 +1,6 @@
 package com.ibiscus.shopnchek.application.shopmetrics;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -25,11 +26,14 @@ import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Propagation;
@@ -57,6 +61,29 @@ import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatusRepository;
 public class ImportService {
 
     private final Logger logger = LoggerFactory.getLogger(ImportService.class);
+
+    private static enum Position {
+        ODD(1), EVEN(0);
+
+        private final int modulus;
+
+        private Position(int modulus) {
+            this.modulus = modulus;
+        }
+
+        public int getModulus() {
+            return modulus;
+        }
+
+        static Position byModulus(int modulus) {
+            for (Position position : values()) {
+                if (position.getModulus() == modulus) {
+                    return position;
+                }
+            }
+            throw new IllegalArgumentException("Cannot find a position for modulus " + modulus);
+        }
+    }
 
     private static final int ColSurveyID = 0;
     private static final int ColCliente = 1;
@@ -572,7 +599,7 @@ public class ImportService {
             final Integer tipoTitular, final Integer titularId,
             final String shopperDni, final String numeroCheque,
             final Long estadoId, final Date desde, final Date hasta) {
-        Map<Class<?>, CellStyle> styles = new HashMap<Class<?>, CellStyle>();
+        Map<Class<?>, Map<Position, CellStyle>> styles = new HashMap<Class<?>, Map<Position, CellStyle>>();
 
         Workbook workbook = new SXSSFWorkbook();
 
@@ -586,29 +613,16 @@ public class ImportService {
         try {
             Sheet sheet = workbook.createSheet("Ordenes");
             Row row = sheet.createRow(0);
-            createCell(workbook, styles, row, 0, "Fecha de impresion");
+            createCell(workbook, styles, row, Position.ODD, 0, "Fecha de impresion");
             DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-            createCell(workbook, styles, row, 1, dateFormat.format(new Date()));
+            createCell(workbook, styles, row, Position.ODD, 1, dateFormat.format(new Date()));
 
             createHeaderOrderSummary(sheet, workbook, styles);
 
+            int index = 2;
             int currentRow = 2;
             for (OrdenPago order : orders) {
-                writeOrderSummary(sheet, workbook, styles, order, currentRow++);
-            }
-
-            sheet = workbook.createSheet("Detalle de otros gastos");
-            createHeaderOtrosGastos(sheet, workbook, styles);
-
-            currentRow = 1;
-            for (OrdenPago order : orders) {
-                for (ItemOrden item : order.getItems()) {
-                    if (item.getTipoPago().getDescription().equals(
-                            com.ibiscus.shopnchek.domain.admin.TipoPago.OTROS_GASTOS)) {
-                        writeOtrosGastosDetail(sheet, workbook, styles,
-                                order.getNumero(), item, currentRow++);
-                    }
-                }
+                currentRow += writeOrderSummary(sheet, workbook, styles, order, currentRow, index++);
             }
 
             workbook.write(outputStream);
@@ -618,45 +632,35 @@ public class ImportService {
     }
 
     private void createHeaderOrderSummary(Sheet sheet, Workbook workbook,
-            Map<Class<?>, CellStyle> styles) {
+            Map<Class<?>, Map<Position, CellStyle>> styles) {
         Row row = sheet.createRow(1);
-        createCell(workbook, styles, row, 0, "NUMERO");
-        createCell(workbook, styles, row, 1, "TITULAR");
-        createCell(workbook, styles, row, 2, "CHEQUERA");
-        createCell(workbook, styles, row, 3, "CHEQUE");
-        createCell(workbook, styles, row, 4, "ID TRANSF.");
-        createCell(workbook, styles, row, 5, "ESTADO");
-        createCell(workbook, styles, row, 6, "FACTURA");
-        createCell(workbook, styles, row, 7, "FAC. NRO.");
-        createCell(workbook, styles, row, 8, "IVA HONORARIOS");
-        createCell(workbook, styles, row, 9, "CUIT");
-        createCell(workbook, styles, row, 10, "FECHA PAGO");
-        createCell(workbook, styles, row, 11, "REINTEGROS");
-        createCell(workbook, styles, row, 12, "OTROS GASTOS");
-        createCell(workbook, styles, row, 13, "HONORARIOS");
-        createCell(workbook, styles, row, 14, "IMPORTE IVA");
-        createCell(workbook, styles, row, 15, "TOTAL");
+        createCell(workbook, styles, row, Position.ODD, 0, "NUMERO");
+        createCell(workbook, styles, row, Position.ODD, 1, "TITULAR");
+        createCell(workbook, styles, row, Position.ODD, 2, "CHEQUERA");
+        createCell(workbook, styles, row, Position.ODD, 3, "CHEQUE");
+        createCell(workbook, styles, row, Position.ODD, 4, "ID TRANSF.");
+        createCell(workbook, styles, row, Position.ODD, 5, "ESTADO");
+        createCell(workbook, styles, row, Position.ODD, 6, "FACTURA");
+        createCell(workbook, styles, row, Position.ODD, 7, "FAC. NRO.");
+        createCell(workbook, styles, row, Position.ODD, 8, "IVA HONORARIOS");
+        createCell(workbook, styles, row, Position.ODD, 9, "CUIT");
+        createCell(workbook, styles, row, Position.ODD, 10, "FECHA PAGO");
+        createCell(workbook, styles, row, Position.ODD, 11, "REINTEGROS");
+        createCell(workbook, styles, row, Position.ODD, 12, "OTROS GASTOS");
+        createCell(workbook, styles, row, Position.ODD, 13, null);
+        createCell(workbook, styles, row, Position.ODD, 14, "HONORARIOS");
+        createCell(workbook, styles, row, Position.ODD, 15, "IMPORTE IVA");
+        createCell(workbook, styles, row, Position.ODD, 16, "TOTAL");
     }
 
-    private void createHeaderOtrosGastos(Sheet sheet, Workbook workbook,
-            Map<Class<?>, CellStyle> styles) {
-        Row row = sheet.createRow(0);
-        createCell(workbook, styles, row, 0, "Numero de Orden");
-        sheet.autoSizeColumn(0);
-        createCell(workbook, styles, row, 1, "Shopper");
-        sheet.autoSizeColumn(1);
-        createCell(workbook, styles, row, 2, "Fecha de visita");
-        sheet.autoSizeColumn(2);
-        createCell(workbook, styles, row, 3, "Importe");
-        sheet.autoSizeColumn(3);
-        createCell(workbook, styles, row, 4, "Recorrido");
-        sheet.autoSizeColumn(4);
-    }
-
-    private void writeOrderSummary(Sheet sheet, Workbook workbook,
-            Map<Class<?>, CellStyle> styles, OrdenPago order, int rowNumber) {
-        Row row = sheet.createRow(rowNumber);
-        createCell(workbook, styles, row, 0, order.getNumero());
+    private int writeOrderSummary(Sheet sheet, Workbook workbook,
+            Map<Class<?>, Map<Position, CellStyle>> styles, OrdenPago order, int rowNumber,
+            int index) {
+        int createdRows = 1;
+        int currentRow = rowNumber;
+        Row row = sheet.createRow(currentRow++);
+        Position position = Position.byModulus(index % 2);
+        createCell(workbook, styles, row, position, 0, order.getNumero());
         String titular = null;
         String cuit = order.getCuit();
         if (order.getTipoProveedor().equals(OrdenPago.SHOPPER)) {
@@ -668,17 +672,17 @@ public class ImportService {
                     .getProveedor());
             titular = proveedor.getDescription();
         }
-        createCell(workbook, styles, row, 1, titular);
-        createCell(workbook, styles, row, 2, order.getNumeroChequera());
-        createCell(workbook, styles, row, 3, order.getNumeroCheque());
-        createCell(workbook, styles, row, 4, order.getIdTransferencia());
-        createCell(workbook, styles, row, 5, order.getEstado()
+        createCell(workbook, styles, row, position, 1, titular);
+        createCell(workbook, styles, row, position, 2, order.getNumeroChequera());
+        createCell(workbook, styles, row, position, 3, order.getNumeroCheque());
+        createCell(workbook, styles, row, position, 4, order.getIdTransferencia());
+        createCell(workbook, styles, row, position, 5, order.getEstado()
                 .getDescription());
-        createCell(workbook, styles, row, 6, order.getTipoFactura());
-        createCell(workbook, styles, row, 7, order.getNumeroFactura());
-        createCell(workbook, styles, row, 8, order.getIva());
-        createCell(workbook, styles, row, 9, cuit);
-        createCell(workbook, styles, row, 10, order.getFechaPago());
+        createCell(workbook, styles, row, position, 6, order.getTipoFactura());
+        createCell(workbook, styles, row, position, 7, order.getNumeroFactura());
+        createCell(workbook, styles, row, position, 8, order.getIva());
+        createCell(workbook, styles, row, position, 9, cuit);
+        createCell(workbook, styles, row, position, 10, order.getFechaPago());
         double honorarios = 0;
         double reintegros = 0;
         double otrosGastos = 0;
@@ -696,33 +700,54 @@ public class ImportService {
                 otrosGastos += item.getImporte();
             }
         }
-        createCell(workbook, styles, row, 11, reintegros);
-        createCell(workbook, styles, row, 12, otrosGastos);
-        createCell(workbook, styles, row, 13, honorarios);
+        createCell(workbook, styles, row, position, 11, reintegros);
+        createCell(workbook, styles, row, position, 12, otrosGastos);
+        createCell(workbook, styles, row, position, 14, honorarios);
         double ivaHonorarios = (order.getIva() * honorarios) / 100;
-        createCell(workbook, styles, row, 14, ivaHonorarios);
+        createCell(workbook, styles, row, position, 15, ivaHonorarios);
         double total = honorarios + reintegros + otrosGastos
                 + ivaHonorarios;
-        createCell(workbook, styles, row, 15, total);
+        createCell(workbook, styles, row, position, 16, total);
+        boolean createRow = false;
+        if (otrosGastos > 0) {
+            for (ItemOrden item : order.getItems()) {
+                if (item.getTipoPago()
+                        .getDescription()
+                        .equals(com.ibiscus.shopnchek.domain.admin.TipoPago.OTROS_GASTOS)) {
+                    String route = null;
+                    if (item.getDebt() != null) {
+                        route = item.getDebt().getRoute();
+                    }
+                    if (route != null) {
+                        if (createRow) {
+                            row = sheet.createRow(currentRow++);
+                            createdRows++;
+                        }
+                    }
+                    if (!createRow) {
+                        createCell(workbook, styles, row, position, 13, route);
+                    } else {
+                        writeRoute(workbook, styles, row, position, route);
+                    }
+                    createRow = true;
+                }
+            }
+        } else {
+            createCell(workbook, styles, row, position, 13, null);
+        }
+        return createdRows;
     }
 
-    private void writeOtrosGastosDetail(Sheet sheet, Workbook workbook,
-            Map<Class<?>, CellStyle> styles, long numeroOrden, ItemOrden itemOrden, int rowNumber) {
-        Row row = sheet.createRow(rowNumber);
-        createCell(workbook, styles, row, 0, numeroOrden);
-        String shopperName = "-";
-        Shopper itemShopper = shopperRepository.findByDni(itemOrden.getShopperDni());
-        if (itemShopper != null) {
-            shopperName = itemShopper.getName();
+    private void writeRoute(final Workbook workbook,
+            final Map<Class<?>, Map<Position, CellStyle>> styles, final Row row,
+            Position position, final String route) {
+        for (int i = 0; i <= 16; i++) {
+            String value = null;
+            if (i == 13) {
+                value = route;
+            }
+            createCell(workbook, styles, row, position, i, value);
         }
-        createCell(workbook, styles, row, 1, shopperName);
-        createCell(workbook, styles, row, 2, itemOrden.getFecha());
-        createCell(workbook, styles, row, 3, itemOrden.getImporte());
-        String route = "-";
-        if (itemOrden.getDebt() != null) {
-            route = itemOrden.getDebt().getRoute();
-        }
-        createCell(workbook, styles, row, 4, route);
     }
 
     public void exportDeuda(final OutputStream outputStream,
@@ -752,24 +777,12 @@ public class ImportService {
 
     }
 
-    /**
-     * Creates a cell and writes into it the value received. It applies the
-     * style needed, in order to write the data with the correct format.
-     * 
-     * @param theRow
-     *            the row where the data will be written. It cannot be null.
-     * @param theColumnIndex
-     *            the column of the row where the data will be written.
-     * @param theValue
-     *            the value to be written. It can be null.
-     * @return the cell containing the value in the correct format.
-     */
     private Cell createCell(final Workbook workbook,
-            final Map<Class<?>, CellStyle> styles, final Row theRow,
-            final int theColumnIndex, final Object theValue) {
+            final Map<Class<?>, Map<Position, CellStyle>> styles, final Row theRow,
+            Position position, final int theColumnIndex, final Object theValue) {
 
         Cell cell = theRow.createCell(theColumnIndex);
-
+        Class<?> valueClass = String.class;
         if (theValue != null) {
             if (theValue.getClass() == Integer.class
                     || theValue.getClass() == Long.class) {
@@ -787,11 +800,12 @@ public class ImportService {
 
                 cell.setCellValue(cellValue);
             }
-            CellStyle cellStyle = getCellStyle(workbook, styles,
-                    theValue.getClass());
-            if (cellStyle != null) {
-                cell.setCellStyle(cellStyle);
-            }
+            valueClass = theValue.getClass();
+        }
+        Map<Position, CellStyle> cellStyles = getCellStyle(workbook, styles,
+                valueClass);
+        if (cellStyles != null) {
+            cell.setCellStyle(cellStyles.get(position));
         }
         return cell;
     }
@@ -806,42 +820,65 @@ public class ImportService {
      * 
      * @return the cell style or null.
      */
-    private CellStyle getCellStyle(final Workbook workbook,
-            final Map<Class<?>, CellStyle> styles, final Class<?> theDataType) {
+    private Map<Position, CellStyle> getCellStyle(final Workbook workbook,
+            final Map<Class<?>, Map<Position, CellStyle>> styles, final Class<?> theDataType) {
         Validate.notNull(theDataType, "the data type cannot be null");
 
-        CellStyle theCellStyle = styles.get(theDataType);
+        Map<Position, CellStyle> cellStyles = styles.get(theDataType);
 
-        if (theCellStyle == null) {
+        if (cellStyles == null) {
+            CellStyle oddCellStyle = null;
+            CellStyle evenCellStyle = null;
             CreationHelper creationHelper = workbook.getCreationHelper();
             // If, in mysql query, the DATE() function is called, then
             // theDataType is
             // a java.sql.Date object. If the TIME() function is called, then
             // theDataType is a java.sql.Time object.
             if (theDataType == Integer.class || theDataType == Long.class) {
-                theCellStyle = workbook.createCellStyle();
-                theCellStyle.setDataFormat(creationHelper.createDataFormat()
+                oddCellStyle = workbook.createCellStyle();
+                oddCellStyle.setDataFormat(creationHelper.createDataFormat()
+                        .getFormat("#,##0"));
+                evenCellStyle = workbook.createCellStyle();
+                evenCellStyle.setDataFormat(creationHelper.createDataFormat()
                         .getFormat("#,##0"));
             } else if (theDataType == Float.class
                     || theDataType == Double.class) {
-                theCellStyle = workbook.createCellStyle();
-                theCellStyle.setDataFormat(creationHelper.createDataFormat()
+                oddCellStyle = workbook.createCellStyle();
+                oddCellStyle.setDataFormat(creationHelper.createDataFormat()
+                        .getFormat("$ #,##0.00"));
+                evenCellStyle = workbook.createCellStyle();
+                evenCellStyle.setDataFormat(creationHelper.createDataFormat()
                         .getFormat("$ #,##0.00"));
             } else if (theDataType == java.sql.Date.class
                     || theDataType == java.sql.Timestamp.class) {
-                theCellStyle = workbook.createCellStyle();
-                theCellStyle.setDataFormat(creationHelper.createDataFormat()
+                oddCellStyle = workbook.createCellStyle();
+                oddCellStyle.setDataFormat(creationHelper.createDataFormat()
+                        .getFormat("dd/mm/yyyy"));
+                evenCellStyle = workbook.createCellStyle();
+                evenCellStyle.setDataFormat(creationHelper.createDataFormat()
                         .getFormat("dd/mm/yyyy"));
             } else if (theDataType == java.sql.Time.class) {
-                theCellStyle = workbook.createCellStyle();
-                theCellStyle.setDataFormat(creationHelper.createDataFormat()
+                oddCellStyle = workbook.createCellStyle();
+                oddCellStyle.setDataFormat(creationHelper.createDataFormat()
                         .getFormat("h:mm:ss AM/PM"));
+                evenCellStyle = workbook.createCellStyle();
+                evenCellStyle.setDataFormat(creationHelper.createDataFormat()
+                        .getFormat("h:mm:ss AM/PM"));
+            } else {
+                oddCellStyle = workbook.createCellStyle();
+                evenCellStyle = workbook.createCellStyle();
             }
-            if (theCellStyle != null) {
-                styles.put(theDataType, theCellStyle);
+            if (oddCellStyle != null && evenCellStyle != null) {
+                ((XSSFCellStyle) evenCellStyle).setFillForegroundColor(
+                        new XSSFColor(new Color(255, 243, 203)));
+                ((XSSFCellStyle) evenCellStyle).setFillPattern(FillPatternType.SOLID_FOREGROUND);
+                cellStyles = new HashMap<Position, CellStyle>();
+                cellStyles.put(Position.ODD, oddCellStyle);
+                cellStyles.put(Position.EVEN, evenCellStyle);
+                styles.put(theDataType, cellStyles);
             }
         }
 
-        return theCellStyle;
+        return cellStyles;
     }
 }
