@@ -721,13 +721,12 @@ public class ImportService {
                     if (route != null) {
                         if (createRow) {
                             row = sheet.createRow(currentRow++);
+                            writeRoute(workbook, styles, row, position, route);
                             createdRows++;
                         }
                     }
                     if (!createRow) {
                         createCell(workbook, styles, row, position, 13, route);
-                    } else {
-                        writeRoute(workbook, styles, row, position, route);
                     }
                     createRow = true;
                 }
