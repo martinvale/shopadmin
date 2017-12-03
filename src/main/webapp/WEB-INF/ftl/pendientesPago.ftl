@@ -192,7 +192,7 @@ App.widget.PayAdmin = function (container, itemDialog, orders) {
     });
     itemDialog.onClose(function (orders) {
       jQuery.each(orders, function (index, value) {
-        container.find(".js-order-" + value).hide("slow");
+        container.find(".js-order-" + value).remove();
       })
     });
     itemDialog.onSave(function (paymentData) {
