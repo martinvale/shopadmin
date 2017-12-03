@@ -277,4 +277,8 @@ public class Debt {
         estado = State.anulada;
         fechaModificacion = new Date();
     }
+
+    public boolean isPending() {
+        return State.pendiente == estado;
+    }
 }

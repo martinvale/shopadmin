@@ -293,12 +293,12 @@ public class ImportFileCommand implements Command<Boolean> {
                             .getStringCellValue();
                     String honorariosValue = row.getCell(
                             headers.get(ColHonorarios)).getStringCellValue();
-                    Double honorarios = 0d;
+                    Double honorarios = null;
                     if (honorariosValue != null && !honorariosValue.isEmpty()) {
                         honorariosValue = honorariosValue.replaceAll(",", "");
                         honorarios = new Double(honorariosValue);
                     }
-                    Double reintegros = 0d;
+                    Double reintegros = null;
                     Integer reintegroPos = headers.get(ColReintegros);
                     if (reintegroPos != null) {
                         String reintegrosValue = row.getCell(reintegroPos)
@@ -358,26 +358,32 @@ public class ImportFileCommand implements Command<Boolean> {
                             TipoPago.honorarios);
                     logger.debug("Getting honorarios in {} ms",
                             System.currentTimeMillis() - startGetTime);
-                    if (debt == null) {
-                        debt = new Debt(TipoItem.shopmetrics,
-                                TipoPago.honorarios, shopper.getDni(),
-                                honorarios, fecha, null, subCuestionario,
-                                client, client.getName(), branch, null,
-                                surveyIdValue.longValue(), null);
-                        debtRepository.save(debt);
+                    if (honorarios != null) {
+                        if (debt == null) {
+                            debt = new Debt(TipoItem.shopmetrics,
+                                    TipoPago.honorarios, shopper.getDni(),
+                                    honorarios, fecha, null, subCuestionario,
+                                    client, client.getName(), branch, null,
+                                    surveyIdValue.longValue(), null);
+                            debtRepository.save(debt);
+                        } else {
+                            debt.update(TipoItem.shopmetrics, TipoPago.honorarios,
+                                    shopper.getDni(), honorarios, fecha, null,
+                                    subCuestionario, client, client.getName(),
+                                    branch, null, null, surveyIdValue.longValue(),
+                                    null);
+                            long startUpdateTime = System.currentTimeMillis();
+                            debtRepository.update(debt);
+                            logger.debug("Updating honorarios in {} ms",
+                                    System.currentTimeMillis() - startUpdateTime);
+                        }
+                        logger.debug("Saving honorarios in {} ms",
+                                System.currentTimeMillis() - startTime);
                     } else {
-                        debt.update(TipoItem.shopmetrics, TipoPago.honorarios,
-                                shopper.getDni(), honorarios, fecha, null,
-                                subCuestionario, client, client.getName(),
-                                branch, null, null, surveyIdValue.longValue(),
-                                null);
-                        long startUpdateTime = System.currentTimeMillis();
-                        debtRepository.update(debt);
-                        logger.debug("Updating honorarios in {} ms",
-                                System.currentTimeMillis() - startUpdateTime);
+                        if (debt != null && debt.isPending()) {
+                            debtRepository.remove(debt);
+                        }
                     }
-                    logger.debug("Saving honorarios in {} ms",
-                            System.currentTimeMillis() - startTime);
 
                     startTime = System.currentTimeMillis();
                     startGetTime = System.currentTimeMillis();
@@ -386,26 +392,32 @@ public class ImportFileCommand implements Command<Boolean> {
                             TipoPago.reintegros);
                     logger.debug("Getting reintegros in {} ms",
                             System.currentTimeMillis() - startGetTime);
-                    if (debt == null) {
-                        debt = new Debt(TipoItem.shopmetrics,
-                                TipoPago.reintegros, shopper.getDni(),
-                                reintegros, fecha, null, subCuestionario,
-                                client, client.getName(), branch, null,
-                                surveyIdValue.longValue(), null);
-                        debtRepository.save(debt);
+                    if (reintegros != null) {
+                        if (debt == null) {
+                            debt = new Debt(TipoItem.shopmetrics,
+                                    TipoPago.reintegros, shopper.getDni(),
+                                    reintegros, fecha, null, subCuestionario,
+                                    client, client.getName(), branch, null,
+                                    surveyIdValue.longValue(), null);
+                            debtRepository.save(debt);
+                        } else {
+                            debt.update(TipoItem.shopmetrics, TipoPago.reintegros,
+                                    shopper.getDni(), reintegros, fecha, null,
+                                    subCuestionario, client, client.getName(),
+                                    branch, null, null, surveyIdValue.longValue(),
+                                    null);
+                            long startUpdateTime = System.currentTimeMillis();
+                            debtRepository.update(debt);
+                            logger.debug("Updating reintegros in {} ms",
+                                    System.currentTimeMillis() - startUpdateTime);
+                        }
+                        logger.debug("Saving reintegros in {} ms",
+                                System.currentTimeMillis() - startTime);
                     } else {
-                        debt.update(TipoItem.shopmetrics, TipoPago.reintegros,
-                                shopper.getDni(), reintegros, fecha, null,
-                                subCuestionario, client, client.getName(),
-                                branch, null, null, surveyIdValue.longValue(),
-                                null);
-                        long startUpdateTime = System.currentTimeMillis();
-                        debtRepository.update(debt);
-                        logger.debug("Updating reintegros in {} ms",
-                                System.currentTimeMillis() - startUpdateTime);
+                        if (debt != null && debt.isPending()) {
+                            debtRepository.remove(debt);
+                        }
                     }
-                    logger.debug("Saving reintegros in {} ms",
-                            System.currentTimeMillis() - startTime);
                 }
             } else {
                 String honorariosValue = row

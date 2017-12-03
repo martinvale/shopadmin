@@ -41,6 +41,10 @@ public class DebtRepository extends HibernateDaoSupport {
 		getHibernateTemplate().update(debt);
 	}
 
+	public void remove(Debt debt) {
+	    getHibernateTemplate().delete(debt);
+	}
+
 	public Criteria getCriteria(final String shopperDni, final State state,
 			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem,
 			final String owner) {
