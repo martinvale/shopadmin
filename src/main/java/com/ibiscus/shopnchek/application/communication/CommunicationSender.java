@@ -20,6 +20,7 @@ import com.ibiscus.shopnchek.domain.admin.Proveedor;
 import com.ibiscus.shopnchek.domain.admin.ProveedorRepository;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
+import com.ibiscus.shopnchek.domain.admin.TipoPago;
 
 public class CommunicationSender implements Runnable {
 
@@ -92,7 +93,9 @@ public class CommunicationSender implements Runnable {
         builder.append("<td width=\"100px\">Importe c/IVA</td>");
         builder.append("</tr>");
         boolean even = false;
-        double total = 0;
+        double totalHonorarios = 0;
+        double totalReintegros = 0;
+        double totalOtrosGastos = 0;
         for (ItemOrden item : order.getItems()) {
             Shopper shopper = shopperRepository.findByDni(item.getShopperDni());
             if (isTitular || (shopper.getEmail() != null && shopper.getEmail().equals(email))) {
@@ -108,7 +111,13 @@ public class CommunicationSender implements Runnable {
                 builder.append("<td>" + item.getTipoPago().getDescription() + "</td>");
                 builder.append("<td>" + numberFormat.format(item.getImporte()) + "</td>");
                 builder.append("</tr>");
-                total = total + item.getImporte();
+                if (TipoPago.HONORARIOS.equals(item.getTipoPago().getDescription())) {
+                    totalHonorarios = totalHonorarios + item.getImporte();
+                } else if (TipoPago.REINTEGROS.equals(item.getTipoPago().getDescription())) {
+                    totalReintegros = totalReintegros + item.getImporte();
+                } else {
+                    totalOtrosGastos = totalOtrosGastos + item.getImporte();
+                }
                 even = !even;
             }
         }
@@ -118,8 +127,9 @@ public class CommunicationSender implements Runnable {
         builder.append("<td>&nbsp;</td>");
         builder.append("<td>&nbsp;</td>");
         builder.append("<td>&nbsp;</td>");
-        double impuestos = total * (order.getIva() / 100);
-        builder.append("<td style=\"background-color: #E2EFDA;\">Total c/IVA: $ " + numberFormat.format(total + impuestos) + "</td>");
+        double impuestos = totalHonorarios * (order.getIva() / 100);
+        builder.append("<td style=\"background-color: #E2EFDA;\">Total c/IVA: $ "
+                + numberFormat.format(totalHonorarios + impuestos + totalReintegros + totalOtrosGastos) + "</td>");
         builder.append("</tr>");
         builder.append("</table>");
         builder.append("</body>");
