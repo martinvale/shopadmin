@@ -230,8 +230,8 @@ App.widget.PayAdmin = function (container, itemDialog, orders) {
           iva: "${item.iva}",
           importeConIva: "${item.importeConIva}",
           transferId: "${item.transferId!''}",
-          observaciones: "${item.observaciones}",
-          observacionesShopper: "${item.observacionesShopper}"
+          observaciones: "${item.observaciones?json_string}",
+          observacionesShopper: "${item.observacionesShopper?json_string}"
         });
         </#list>
 
