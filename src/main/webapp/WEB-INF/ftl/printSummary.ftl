@@ -47,6 +47,9 @@
           <#if model["includeEmpresa"]!false>
             <th scope="col">Empresa</th>
           </#if>
+          <#if model["includeShopper"]!false>
+            <th scope="col">Shopper</th>
+          </#if>
             <th scope="col">Honorarios</th>
             <th scope="col">Reintegros</th>
             <th scope="col">Otros gastos</th>
@@ -74,6 +77,9 @@
               <#if model["includeEmpresa"]!false>
                 <td>&nbsp;</td>
               </#if>
+              <#if model["includeShopper"]!false>
+                <td>&nbsp;</td>
+              </#if>
                 <td>$ ${honorariosAnio?string(",##0.00")}</td>
                 <td>$ ${reintegrosAnio?string(",##0.00")}</td>
                 <td>$ ${otrosAnio?string(",##0.00")}</td>
@@ -99,7 +105,10 @@
               </td>
               <td>${row.getValue("month")?c}</td>
             <#if model["includeEmpresa"]!false>
-              <td>${row.getValue("empresa")!''}</td>
+              <td>${row.getValue("name")!''}</td>
+            </#if>
+            <#if model["includeShopper"]!false>
+              <td>${row.getValue("apellido_y_nombre")!''}</td>
             </#if>
               <td>$ ${row.getValue("honorarios")?string(",##0.00")}</td>
               <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />
@@ -117,6 +126,9 @@
             <#if model["includeEmpresa"]!false>
               <td>&nbsp;</td>
             </#if>
+            <#if model["includeShopper"]!false>
+              <td>&nbsp;</td>
+            </#if>
               <td>$ ${honorariosAnio?string(",##0.00")}</td>
               <td>$ ${reintegrosAnio?string(",##0.00")}</td>
               <td>$ ${otrosAnio?string(",##0.00")}</td>
@@ -130,6 +142,9 @@
             <td class="total">Total</td>
             <td>&nbsp;</td>
           <#if model["includeEmpresa"]!false>
+            <td>&nbsp;</td>
+          </#if>
+          <#if model["includeShopper"]!false>
             <td>&nbsp;</td>
           </#if>
             <td>$ ${honorariosTotal?string(",##0.00")}</td>

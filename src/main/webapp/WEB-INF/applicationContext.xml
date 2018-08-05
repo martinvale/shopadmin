@@ -134,6 +134,7 @@
 
   <bean id="reportsService" class="com.ibiscus.shopnchek.application.report.ReportService">
     <constructor-arg index="0" ref="dataSource" />
+    <constructor-arg index="1" ref="debtRepository" />
   </bean>
 
   <bean id="communicationService" class="com.ibiscus.shopnchek.application.email.CommunicationService">

@@ -45,11 +45,9 @@
           <#if model["user"].hasFeature('edit_order')>
             <li><a href="#"><i class="icon-home"></i>Reportes</a>
               <ul class="sub-menu">
-                <li><a href="<@spring.url '/orden/'/>../report/debtSummary">Resumen de deuda</a></li>
-                <!--li><a href="../report/debtSummary2">Resumen de deuda (ant)</a></li-->
+                <li><a href="<@spring.url '/report/debtSummary'/>">Deuda general</a></li>
                 <li><a href="<@spring.url '/orden/'/>../report/paySummary">Resumen de pagos</a></li>
                 <li><a href="<@spring.url '/orden/'/>../report/prodSummary">Resumen de producci&oacute;n</a></li>
-                <!--li><a href="../report/prodSummary2">Resumen de producci&oacute;n (ant)</a></li-->
               </ul>
             </li>
             <li><a href="#"><i class="icon-home"></i>Importaci&oacute;n</a>

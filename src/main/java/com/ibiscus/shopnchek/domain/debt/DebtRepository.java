@@ -82,21 +82,6 @@ public class DebtRepository extends HibernateDaoSupport {
 	@SuppressWarnings("unchecked")
 	public List<Row> getSummary(final String shopperDni, final List<State> states,
 			final Date from, final Date to, List<String> groupBy) {
-		/*Criteria criteria = getCriteria(shopperDni, from, to);
-		ProjectionList projectionList = Projections.projectionList();
-		projectionList.add(Projections.sqlGroupProjection("YEAR(fecha) as year, MONTH(fecha) as month",
-				"YEAR(fecha), MONTH(fecha)", new String[] {"year", "month"},
-				new Type[] { Hibernate.INTEGER, Hibernate.INTEGER }));
-		for (String propertyName : groupBy) {
-			projectionList.add(Projections.groupProperty(propertyName));
-		}
-		criteria.setProjection(projectionList);
-		//criteria.addOrder(Order.asc("year"));
-		//criteria.addOrder(Order.asc("month"));
-		for (String propertyName : groupBy) {
-			criteria.addOrder(Order.asc(propertyName));
-		}
-		criteria.setResultTransformer(new RowResultTransformer());*/
 		StringBuilder builder = new StringBuilder("select year(fecha) as year, month(fecha) as month, ");
 		for (String columnName : groupBy) {
 			builder.append(columnName);
@@ -107,6 +92,7 @@ public class DebtRepository extends HibernateDaoSupport {
 		builder.append("sum(case when deuda.tipo_pago = 'otrosgastos' then deuda.importe else 0 end) as otros ");
 		builder.append("from deuda ");
 		builder.append("left join clients on (deuda.client_id = clients.id) ");
+		builder.append("left join mcdonalds.dbo.shoppers on (deuda.shopper_dni = shoppers.nro_documento COLLATE Traditional_Spanish_CI_AS) ");
 		builder.append("where deuda.fecha >= :from and deuda.fecha <= :to ");
 		if (states != null && !states.isEmpty()) {
 			builder.append("and (");

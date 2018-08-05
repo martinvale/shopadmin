@@ -59,6 +59,12 @@
       <version>${spring.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>20.0</version>
+    </dependency>
+
     <!-- logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
@@ -239,7 +245,6 @@
         <configuration>
           <source>${jdk.version}</source>
           <target>${jdk.version}</target>
-          <attach>true</attach>
         </configuration>
       </plugin>
 
