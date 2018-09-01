@@ -8,6 +8,12 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import com.ibiscus.shopnchek.application.debt.DebtService;
+import com.ibiscus.shopnchek.domain.admin.Shopper;
+import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
+import com.ibiscus.shopnchek.domain.debt.Client;
+import com.ibiscus.shopnchek.domain.debt.ClientRepository;
+import com.ibiscus.shopnchek.domain.report.Report;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,300 +34,325 @@ import com.ibiscus.shopnchek.domain.util.Row;
 @RequestMapping("/report")
 public class ReportController {
 
-  /** Service to request reports. */
-  @Autowired
-  private ReportService reportsService;
+    /**
+     * Service to request reports.
+     */
+    @Autowired
+    private ReportService reportsService;
 
-  @Autowired
-  private DebtRepository debtRepository;
+    @Autowired
+    private DebtRepository debtRepository;
 
-  @RequestMapping(value="/debtSummary")
-  public String debtSummary(@ModelAttribute("model") final ModelMap model,
-      @RequestParam(required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date desde,
-      @RequestParam(required = false) @DateTimeFormat(pattern="dd/MM/yyyy") Date hasta,
-      @RequestParam(required = false) boolean includeEmpresa,
-      @RequestParam(required = false) boolean includeShopper) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
+    @Autowired
+    private DebtService debtService;
 
-    List<Row> rows = new LinkedList<Row>();
-    if (desde != null && hasta != null) {
-      model.addAttribute("includeEmpresa", includeEmpresa);
-      model.addAttribute("includeShopper", includeShopper);
+    @Autowired
+    private ShopperRepository shopperRepository;
 
-      model.addAttribute("desde", desde);
-      model.addAttribute("hasta", hasta);
+    @Autowired
+    private ClientRepository clientRepository;
 
-      rows = reportsService.getGeneralDebtReport(desde, hasta, includeEmpresa, includeShopper);
+    @RequestMapping(value = "/debtSummary")
+    public String debtSummary(@ModelAttribute("model") final ModelMap model,
+                              @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date desde,
+                              @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date hasta,
+                              @RequestParam(required = false) boolean includeEmpresa,
+                              @RequestParam(required = false) boolean includeShopper) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
+
+        Report report = null;
+        if (desde != null && hasta != null) {
+            model.addAttribute("includeEmpresa", includeEmpresa);
+            model.addAttribute("includeShopper", includeShopper);
+
+            model.addAttribute("desde", desde);
+            model.addAttribute("hasta", hasta);
+
+            report = reportsService.getGeneralDebtReport(desde, hasta, includeEmpresa, includeShopper);
+        }
+
+        model.addAttribute("report", report);
+        return "debtSummary";
     }
 
-    model.addAttribute("rows", rows);
-    return "debtSummary";
-  }
+    @RequestMapping(value = "/debtDetails")
+    public String getDebtDetails(@ModelAttribute("model") final ModelMap model,
+                                 String shopperDni, Long clientId,
+                                 @DateTimeFormat(pattern = "dd/MM/yyyy") Date desde,
+                                 @DateTimeFormat(pattern = "dd/MM/yyyy") Date hasta) {
+        Shopper shopper = shopperRepository.findByDni(shopperDni);
+        model.addAttribute("shopper", shopper);
+        Client client = clientRepository.get(clientId);
+        model.addAttribute("client", client);
+        model.addAttribute("items", debtService.getDebt(shopperDni, client, desde, hasta));
 
-  @RequestMapping(value="/prodSummary")
-  public String prodSummary(@ModelAttribute("model") final ModelMap model,
-      @RequestParam(required = false) Integer anioDesde,
-      @RequestParam(required = false) Integer mesDesde,
-      @RequestParam(required = false) Integer anioHasta,
-      @RequestParam(required = false) Integer mesHasta,
-      @RequestParam(required = false) boolean includeEmpresa) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
-
-    List<Row> rows = new LinkedList<Row>();
-    if (anioDesde != null && mesDesde != null && anioHasta != null
-        && mesHasta != null) {
-      model.addAttribute("includeEmpresa", includeEmpresa);
-
-      model.addAttribute("anioDesde", anioDesde);
-      model.addAttribute("mesDesde", mesDesde);
-      model.addAttribute("anioHasta", anioHasta);
-      model.addAttribute("mesHasta", mesHasta);
-
-      Calendar calendar = Calendar.getInstance();
-      calendar.set(Calendar.YEAR, anioDesde);
-      calendar.set(Calendar.MONTH, mesDesde - 1);
-      calendar.set(Calendar.DAY_OF_MONTH, 1);
-      calendar.set(Calendar.HOUR, 0);
-      calendar.set(Calendar.MINUTE, 0);
-      calendar.set(Calendar.SECOND, 0);
-      calendar.set(Calendar.MILLISECOND, 0);
-      Date desde = calendar.getTime();
-
-      calendar.set(Calendar.YEAR, anioHasta);
-      calendar.set(Calendar.MONTH, mesHasta - 1);
-      calendar.add(Calendar.MONTH, 1);
-      calendar.add(Calendar.DAY_OF_MONTH, -1);
-      Date hasta = calendar.getTime();
-
-      GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
-      command.setFrom(desde);
-      command.setTo(hasta);
-      command.setStates(null);
-      if (includeEmpresa) {
-        command.addGroupBy("clients.name");
-      }
-      rows = command.execute();
+        return "debtDetails";
     }
 
-    model.addAttribute("rows", rows);
-    return "prodSummary";
-  }
+    @RequestMapping(value = "/prodSummary")
+    public String prodSummary(@ModelAttribute("model") final ModelMap model,
+                              @RequestParam(required = false) Integer anioDesde,
+                              @RequestParam(required = false) Integer mesDesde,
+                              @RequestParam(required = false) Integer anioHasta,
+                              @RequestParam(required = false) Integer mesHasta,
+                              @RequestParam(required = false) boolean includeEmpresa) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
 
-  @RequestMapping(value="/prodSummary2")
-  public String prodSummary2(@ModelAttribute("model") final ModelMap model,
-      @RequestParam(required = false) Integer anioDesde,
-      @RequestParam(required = false) Integer mesDesde,
-      @RequestParam(required = false) Integer anioHasta,
-      @RequestParam(required = false) Integer mesHasta,
-      @RequestParam(required = false) boolean includeEmpresa) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
+        List<Row> rows = new LinkedList<Row>();
+        if (anioDesde != null && mesDesde != null && anioHasta != null
+                && mesHasta != null) {
+            model.addAttribute("includeEmpresa", includeEmpresa);
 
-    List<Row> rows = new LinkedList<Row>();
-    if (anioDesde != null && mesDesde != null && anioHasta != null
-        && mesHasta != null) {
-      model.addAttribute("includeEmpresa", includeEmpresa);
+            model.addAttribute("anioDesde", anioDesde);
+            model.addAttribute("mesDesde", mesDesde);
+            model.addAttribute("anioHasta", anioHasta);
+            model.addAttribute("mesHasta", mesHasta);
 
-      model.addAttribute("anioDesde", anioDesde);
-      model.addAttribute("mesDesde", mesDesde);
-      model.addAttribute("anioHasta", anioHasta);
-      model.addAttribute("mesHasta", mesHasta);
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, anioDesde);
+            calendar.set(Calendar.MONTH, mesDesde - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date desde = calendar.getTime();
 
-      Calendar calendar = Calendar.getInstance();
-      calendar.set(Calendar.YEAR, anioDesde);
-      calendar.set(Calendar.MONTH, mesDesde - 1);
-      calendar.set(Calendar.DAY_OF_MONTH, 1);
-      calendar.set(Calendar.HOUR, 0);
-      calendar.set(Calendar.MINUTE, 0);
-      calendar.set(Calendar.SECOND, 0);
-      calendar.set(Calendar.MILLISECOND, 0);
-      Date desde = calendar.getTime();
+            calendar.set(Calendar.YEAR, anioHasta);
+            calendar.set(Calendar.MONTH, mesHasta - 1);
+            calendar.add(Calendar.MONTH, 1);
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+            Date hasta = calendar.getTime();
 
-      calendar.set(Calendar.YEAR, anioHasta);
-      calendar.set(Calendar.MONTH, mesHasta - 1);
-      calendar.add(Calendar.MONTH, 1);
-      calendar.add(Calendar.DAY_OF_MONTH, -1);
-      Date hasta = calendar.getTime();
-      rows = reportsService.getProdSummaryReport(desde, hasta,
-          true, true, true, true, includeEmpresa);
+            GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
+            command.setFrom(desde);
+            command.setTo(hasta);
+            command.setStates(null);
+            if (includeEmpresa) {
+                command.addGroupBy("clients.name");
+            }
+            rows = command.execute();
+        }
+
+        model.addAttribute("rows", rows);
+        return "prodSummary";
     }
 
-    model.addAttribute("rows", rows);
-    return "prodSummary2";
-  }
+    @RequestMapping(value = "/prodSummary2")
+    public String prodSummary2(@ModelAttribute("model") final ModelMap model,
+                               @RequestParam(required = false) Integer anioDesde,
+                               @RequestParam(required = false) Integer mesDesde,
+                               @RequestParam(required = false) Integer anioHasta,
+                               @RequestParam(required = false) Integer mesHasta,
+                               @RequestParam(required = false) boolean includeEmpresa) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
 
-  @RequestMapping(value="/printProdSummary")
-  public String printProdSummary(@ModelAttribute("model") final ModelMap model,
-      Integer anioDesde, Integer mesDesde, Integer anioHasta,
-      Integer mesHasta, boolean includeEmpresa) {
-    model.addAttribute("includeEmpresa", includeEmpresa);
+        List<Row> rows = new LinkedList<Row>();
+        if (anioDesde != null && mesDesde != null && anioHasta != null
+                && mesHasta != null) {
+            model.addAttribute("includeEmpresa", includeEmpresa);
 
-    List<Row> rows = new LinkedList<Row>();
-    if (anioDesde != null && mesDesde != null && anioHasta != null
-        && mesHasta != null) {
-      Calendar calendar = Calendar.getInstance();
-      calendar.set(Calendar.YEAR, anioDesde);
-      calendar.set(Calendar.MONTH, mesDesde - 1);
-      calendar.set(Calendar.DAY_OF_MONTH, 1);
-      calendar.set(Calendar.HOUR, 0);
-      calendar.set(Calendar.MINUTE, 0);
-      calendar.set(Calendar.SECOND, 0);
-      calendar.set(Calendar.MILLISECOND, 0);
-      Date desde = calendar.getTime();
+            model.addAttribute("anioDesde", anioDesde);
+            model.addAttribute("mesDesde", mesDesde);
+            model.addAttribute("anioHasta", anioHasta);
+            model.addAttribute("mesHasta", mesHasta);
 
-      calendar.set(Calendar.YEAR, anioHasta);
-      calendar.set(Calendar.MONTH, mesHasta - 1);
-      calendar.add(Calendar.MONTH, 1);
-      calendar.add(Calendar.DAY_OF_MONTH, -1);
-      Date hasta = calendar.getTime();
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, anioDesde);
+            calendar.set(Calendar.MONTH, mesDesde - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date desde = calendar.getTime();
 
-      GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
-      command.setFrom(desde);
-      command.setTo(hasta);
-      command.setStates(null);
-      if (includeEmpresa) {
-        command.addGroupBy("clients.name");
-      }
-      rows = command.execute();
+            calendar.set(Calendar.YEAR, anioHasta);
+            calendar.set(Calendar.MONTH, mesHasta - 1);
+            calendar.add(Calendar.MONTH, 1);
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+            Date hasta = calendar.getTime();
+            rows = reportsService.getProdSummaryReport(desde, hasta,
+                    true, true, true, true, includeEmpresa);
+        }
+
+        model.addAttribute("rows", rows);
+        return "prodSummary2";
     }
 
-    model.addAttribute("rows", rows);
-    model.addAttribute("title", "Resumen de Producción");
-    return "printSummary";
-  }
+    @RequestMapping(value = "/printProdSummary")
+    public String printProdSummary(@ModelAttribute("model") final ModelMap model,
+                                   Integer anioDesde, Integer mesDesde, Integer anioHasta,
+                                   Integer mesHasta, boolean includeEmpresa) {
+        model.addAttribute("includeEmpresa", includeEmpresa);
 
-  @RequestMapping(value="/paySummary2")
-  public String paySummary2(@ModelAttribute("model") final ModelMap model,
-      @RequestParam(required = false) Integer anioDesde,
-      @RequestParam(required = false) Integer mesDesde,
-      @RequestParam(required = false) Integer anioHasta,
-      @RequestParam(required = false) Integer mesHasta) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
+        List<Row> rows = new LinkedList<Row>();
+        if (anioDesde != null && mesDesde != null && anioHasta != null
+                && mesHasta != null) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, anioDesde);
+            calendar.set(Calendar.MONTH, mesDesde - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date desde = calendar.getTime();
 
-    List<Row> rows = new LinkedList<Row>();
-    if (anioDesde != null && mesDesde != null && anioHasta != null
-        && mesHasta != null) {
-      model.addAttribute("anioDesde", anioDesde);
-      model.addAttribute("mesDesde", mesDesde);
-      model.addAttribute("anioHasta", anioHasta);
-      model.addAttribute("mesHasta", mesHasta);
+            calendar.set(Calendar.YEAR, anioHasta);
+            calendar.set(Calendar.MONTH, mesHasta - 1);
+            calendar.add(Calendar.MONTH, 1);
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+            Date hasta = calendar.getTime();
 
-      Calendar calendar = Calendar.getInstance();
-      calendar.set(Calendar.YEAR, anioDesde);
-      calendar.set(Calendar.MONTH, mesDesde - 1);
-      calendar.set(Calendar.DAY_OF_MONTH, 1);
-      calendar.set(Calendar.HOUR, 0);
-      calendar.set(Calendar.MINUTE, 0);
-      calendar.set(Calendar.SECOND, 0);
-      calendar.set(Calendar.MILLISECOND, 0);
-      Date desde = calendar.getTime();
+            GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
+            command.setFrom(desde);
+            command.setTo(hasta);
+            command.setStates(null);
+            if (includeEmpresa) {
+                command.addGroupBy("clients.name");
+            }
+            rows = command.execute();
+        }
 
-      calendar.set(Calendar.YEAR, anioHasta);
-      calendar.set(Calendar.MONTH, mesHasta - 1);
-      calendar.add(Calendar.MONTH, 1);
-      calendar.add(Calendar.DAY_OF_MONTH, -1);
-      Date hasta = calendar.getTime();
-
-      GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
-      command.setFrom(desde);
-      command.setTo(hasta);
-      List<State> states = new ArrayList<State>();
-      states.add(State.pagada);
-      command.setStates(states);
-      rows = command.execute();
+        model.addAttribute("rows", rows);
+        model.addAttribute("title", "Resumen de Producción");
+        return "printSummary";
     }
 
-    model.addAttribute("rows", rows);
-    return "paySummary";
-  }
+    @RequestMapping(value = "/paySummary2")
+    public String paySummary2(@ModelAttribute("model") final ModelMap model,
+                              @RequestParam(required = false) Integer anioDesde,
+                              @RequestParam(required = false) Integer mesDesde,
+                              @RequestParam(required = false) Integer anioHasta,
+                              @RequestParam(required = false) Integer mesHasta) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
 
-  @RequestMapping(value="/paySummary")
-  public String paySummary(@ModelAttribute("model") final ModelMap model,
-      @RequestParam(required = false) Integer anioDesde,
-      @RequestParam(required = false) Integer mesDesde,
-      @RequestParam(required = false) Integer anioHasta,
-      @RequestParam(required = false) Integer mesHasta) {
-    User user = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    model.addAttribute("user", user);
+        List<Row> rows = new LinkedList<Row>();
+        if (anioDesde != null && mesDesde != null && anioHasta != null
+                && mesHasta != null) {
+            model.addAttribute("anioDesde", anioDesde);
+            model.addAttribute("mesDesde", mesDesde);
+            model.addAttribute("anioHasta", anioHasta);
+            model.addAttribute("mesHasta", mesHasta);
 
-    List<Row> rows = new LinkedList<Row>();
-    if (anioDesde != null && mesDesde != null && anioHasta != null
-        && mesHasta != null) {
-      model.addAttribute("anioDesde", anioDesde);
-      model.addAttribute("mesDesde", mesDesde);
-      model.addAttribute("anioHasta", anioHasta);
-      model.addAttribute("mesHasta", mesHasta);
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.YEAR, anioDesde);
+            calendar.set(Calendar.MONTH, mesDesde - 1);
+            calendar.set(Calendar.DAY_OF_MONTH, 1);
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            Date desde = calendar.getTime();
 
-      SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-      String fechaDesde = "01-" + mesDesde + "-" + anioDesde;
-      String fechaHasta = "01-" + (mesHasta + 1) + "-" + anioHasta;
-      Date desde;
-      Date hasta;
-      try {
-        desde = dateFormat.parse(fechaDesde);
-        hasta = dateFormat.parse(fechaHasta);
-      } catch (ParseException e) {
-        throw new RuntimeException(e);
-      }
+            calendar.set(Calendar.YEAR, anioHasta);
+            calendar.set(Calendar.MONTH, mesHasta - 1);
+            calendar.add(Calendar.MONTH, 1);
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+            Date hasta = calendar.getTime();
 
-      Calendar calendar = Calendar.getInstance();
-      calendar.setTime(hasta);
-      calendar.add(Calendar.DAY_OF_MONTH, -1);
-      hasta = calendar.getTime();
+            GetDebtSummaryCommand command = new GetDebtSummaryCommand(debtRepository);
+            command.setFrom(desde);
+            command.setTo(hasta);
+            List<State> states = new ArrayList<State>();
+            states.add(State.pagada);
+            command.setStates(states);
+            rows = command.execute();
+        }
 
-      if (mesHasta < 12) {
-        mesHasta++;
-      } else {
-        mesHasta = 1;
-        anioHasta++;
-      }
-      rows = reportsService.getPaySummaryReport(desde, hasta);
+        model.addAttribute("rows", rows);
+        return "paySummary";
     }
 
-    model.addAttribute("rows", rows);
-    return "paySummary";
-  }
+    @RequestMapping(value = "/paySummary")
+    public String paySummary(@ModelAttribute("model") final ModelMap model,
+                             @RequestParam(required = false) Integer anioDesde,
+                             @RequestParam(required = false) Integer mesDesde,
+                             @RequestParam(required = false) Integer anioHasta,
+                             @RequestParam(required = false) Integer mesHasta) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
 
-  @RequestMapping(value="/printPaySummary")
-  public String printPaySummary(@ModelAttribute("model") final ModelMap model,
-      Integer anioDesde, Integer mesDesde, Integer anioHasta,
-      Integer mesHasta) {
+        List<Row> rows = new LinkedList<Row>();
+        if (anioDesde != null && mesDesde != null && anioHasta != null
+                && mesHasta != null) {
+            model.addAttribute("anioDesde", anioDesde);
+            model.addAttribute("mesDesde", mesDesde);
+            model.addAttribute("anioHasta", anioHasta);
+            model.addAttribute("mesHasta", mesHasta);
 
-    SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
-    String fechaDesde = "01-" + mesDesde + "-" + anioDesde;
-    String fechaHasta = "01-" + (mesHasta + 1) + "-" + anioHasta;
-    Date desde;
-    Date hasta;
-    try {
-      desde = dateFormat.parse(fechaDesde);
-      hasta = dateFormat.parse(fechaHasta);
-    } catch (ParseException e) {
-      throw new RuntimeException(e);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+            String fechaDesde = "01-" + mesDesde + "-" + anioDesde;
+            String fechaHasta = "01-" + (mesHasta + 1) + "-" + anioHasta;
+            Date desde;
+            Date hasta;
+            try {
+                desde = dateFormat.parse(fechaDesde);
+                hasta = dateFormat.parse(fechaHasta);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(hasta);
+            calendar.add(Calendar.DAY_OF_MONTH, -1);
+            hasta = calendar.getTime();
+
+            if (mesHasta < 12) {
+                mesHasta++;
+            } else {
+                mesHasta = 1;
+                anioHasta++;
+            }
+            rows = reportsService.getPaySummaryReport(desde, hasta);
+        }
+
+        model.addAttribute("rows", rows);
+        return "paySummary";
     }
 
-    Calendar calendar = Calendar.getInstance();
-    calendar.setTime(hasta);
-    calendar.add(Calendar.DAY_OF_MONTH, -1);
-    hasta = calendar.getTime();
+    @RequestMapping(value = "/printPaySummary")
+    public String printPaySummary(@ModelAttribute("model") final ModelMap model,
+                                  Integer anioDesde, Integer mesDesde, Integer anioHasta,
+                                  Integer mesHasta) {
 
-    if (mesHasta < 12) {
-      mesHasta++;
-    } else {
-      mesHasta = 1;
-      anioHasta++;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+        String fechaDesde = "01-" + mesDesde + "-" + anioDesde;
+        String fechaHasta = "01-" + (mesHasta + 1) + "-" + anioHasta;
+        Date desde;
+        Date hasta;
+        try {
+            desde = dateFormat.parse(fechaDesde);
+            hasta = dateFormat.parse(fechaHasta);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(hasta);
+        calendar.add(Calendar.DAY_OF_MONTH, -1);
+        hasta = calendar.getTime();
+
+        if (mesHasta < 12) {
+            mesHasta++;
+        } else {
+            mesHasta = 1;
+            anioHasta++;
+        }
+        model.addAttribute("rows", reportsService.getPaySummaryReport(desde,
+                hasta));
+        model.addAttribute("title", "Resumen de Pagos");
+        return "printSummary";
     }
-    model.addAttribute("rows", reportsService.getPaySummaryReport(desde,
-        hasta));
-    model.addAttribute("title", "Resumen de Pagos");
-    return "printSummary";
-  }
 
 }

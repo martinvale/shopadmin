@@ -93,7 +93,7 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 			ownerUsername = owner.getUsername();
 		}
 		return debtRepository.find(getStart(), getPageSize(), getOrderBy(), isAscending(),
-				shopperDni, state, from, to, getTipoPago(), getTipoItem(), ownerUsername);
+				shopperDni, state, from, to, getTipoPago(), getTipoItem(), ownerUsername, null);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 			ownerUsername = owner.getUsername();
 		}
 		return debtRepository.getCount(shopperDni, state, from, to, getTipoPago(),
-				getTipoItem(), ownerUsername);
+				getTipoItem(), ownerUsername, null);
 	}
 
 }

@@ -44,7 +44,7 @@
       <bean class="org.springframework.security.web.authentication.ExceptionMappingAuthenticationFailureHandler">
         <property name="exceptionMappings">
             <map>
-              <entry key="org.springframework.security.authentication.DisabledException" value="/disabled" />
+              <entry Key="org.springframework.security.authentication.DisabledException" value="/disabled" />
             </map>
         </property>
       </bean>
@@ -135,6 +135,10 @@
   <bean id="reportsService" class="com.ibiscus.shopnchek.application.report.ReportService">
     <constructor-arg index="0" ref="dataSource" />
     <constructor-arg index="1" ref="debtRepository" />
+  </bean>
+
+  <bean id="debtService" class="com.ibiscus.shopnchek.application.debt.DebtService">
+    <constructor-arg ref="debtRepository" />
   </bean>
 
   <bean id="communicationService" class="com.ibiscus.shopnchek.application.email.CommunicationService">
@@ -451,7 +455,7 @@
       <map>
         <entry key="org.quartz.scheduler.instanceName" value="Pending Debt Scheduler" />
         <entry key="org.quartz.threadPool.threadCount" value="3" />
-        <!-- entry key="org.quartz.jobStore.class" value="org.quartz.simpl.RAMJobStore" /-->
+        <!-- entry Key="org.quartz.jobStore.class" value="org.quartz.simpl.RAMJobStore" /-->
       </map>
     </property>
     <property name="triggers">
@@ -485,7 +489,7 @@
     <property name="durability" value="true" />
     <property name="jobDataAsMap">
       <map>
-        <entry key="command" value-ref="getIngematicaPendingDebtCommand" />
+        <entry Key="command" value-ref="getIngematicaPendingDebtCommand" />
       </map>
     </property>
   </bean>

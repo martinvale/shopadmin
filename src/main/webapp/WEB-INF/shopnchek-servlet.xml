@@ -40,7 +40,7 @@
     <property name="templateLoaderPath" value="/WEB-INF/ftl/" />
 	<!-- property name="freemarkerSettings">
       <props>
-        <prop key="locale">en_US</prop>
+        <prop Key="locale">en_US</prop>
       </props>
     </property-->
   </bean>

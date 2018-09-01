@@ -47,7 +47,7 @@ public class DebtRepository extends HibernateDaoSupport {
 
 	public Criteria getCriteria(final String shopperDni, final State state,
 			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem,
-			final String owner) {
+			final String owner, Client client) {
 		Criteria criteria = getSession().createCriteria(Debt.class);
 		if (!StringUtils.isBlank(shopperDni)) {
 			criteria.add(Expression.eq("shopperDni", shopperDni));
@@ -70,13 +70,16 @@ public class DebtRepository extends HibernateDaoSupport {
 		if (owner != null) {
 			criteria.add(Expression.eq("usuario", owner));
 		}
+		if (client != null) {
+			criteria.add(Expression.eq("client", client));
+		}
 		return criteria;
 	}
 
 	public List<Debt> find(final String shopperDni, final State state,
 			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem) {
 		return find(null, null, null, true, shopperDni, state, from, to, tipoPago,
-				tipoItem, null);
+				tipoItem, null, null);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -94,6 +97,7 @@ public class DebtRepository extends HibernateDaoSupport {
 		builder.append("left join clients on (deuda.client_id = clients.id) ");
 		builder.append("left join mcdonalds.dbo.shoppers on (deuda.shopper_dni = shoppers.nro_documento COLLATE Traditional_Spanish_CI_AS) ");
 		builder.append("where deuda.fecha >= :from and deuda.fecha <= :to ");
+		builder.append("and deuda.estado <> 'anulada' ");
 		if (states != null && !states.isEmpty()) {
 			builder.append("and (");
 			for (int i = 0; i < states.size(); i++) {
@@ -132,9 +136,9 @@ public class DebtRepository extends HibernateDaoSupport {
 	public List<Debt> find(final Integer start, final Integer count,
 			final String orderBy, final boolean asc, final String shopperDni,
 			final State state, final Date from, final Date to, final TipoPago tipoPago,
-			final TipoItem tipoItem, final String owner) {
+			final TipoItem tipoItem, final String owner, Client client) {
 		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago,
-				tipoItem, owner);
+				tipoItem, owner, client);
 		if (start != null) {
 			criteria.setFirstResult(start);
 		}
@@ -156,8 +160,8 @@ public class DebtRepository extends HibernateDaoSupport {
 	}
 
 	public Integer getCount(final String shopperDni, final State state, final Date from,
-			final Date to, final TipoPago tipoPago, final TipoItem tipoItem, final String owner) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago, tipoItem, owner);
+			final Date to, final TipoPago tipoPago, final TipoItem tipoItem, final String owner, Client client) {
+		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago, tipoItem, owner, client);
 		return (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
 	}
 }

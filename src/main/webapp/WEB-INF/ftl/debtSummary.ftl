@@ -56,6 +56,10 @@
 
 }
 
+.table-form thead th {
+  text-align: center;
+}
+
 .table-form td {
   text-align: right;
 }
@@ -105,18 +109,31 @@
       <table summary="Reporte" class="table-form">
         <thead>
           <tr>
-            <th scope="col">A&ntilde;o</th>
-            <th scope="col">Mes</th>
+            <th scope="col" width="5%" rowspan="2">A&ntilde;o</th>
+            <th scope="col" width="5%" rowspan="2">Mes</th>
           <#if model["includeEmpresa"]!false>
-            <th scope="col">Empresa</th>
+            <th scope="col" width="10%" rowspan="2">Empresa</th>
           </#if>
           <#if model["includeShopper"]!false>
-            <th scope="col">Shopper</th>
+            <th scope="col" width="10%" rowspan="2">Shopper</th>
           </#if>
+            <th scope="col" colspan="3">Producci&oacute;n</th>
+            <th scope="col" rowspan="2">Total producci&oacute;n</th>
+            <th scope="col" colspan="3">Pagado</th>
+            <th scope="col" rowspan="2">Total pagado</th>
+            <th scope="col" colspan="3">Deuda real</th>
+            <th scope="col" rowspan="2">Total deuda real</th>
+          </tr>
+          <tr>
             <th scope="col">Honorarios</th>
             <th scope="col">Reintegros</th>
             <th scope="col">Otros gastos</th>
-            <th scope="col">Total</th>
+            <th scope="col">Honorarios</th>
+            <th scope="col">Reintegros</th>
+            <th scope="col">Otros gastos</th>
+            <th scope="col">Honorarios</th>
+            <th scope="col">Reintegros</th>
+            <th scope="col">Otros gastos</th>
           </tr>
         </thead>
         <tbody>
@@ -124,41 +141,68 @@
           <#assign honorariosAnio = 0 />
           <#assign reintegrosAnio = 0 />
           <#assign otrosAnio = 0 />
+          <#assign sustraendoHonorariosAnio = 0 />
+          <#assign sustraendoReintegrosAnio = 0 />
+          <#assign sustraendoOtrosAnio = 0 />
+          <#assign restoHonorariosAnio = 0 />
+          <#assign restoReintegrosAnio = 0 />
+          <#assign restoOtrosAnio = 0 />
           <#assign honorariosTotal = 0 />
           <#assign reintegrosTotal = 0 />
           <#assign otrosTotal = 0 />
+          <#assign sustraendoHonorariosTotal = 0 />
+          <#assign sustraendoReintegrosTotal = 0 />
+          <#assign sustraendoOtrosTotal = 0 />
+          <#assign restoHonorariosTotal = 0 />
+          <#assign restoReintegrosTotal = 0 />
+          <#assign restoOtrosTotal = 0 />
           <#assign imprimirResto = false />
-          <#list model["rows"] as row>
+        <#if model["report"]??>
+          <#list model["report"].values as row>
             <#assign imprimirResto = true />
             <tr>
               <td>
-                <#if row.getValue("year") != anioAnt>
-                  ${row.getValue("year")?c}
-                  <#assign anioAnt = row.getValue("year") />
+                <#if row.getYear() != anioAnt>
+                  ${row.getYear()?c}
+                  <#assign anioAnt = row.getYear() />
                 <#else>
                   &nbsp;
                 </#if>
               </td>
-              <td>${row.getValue("month")?c}</td>
+              <td>${row.getMonth()?c}</td>
             <#if model["includeEmpresa"]!false>
-              <td>${row.getValue("name")!''}</td>
+              <td>${row.getKey().getClient()!''}</td>
             </#if>
             <#if model["includeShopper"]!false>
-              <td>${row.getValue("apellido_y_nombre")!''}</td>
+              <td><a href="#" onclick="window.open('debtDetails?shopperDni=${row.getKey().getShopperDni()!''}&clientId=${row.getKey().getClientId()!''}&desde=${(model["desde"]?string('dd/MM/yyyy'))!''}&hasta=${(model["hasta"]?string('dd/MM/yyyy'))!''}','_blank', 'location=yes,height=570,width=820,scrollbars=yes,status=yes');">${row.getKey().getShopper()!''}</a></td>
             </#if>
-              <td>${row.getValue("honorarios")?string.currency}</td>
-              <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />
-              <td>${row.getValue("reintegros")?string.currency}</td>
-              <#assign reintegrosAnio = reintegrosAnio + row.getValue("reintegros") />
-              <td>${row.getValue("otros")?string.currency}</td>
-              <#assign otrosAnio = otrosAnio + row.getValue("otros") />
-              <td>${(row.getValue("honorarios") + row.getValue("reintegros") + row.getValue("otros"))?string.currency}</td>
+              <td>${row.getHonorariosMinuendo()?string.currency}</td>
+              <#assign honorariosAnio = honorariosAnio + row.getHonorariosMinuendo() />
+              <td>${row.getReintegrosMinuendo()?string.currency}</td>
+              <#assign reintegrosAnio = reintegrosAnio + row.getReintegrosMinuendo() />
+              <td>${row.getOtrosMinuendo()?string.currency}</td>
+              <#assign otrosAnio = otrosAnio + row.getOtrosMinuendo() />
+              <td>${(row.getHonorariosMinuendo() + row.getReintegrosMinuendo() + row.getOtrosMinuendo())?string.currency}</td>
+              <td>${row.getHonorariosSustraendo()?string.currency}</td>
+              <#assign sustraendoHonorariosAnio = sustraendoHonorariosAnio + row.getHonorariosSustraendo() />
+              <td>${row.getReintegrosSustraendo()?string.currency}</td>
+              <#assign sustraendoReintegrosAnio = sustraendoReintegrosAnio + row.getReintegrosSustraendo() />
+              <td>${row.getOtrosSustraendo()?string.currency}</td>
+              <#assign sustraendoOtrosAnio = sustraendoOtrosAnio + row.getOtrosSustraendo() />
+              <td>${(row.getHonorariosSustraendo() + row.getReintegrosSustraendo() + row.getOtrosSustraendo())?string.currency}</td>
+              <#assign restoHonorariosAnio = restoHonorariosAnio + row.getHonorariosResto() />
+              <td>${row.getHonorariosResto()?string.currency}</td>
+              <#assign restoReintegrosAnio = restoReintegrosAnio + row.getReintegrosResto() />
+              <td>${row.getReintegrosResto()?string.currency}</td>
+              <#assign restoOtrosAnio = restoOtrosAnio + row.getOtrosResto() />
+              <td>${row.getOtrosResto()?string.currency}</td>
+              <td>${(row.getHonorariosResto() + row.getReintegrosResto() + row.getOtrosResto())?string.currency}</td>
             </tr>
-            <#if row.getValue("month") == 12>
+            <#if row.getMonth() == 12>
               <#assign imprimirResto = false />
 
             <tr>
-              <td class="total">Total ${row.getValue("year")?c}</td>
+              <td class="total">Total ${row.getYear()?c}</td>
               <td>&nbsp;</td>
             <#if model["includeEmpresa"]!false>
               <td>&nbsp;</td>
@@ -173,14 +217,24 @@
               <td>${otrosAnio?string.currency}</td>
               <#assign otrosTotal = otrosTotal + otrosAnio />
               <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
+              <td>${sustraendoHonorariosAnio?string.currency}</td>
+              <#assign sustraendoHonorariosTotal = sustraendoHonorariosTotal + sustraendoHonorariosAnio />
+              <td>${sustraendoReintegrosAnio?string.currency}</td>
+              <#assign sustraendoReintegrosTotal = sustraendoReintegrosTotal + sustraendoReintegrosAnio />
+              <td>${sustraendoOtrosAnio?string.currency}</td>
+              <#assign sustraendoOtrosTotal = sustraendoOtrosTotal + sustraendoOtrosAnio />
+              <td>${(sustraendoHonorariosAnio + sustraendoReintegrosTotal + sustraendoOtrosTotal)?string.currency}</td>
               <#assign honorariosAnio = 0 />
               <#assign reintegrosAnio = 0 />
               <#assign otrosAnio = 0 />
+              <#assign sustraendoHonorariosAnio = 0 />
+              <#assign sustraendoReintegrosAnio = 0 />
+              <#assign sustraendoOtrosAnio = 0 />
             </tr>
 
             </#if>
           </#list>
-          <#if model["rows"]?size &gt; 0 && imprimirResto>
+          <#if imprimirResto>
             <tr>
               <td class="total">Total ${anioAnt?c}</td>
               <td>&nbsp;</td>
@@ -197,6 +251,20 @@
               <td>${otrosAnio?string.currency}</td>
               <#assign otrosTotal = otrosTotal + otrosAnio />
               <td>${(honorariosAnio + reintegrosAnio + otrosAnio)?string.currency}</td>
+              <td>${sustraendoHonorariosAnio?string.currency}</td>
+              <#assign sustraendoHonorariosTotal = sustraendoHonorariosTotal + sustraendoHonorariosAnio />
+              <td>${sustraendoReintegrosAnio?string.currency}</td>
+              <#assign sustraendoReintegrosTotal = sustraendoReintegrosTotal + sustraendoReintegrosAnio />
+              <td>${sustraendoOtrosAnio?string.currency}</td>
+              <#assign sustraendoOtrosTotal = sustraendoOtrosTotal + sustraendoOtrosAnio />
+              <td>${(sustraendoHonorariosAnio + sustraendoReintegrosTotal + sustraendoOtrosTotal)?string.currency}</td>
+              <td>${restoHonorariosAnio?string.currency}</td>
+              <#assign restoHonorariosTotal = restoHonorariosTotal + restoHonorariosAnio />
+              <td>${restoReintegrosAnio?string.currency}</td>
+              <#assign restoReintegrosTotal = restoReintegrosTotal + restoReintegrosAnio />
+              <td>${restoOtrosAnio?string.currency}</td>
+              <#assign restoOtrosTotal = restoOtrosTotal + restoOtrosAnio />
+              <td>${(restoHonorariosAnio + restoReintegrosTotal + restoOtrosTotal)?string.currency}</td>
             </tr>
           </#if>
           <tr>
@@ -212,7 +280,16 @@
             <td>${reintegrosTotal?string.currency}</td>
             <td>${otrosTotal?string.currency}</td>
             <td>${(honorariosTotal + reintegrosTotal + otrosTotal)?string.currency}</td>
+            <td>${sustraendoHonorariosTotal?string.currency}</td>
+            <td>${sustraendoReintegrosTotal?string.currency}</td>
+            <td>${sustraendoOtrosTotal?string.currency}</td>
+            <td>${(sustraendoHonorariosTotal + sustraendoReintegrosTotal + sustraendoOtrosTotal)?string.currency}</td>
+            <td>${restoHonorariosTotal?string.currency}</td>
+            <td>${restoReintegrosTotal?string.currency}</td>
+            <td>${restoOtrosTotal?string.currency}</td>
+            <td>${(restoHonorariosTotal + restoReintegrosTotal + restoOtrosTotal)?string.currency}</td>
           </tr>
+        </#if>
         </tbody>
       </table>
     </div>

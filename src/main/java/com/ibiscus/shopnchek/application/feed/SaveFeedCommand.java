@@ -37,7 +37,7 @@ public class SaveFeedCommand implements Command<Feed> {
 
 		Long lastProcessedId = null;
 		List<Debt> debts = debtRepository.find(0, 1, "externalId", false, null,
-				null, null, from, null, TipoItem.mcd, null);
+				null, null, from, null, TipoItem.mcd, null, null);
 		if (!debts.isEmpty()) {
 			lastProcessedId = debts.get(0).getExternalId();
 		}
