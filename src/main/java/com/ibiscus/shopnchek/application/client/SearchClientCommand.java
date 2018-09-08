@@ -1,4 +1,4 @@
-package com.ibiscus.shopnchek.application.debt;
+package com.ibiscus.shopnchek.application.client;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,13 +10,13 @@ import com.ibiscus.shopnchek.application.Command;
 import com.ibiscus.shopnchek.domain.debt.Client;
 import com.ibiscus.shopnchek.domain.debt.ClientRepository;
 
-public class SearchClientDtoCommand implements Command<List<ClientDto>> {
+public class SearchClientCommand implements Command<List<ClientDto>> {
 
 	private ClientRepository clientRepository;
 
 	private String name;
 
-	public SearchClientDtoCommand() {
+	public SearchClientCommand() {
 	}
 
 	@Override

@@ -1,15 +1,12 @@
 package com.ibiscus.shopnchek.domain.debt;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name="clients")
@@ -23,7 +20,11 @@ public class Client {
 	@Column(name = "name", nullable = false, length = 255)
 	private String name;
 
-	@OneToMany(mappedBy = "client")
+	@Column(name = "country", nullable = true, length = 255)
+	private String country;
+
+	@OneToMany(mappedBy = "client", fetch = FetchType.EAGER)
+	@Fetch(FetchMode.SUBSELECT)
 	private Set<Branch> branchs = new HashSet<Branch>();
 
 	Client() {
@@ -33,8 +34,18 @@ public class Client {
 		this.name = name;
 	}
 
+	public Client(final String name, String country) {
+		this.name = name;
+		this.country = country;
+	}
+
 	public void addBranch(final Branch branch) {
 		branchs.add(branch);
+	}
+
+	public void update(String name, String country) {
+		this.name = name;
+		this.country = country;
 	}
 
 	public long getId() {
@@ -47,5 +58,9 @@ public class Client {
 
 	public Set<Branch> getBranchs() {
 		return branchs;
+	}
+
+	public String getCountry() {
+		return country;
 	}
 }

@@ -141,6 +141,10 @@
     <constructor-arg ref="debtRepository" />
   </bean>
 
+  <bean id="clientService" class="com.ibiscus.shopnchek.application.client.ClientService">
+    <constructor-arg ref="clientRepository" />
+  </bean>
+
   <bean id="communicationService" class="com.ibiscus.shopnchek.application.email.CommunicationService">
     <constructor-arg index="0" value="smtp.office365.com" />
     <constructor-arg index="1" value="587" />
@@ -212,7 +216,7 @@
     <property name="orderRepository" ref="orderRepository" />
   </bean>
 
-  <bean id="searchClientDtoCommand" class="com.ibiscus.shopnchek.application.debt.SearchClientDtoCommand" scope="prototype">
+  <bean id="searchClientDtoCommand" class="com.ibiscus.shopnchek.application.client.SearchClientCommand" scope="prototype">
     <property name="clientRepository" ref="clientRepository" />
   </bean>
 
