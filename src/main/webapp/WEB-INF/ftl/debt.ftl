@@ -96,26 +96,6 @@ App.widget.AdicionalEditor = function (container) {
     render: function() {
       shopperSelector.render();
 
-      var clientsSelector = container.find(".js-clients").autocomplete({
-        source: "<@spring.url '/services/client/findByName' />",
-        minLength: 2,
-        focus: function(event, ui) {
-          clientsSelector.val(ui.item.name);
-          return false;
-        },
-        select: function(event, ui) {
-          clientsSelector.val(ui.item.name);
-          container.find(".js-client-id").val(ui.item.id);
-          updateBranchs(ui.item.branchs);
-          return false;
-        }
-      });
-      clientsSelector.data("ui-autocomplete")._renderItem = function(ul, item) {
-        return $("<li>")
-          .append("<a>" + item.name + "</a>")
-          .appendTo(ul);
-      };
-
       initEventListeners();
       initValidations();
     }
@@ -167,8 +147,11 @@ App.widget.AdicionalEditor = function (container) {
               </div>
               <div class="form-shop-row">
                 <label for="client">Cliente</label>
-                <input id="client" type="text" name="clientDescription" value="${(debt.client.name)!(debt.clientDescription)!''}" class="item-field js-clients" <#if readOnly>disabled="true"</#if>/>
-                <input type="hidden" name="clientId" value="${(debt.client.id)!''}" class="js-client-id" />
+                <select id="client" name="clientId" class="item-field js-client-id" <#if readOnly>disabled="true"</#if>>
+                <#list model["clients"] as client>
+                  <option value="${client.id?c}" <#if ((debt.client.id)!0) == client.id>selected="selected"</#if>>${client.name}</option>
+                </#list>
+                <select>
               </div>
               <div class="form-shop-row">
                 <label for="sucursal">Sucursal</label>

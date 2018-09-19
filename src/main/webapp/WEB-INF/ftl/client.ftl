@@ -36,7 +36,7 @@
               <label class="field-name">Pais:</label>
               <select id="country" name="country">
               <#list model["countries"] as country>
-                <option value="${country}" <#if editionClient?? && editionClient.country!'' == country>selected="selected"</#if>>${country}</option>
+                <option value="${country}" <#if editionClient?? && (editionClient.country!'') == country>selected="selected"</#if>>${country}</option>
               </#list>
               <select>
             </div>

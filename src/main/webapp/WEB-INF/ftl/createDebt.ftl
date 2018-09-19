@@ -91,6 +91,16 @@ App.widget.AdicionalEditor = function (container) {
         jQuery(this).parent('td').parent('tr').remove();
       });
     });
+
+    container.find(".js-client-id").change(function () {
+/*       ui.item.branchs.sort(function (a, b) {
+          var branch1 = a.address.toLowerCase();
+          var branch2 = b.address.toLowerCase();
+          return branch1.localeCompare(branch2);
+        });
+        updateBranchs(ui.item.branchs);*/
+    });
+ 
   };
 
   var resetForm = function () {
@@ -101,7 +111,6 @@ App.widget.AdicionalEditor = function (container) {
       event.preventDefault();
       jQuery(this).parent('td').parent('tr').remove();
     });
-    container.find(".js-clients").val("");
     container.find(".js-client-id").val("");
     container.find(".js-sucursales").val("");
     container.find(".js-sucursal-description").val("");
@@ -128,7 +137,6 @@ App.widget.AdicionalEditor = function (container) {
       data: JSON.stringify({
         "shopperDni": container.find(".js-shopper-dni").val(),
         "clientId": container.find(".js-client-id").val(),
-        "clientDescription": container.find(".js-clients").val(),
         "branchId": container.find(".js-sucursales").val(),
         "branchDescription": container.find(".js-sucursal-description").val(),
         "route": container.find(".js-route").val(),
@@ -142,7 +150,6 @@ App.widget.AdicionalEditor = function (container) {
       } else {
         resetForm();
         container.find(".js-add-and-continue").prop('disabled', false);
-        container.find(".js-clients").focus();
         loadingIndicator.stop();
       }
     })
@@ -166,31 +173,6 @@ App.widget.AdicionalEditor = function (container) {
   return {
     render: function() {
       shopperSelector.render();
-
-      var clientsSelector = container.find(".js-clients").autocomplete({
-        source: "<@spring.url '/services/client/findByName' />",
-        minLength: 2,
-        focus: function(event, ui) {
-          clientsSelector.val(ui.item.name);
-          return false;
-        },
-        select: function(event, ui) {
-          clientsSelector.val(ui.item.name);
-          container.find(".js-client-id").val(ui.item.id);
-          ui.item.branchs.sort(function (a, b) {
-            var branch1 = a.address.toLowerCase();
-            var branch2 = b.address.toLowerCase();
-            return branch1.localeCompare(branch2);
-          });
-          updateBranchs(ui.item.branchs);
-          return false;
-        }
-      });
-      clientsSelector.data("ui-autocomplete")._renderItem = function(ul, item) {
-        return $("<li>")
-          .append("<a>" + item.name + "</a>")
-          .appendTo(ul);
-      };
 
       initEventListeners();
       initValidations();
@@ -238,8 +220,11 @@ App.widget.AdicionalEditor = function (container) {
               </div>
               <div class="form-shop-row">
                 <label for="client">Cliente</label>
-                <input id="client" type="text" name="clientDescription" value="${(debt.client.name)!(debt.clientDescription)!''}" class="item-field js-clients" <#if readOnly>disabled="true"</#if>/>
-                <input type="hidden" name="clientId" value="${(debt.client.id)!''}" class="js-client-id" />
+                <select id="client" name="clientId" class="js-client-id">
+                <#list model["clients"] as client>
+                  <option value="${client.id?c}">${client.name}</option>
+                </#list>
+                <select>
               </div>
               <div class="form-shop-row">
                 <label for="sucursal">Sucursal</label>

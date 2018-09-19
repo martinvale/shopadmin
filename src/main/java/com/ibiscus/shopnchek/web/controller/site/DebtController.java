@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.ibiscus.shopnchek.application.client.SearchClientCommand;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,6 +81,9 @@ public class DebtController {
 
 	@Autowired
 	private SearchDebtDtoCommand searchDebtDtoCommand;
+
+	@Autowired
+	private SearchClientCommand searchClientCommand;
 
 	@RequestMapping(value="/list")
 	public String searchDebt(@ModelAttribute("model") final ModelMap model,
@@ -262,6 +266,8 @@ public class DebtController {
 		getDebtCommand.setDebtId(id);
 		Debt debt = getDebtCommand.execute();
 		model.addAttribute("debt", debt);
+		searchClientCommand.setName(null);
+		model.addAttribute("clients", searchClientCommand.execute());
 		model.addAttribute("readOnly", true);
 		return "debt";
 	}
@@ -276,6 +282,8 @@ public class DebtController {
 		getDebtCommand.setDebtId(id);
 		Debt debt = getDebtCommand.execute();
 		model.addAttribute("debt", debt);
+		searchClientCommand.setName(null);
+		model.addAttribute("clients", searchClientCommand.execute());
 		model.addAttribute("readOnly", false);
 		return "debt";
 	}
@@ -286,6 +294,8 @@ public class DebtController {
 				.getPrincipal();
 		model.addAttribute("user", user);
 		model.addAttribute("tiposPago", TipoPago.values());
+		searchClientCommand.setName(null);
+		model.addAttribute("clients", searchClientCommand.execute());
 		model.addAttribute("readOnly", false);
 		return "createDebt";
 	}

@@ -6,6 +6,7 @@ import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.SQLQuery;
 import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ClientRepository extends HibernateDaoSupport {
@@ -28,6 +29,7 @@ public class ClientRepository extends HibernateDaoSupport {
 		if (name != null) {
 			criteria.add(Expression.like("name", name + "%"));
 		}
+		criteria.addOrder(Order.asc("name"));
 		return criteria.list();
 	}
 
