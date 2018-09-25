@@ -76,13 +76,8 @@
     <#setting locale="es_AR">
 
     <div class="container-box-plantilla">
-      <h2 class="container-tit">Resumen de deuda general</h2>
-      <form class="form-shop form-shop-big" action="debtSummary" method="GET">
-          <!--div role="alert" class="form-error-txt" aria-hidden="false"><i class="ch-icon-remove"></i>
-                  <div class="ch-popover-content">
-                      Revisa los datos. Debes completar campos "Número" y "Factura".
-                  </div>
-          </div-->
+      <h2 class="container-tit">${model["title"]}</h2>
+      <form class="form-shop form-shop-big" action="${model["form"]}" method="GET">
         <div class="cell">
           <div class="box-green">
             <div class="field">
@@ -117,12 +112,12 @@
           <#if model["includeShopper"]!false>
             <th scope="col" width="10%" rowspan="2">Shopper</th>
           </#if>
-            <th scope="col" colspan="3">Producci&oacute;n</th>
-            <th scope="col" rowspan="2">Total producci&oacute;n</th>
-            <th scope="col" colspan="3">Pagado</th>
-            <th scope="col" rowspan="2">Total pagado</th>
-            <th scope="col" colspan="3">Deuda real</th>
-            <th scope="col" rowspan="2">Total deuda real</th>
+            <th scope="col" colspan="3">${model["titulo1"]}</th>
+            <th scope="col" rowspan="2">${model["total1"]}</th>
+            <th scope="col" colspan="3">${model["titulo2"]}</th>
+            <th scope="col" rowspan="2">${model["total2"]}</th>
+            <th scope="col" colspan="3">${model["titulo3"]}</th>
+            <th scope="col" rowspan="2">${model["total3"]}</th>
           </tr>
           <tr>
             <th scope="col">Honorarios</th>

@@ -74,6 +74,80 @@ public class ReportController {
         }
 
         model.addAttribute("report", report);
+        model.addAttribute("form", "debtSummary");
+        model.addAttribute("title", "Resumen de deuda real");
+        model.addAttribute("titulo1", "Produccion");
+        model.addAttribute("total1", "Total Produccion");
+        model.addAttribute("titulo2", "Pagado");
+        model.addAttribute("total2", "Total Pagado");
+        model.addAttribute("titulo3", "Deuda Real");
+        model.addAttribute("total3", "Total Deuda");
+        return "debtSummary";
+    }
+
+    @RequestMapping(value = "/presentedDebtSummary")
+    public String presentedDebtSummary(@ModelAttribute("model") final ModelMap model,
+                              @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date desde,
+                              @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date hasta,
+                              @RequestParam(required = false) boolean includeEmpresa,
+                              @RequestParam(required = false) boolean includeShopper) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
+
+        Report report = null;
+        if (desde != null && hasta != null) {
+            model.addAttribute("includeEmpresa", includeEmpresa);
+            model.addAttribute("includeShopper", includeShopper);
+
+            model.addAttribute("desde", desde);
+            model.addAttribute("hasta", hasta);
+
+            report = reportsService.getPresentedDebtReport(desde, hasta, includeEmpresa, includeShopper);
+        }
+
+        model.addAttribute("report", report);
+        model.addAttribute("form", "presentedDebtSummary");
+        model.addAttribute("title", "Resumen de deuda de operaciones generadas");
+        model.addAttribute("titulo1", "Presentado (OP Generadas)");
+        model.addAttribute("total1", "Total Presentado");
+        model.addAttribute("titulo2", "Pagado");
+        model.addAttribute("total2", "Total Pagado");
+        model.addAttribute("titulo3", "Deuda (OP Generadas)");
+        model.addAttribute("total3", "Total Deuda");
+        return "debtSummary";
+    }
+
+    @RequestMapping(value = "/pendingDebtSummary")
+    public String pendingDebtSummary(@ModelAttribute("model") final ModelMap model,
+                                     @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date desde,
+                                     @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date hasta,
+                                     @RequestParam(required = false) boolean includeEmpresa,
+                                     @RequestParam(required = false) boolean includeShopper) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
+
+        Report report = null;
+        if (desde != null && hasta != null) {
+            model.addAttribute("includeEmpresa", includeEmpresa);
+            model.addAttribute("includeShopper", includeShopper);
+
+            model.addAttribute("desde", desde);
+            model.addAttribute("hasta", hasta);
+
+            report = reportsService.getPendingDebtReport(desde, hasta, includeEmpresa, includeShopper);
+        }
+
+        model.addAttribute("report", report);
+        model.addAttribute("form", "pendingDebtSummary");
+        model.addAttribute("title", "Resumen de deuda no presentada");
+        model.addAttribute("titulo1", "Produccion");
+        model.addAttribute("total1", "Total Produccion");
+        model.addAttribute("titulo2", "Presentado (OP Generadas)");
+        model.addAttribute("total2", "Total Presentado");
+        model.addAttribute("titulo3", "Deuda No Presentada");
+        model.addAttribute("total3", "Total Deuda");
         return "debtSummary";
     }
 
