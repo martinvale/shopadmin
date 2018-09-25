@@ -2,11 +2,7 @@ package com.ibiscus.shopnchek.web.controller.site;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import com.ibiscus.shopnchek.application.debt.DebtService;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
@@ -149,6 +145,25 @@ public class ReportController {
         model.addAttribute("titulo3", "Deuda No Presentada");
         model.addAttribute("total3", "Total Deuda");
         return "debtSummary";
+    }
+
+    @RequestMapping(value = "/additional")
+    public String additionalSummary(@ModelAttribute("model") final ModelMap model,
+                                     @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date desde,
+                                     @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date hasta) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
+
+        if (desde != null && hasta != null) {
+            model.addAttribute("desde", desde);
+            model.addAttribute("hasta", hasta);
+
+            List<Row> report = reportsService.getAdditionalReport(desde, hasta);
+            model.addAttribute("report", report);
+        }
+
+        return "additionalSummary";
     }
 
     @RequestMapping(value = "/debtDetails")

@@ -28,6 +28,18 @@ public class ReportService {
 
     private final Logger logger = Logger.getLogger(ReportService.class.getName());
 
+    private static final String ADDITIONAL_REPORT = "select year(fecha) as year, month(fecha) as month,\n" +
+            "\tsum(case when deuda.tipo_pago = 'honorarios' then deuda.importe else 0 end) as honorarios,\n" +
+            "\tsum(case when deuda.tipo_pago = 'reintegros' then deuda.importe else 0 end) as reintegros,\n" +
+            "\tsum(case when deuda.tipo_pago = 'otrosgastos' then deuda.importe else 0 end) as otros\n" +
+            "from deuda\n" +
+            "where deuda.fecha >= ?\n" +
+            "\tand deuda.fecha <= ?\n" +
+            "\tand deuda.estado = 'pendiente'\n" +
+            "\tand deuda.tipo_item = 'manual'\n" +
+            "group by year(fecha), month(fecha)\n" +
+            "order by year(fecha), month(fecha)";
+
     private final DataSource dataSource;
     private final DebtRepository debtRepository;
 
@@ -72,6 +84,50 @@ public class ReportService {
         populateReport(report, debtRows);
 
         return report;
+    }
+
+    public List<Row> getAdditionalReport(final Date from, final Date to) {
+        List<Row> rows = new LinkedList<Row>();
+
+        PreparedStatement cstmt = null;
+        ResultSet resultset = null;
+        try {
+            cstmt = dataSource.getConnection().prepareStatement(ADDITIONAL_REPORT);
+
+            cstmt.setDate(1, new java.sql.Date(from.getTime()));
+            cstmt.setDate(2, new java.sql.Date(to.getTime()));
+
+            resultset = cstmt.executeQuery();
+            while (resultset.next()) {
+                Row row = new Row();
+                row.addValue("year", resultset.getInt("year"));
+                row.addValue("month", resultset.getInt("month"));
+
+                row.addValue("honorarios", resultset.getDouble("honorarios"));
+                row.addValue("reintegros", resultset.getDouble("reintegros"));
+                row.addValue("otros", resultset.getDouble("otros"));
+                rows.add(row);
+            }
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, null, ex);
+        } finally {
+            if (resultset != null) {
+                try {
+                    resultset.close();
+                } catch (SQLException ex) {
+                    logger.log(Level.WARNING, null, ex);
+                }
+            }
+            if (cstmt != null) {
+                try {
+                    cstmt.close();
+                } catch (SQLException ex) {
+                    logger.log(Level.WARNING, null, ex);
+                }
+            }
+        }
+
+        return rows;
     }
 
     private List<String> getOrderConditions(boolean includeEmpresa, boolean includeShopper) {
