@@ -2,6 +2,10 @@ package com.ibiscus.shopnchek.application.order;
 
 import java.util.Date;
 
+import com.ibiscus.shopnchek.domain.security.Activity;
+import com.ibiscus.shopnchek.domain.security.ActivityRepository;
+import com.ibiscus.shopnchek.domain.security.User;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,6 +18,8 @@ import com.ibiscus.shopnchek.domain.admin.OrderState;
 public class SaveOrderCommand implements Command<OrdenPago> {
 
     private OrderRepository orderRepository;
+
+    private ActivityRepository activityRepository;
 
     private Long numero;
 
@@ -48,6 +54,7 @@ public class SaveOrderCommand implements Command<OrdenPago> {
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public OrdenPago execute() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         OrdenPago order = null;
         MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
         if (numero == null) {
@@ -57,17 +64,23 @@ public class SaveOrderCommand implements Command<OrdenPago> {
                     observaciones, observacionesShopper, cuit, banco, cbu,
                     accountNumber);
             orderRepository.save(order);
+            activityRepository.save(new Activity(order.getNumero(), user, Activity.Code.ORDER_CREATION));
         } else {
             order = orderRepository.get(numero);
             order.update(tipoProveedor, proveedor, tipoFactura, medioPago, fechaPago, iva,
                     numeroFactura, localidad, observaciones,
                     observacionesShopper, cuit, banco, cbu, accountNumber);
+            activityRepository.save(new Activity(order.getNumero(), user, Activity.Code.ORDER_EDITION));
         }
         return order;
     }
 
     public void setOrderRepository(OrderRepository orderRepository) {
         this.orderRepository = orderRepository;
+    }
+
+    public void setActivityRepository(ActivityRepository activityRepository) {
+        this.activityRepository = activityRepository;
     }
 
     public void setNumero(final Long numero) {

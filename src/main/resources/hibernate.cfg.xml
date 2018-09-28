@@ -8,6 +8,7 @@
     <mapping class="com.ibiscus.shopnchek.domain.security.User"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.security.Role"></mapping>
     <mapping class="com.ibiscus.shopnchek.domain.security.Feature"></mapping>
+    <mapping class="com.ibiscus.shopnchek.domain.security.Activity"></mapping>
 
     <mapping class="com.ibiscus.shopnchek.domain.debt.Feed"></mapping>
 

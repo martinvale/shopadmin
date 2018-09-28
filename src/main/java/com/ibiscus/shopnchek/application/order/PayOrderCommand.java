@@ -6,6 +6,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.ibiscus.shopnchek.domain.security.Activity;
+import com.ibiscus.shopnchek.domain.security.ActivityRepository;
+import com.ibiscus.shopnchek.domain.security.User;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +28,8 @@ public class PayOrderCommand implements Command<OrdenPago> {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private OrderRepository orderRepository;
+
+    private ActivityRepository activityRepository;
 
     private ProveedorRepository proveedorRepository;
 
@@ -58,6 +64,7 @@ public class PayOrderCommand implements Command<OrdenPago> {
     @Override
     @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
     public OrdenPago execute() {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         MedioPago medioPago = orderRepository.getMedioPago(medioPagoId);
         OrderState state = orderRepository.getOrderState(stateId);
 
@@ -65,6 +72,7 @@ public class PayOrderCommand implements Command<OrdenPago> {
             OrdenPago order = orderRepository.get(numero);
             order.pagar(state, medioPago, idTransferencia, numeroChequera,
                     numeroCheque, fechaCheque, observaciones, observacionesShopper);
+            activityRepository.save(new Activity(order.getNumero(), user, Activity.Code.ORDER_PAYED));
             if (sendMail && !order.isNotified()) {
                 executorService.submit(new CommunicationSender(communicationService,
                         shopperRepository, proveedorRepository,
@@ -110,4 +118,7 @@ public class PayOrderCommand implements Command<OrdenPago> {
         this.receivers = receivers;
     }
 
+    public void setActivityRepository(ActivityRepository activityRepository) {
+        this.activityRepository = activityRepository;
+    }
 }

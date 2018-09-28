@@ -127,6 +127,10 @@
     <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
 
+  <bean id="activityRepository" class="com.ibiscus.shopnchek.domain.security.ActivityRepository">
+    <property name="sessionFactory" ref="sessionFactory"></property>
+  </bean>
+
   <!-- Services -->
   <bean id="itemsOrdenService" class="com.ibiscus.shopnchek.application.order.ItemsOrdenService">
     <constructor-arg index="0" ref="dataSource" />
@@ -166,6 +170,7 @@
   <!-- Commands -->
   <bean id="saveOrderCommand" class="com.ibiscus.shopnchek.application.order.SaveOrderCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
+    <property name="activityRepository" ref="activityRepository" />
   </bean>
 
   <bean id="getOrderCommand" class="com.ibiscus.shopnchek.application.order.GetOrderCommand" scope="prototype">
@@ -191,6 +196,7 @@
     <property name="orderRepository" ref="orderRepository" />
     <property name="proveedorRepository" ref="proveedorRepository" />
     <property name="shopperRepository" ref="shopperRepository" />
+    <property name="activityRepository" ref="activityRepository" />
     <property name="communicationService" ref="communicationService" />
     <property name="from" value="pagosshopnchek@shopnchek.com.ar" />
   </bean>
@@ -201,6 +207,7 @@
 
   <bean id="transitionOrderCommand" class="com.ibiscus.shopnchek.application.order.TransitionOrderCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
+    <property name="activityRepository" ref="activityRepository" />
   </bean>
 
   <bean id="removeItemOrderCommand" class="com.ibiscus.shopnchek.application.order.RemoveItemOrderCommand" scope="prototype">
