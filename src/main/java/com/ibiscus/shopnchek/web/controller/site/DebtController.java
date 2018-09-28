@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -45,9 +46,15 @@ import com.ibiscus.shopnchek.domain.debt.TipoItem;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.security.User;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static com.ibiscus.shopnchek.domain.debt.Debt.State.creada;
+import static com.ibiscus.shopnchek.domain.debt.Debt.State.pendiente;
+
 @Controller
 @RequestMapping("/debt")
 public class DebtController {
+
+	private static final String APPROVE_ADDITIONAL = "approve_additional";
 
 	@Autowired
 	private DebtRepository debtRepository;
@@ -112,7 +119,11 @@ public class DebtController {
 		searchDebtCommand.setShopperDni(shopperDni);
 		searchDebtCommand.setFrom(from);
 		searchDebtCommand.setTo(to);
-		searchDebtCommand.setState(State.pendiente);
+		Set<State> states = newHashSet(pendiente);
+		if (user.hasFeature(APPROVE_ADDITIONAL)) {
+			states.add(creada);
+		}
+		searchDebtCommand.setStates(states);
 		searchDebtCommand.setTipoPago(tipoPago);
 		searchDebtCommand.setTipoItem(tipoItem);
 		ResultSet<Debt> resultSet = searchDebtCommand.execute();
@@ -192,7 +203,11 @@ public class DebtController {
 		searchDebtCommand.setShopperDni(shopperDni);
 		searchDebtCommand.setFrom(from);
 		searchDebtCommand.setTo(to);
-		searchDebtCommand.setState(State.pendiente);
+		Set<State> states = newHashSet(pendiente);
+		if (user.hasFeature(APPROVE_ADDITIONAL)) {
+			states.add(creada);
+		}
+		searchDebtCommand.setStates(states);
 		searchDebtCommand.setTipoPago(tipoPago);
 		searchDebtCommand.setTipoItem(TipoItem.manual.toString());
 		searchDebtCommand.setOwner(user);

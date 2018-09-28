@@ -230,6 +230,10 @@
     <property name="clientRepository" ref="clientRepository" />
     <property name="branchRepository" ref="branchRepository" />
     <property name="shopperRepository" ref="shopperRepository" />
+    <property name="userRepository" ref="userRepository" />
+    <property name="communicationService" ref="communicationService" />
+    <property name="from" value="pagosshopnchek@shopnchek.com.ar" />
+    <property name="site" value="${application.url}" />
   </bean>
   
   <bean id="saveDebtCommand" class="com.ibiscus.shopnchek.application.debt.SaveDebtCommand" scope="prototype">

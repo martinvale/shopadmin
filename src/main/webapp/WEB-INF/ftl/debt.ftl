@@ -196,7 +196,7 @@ App.widget.AdicionalEditor = function (container) {
               <#if debt?? && readOnly>
                 <a href="<@spring.url '/debt/edit/${debt.id?c}'/>" class="btn-shop-small">Editar</a>
               <#else>
-                <input type="button" class="btn-shop-small js-add" value="Guardar" />
+                <input type="button" class="btn-shop-small js-add" value="<#if debt?? && debt.estado = 'creada'>Aprobar<#else>Guardar</#if>" />
               </#if>
             </li>
           </ul>

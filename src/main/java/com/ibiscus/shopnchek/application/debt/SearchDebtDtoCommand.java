@@ -13,6 +13,9 @@ import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.debt.DebtRepository;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static com.ibiscus.shopnchek.domain.debt.Debt.State.pendiente;
+
 public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 
 	private DebtRepository debtRepository;
@@ -56,7 +59,7 @@ public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 		List<DebtDto> debtDtoItems = new LinkedList<DebtDto>();
 
 		List<Debt> debtItems = debtRepository.find(getStart(), getPageSize(), getOrderBy(),
-				isAscending(), shopperDni, State.pendiente, from, to, getTipoPago(), null, null, null);
+				isAscending(), shopperDni, newHashSet(pendiente), from, to, getTipoPago(), null, null, null);
 		for (Debt debt : debtItems) {
 			debtDtoItems.add(new DebtDto(debt));
 		}
@@ -65,7 +68,7 @@ public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 
 	@Override
 	protected int getCount() {
-		return debtRepository.getCount(shopperDni, State.pendiente, from, to,
+		return debtRepository.getCount(shopperDni, newHashSet(pendiente), from, to,
 				getTipoPago(), null, null, null);
 	}
 

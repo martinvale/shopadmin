@@ -42,6 +42,9 @@ public class User implements UserDetails {
 	@Column(name="enabled")
 	private boolean enabled;
 
+	@Column(name="email", length=100)
+	private String email;
+
 	@ManyToMany
 	@JoinTable(name="users_roles",
 			joinColumns=@JoinColumn(name="user_id"),
@@ -51,21 +54,23 @@ public class User implements UserDetails {
 	User() {
 	}
 
-	public User(final String username, final String name,
-			final String password, final boolean enabled, final Set<Role> roles) {
+	public User(final String username, final String name, final String password, final boolean enabled, String email,
+				final Set<Role> roles) {
 		this.username = username;
 		this.name = name;
 		this.password = password;
 		this.enabled = enabled;
+		this.email = email;
 		this.roles.addAll(roles);
 	}
 
 	public void update(final String username, final String name, final String password,
-			final boolean enabled, final Set<Role> roles) {
+			final boolean enabled, String email, final Set<Role> roles) {
 		this.username = username;
 		this.name = name;
 		this.password = password;
 		this.enabled = enabled;
+		this.email = email;
 		this.roles.clear();
 		this.roles.addAll(roles);
 	}
@@ -84,6 +89,10 @@ public class User implements UserDetails {
 
 	public String getPassword() {
 		return password;
+	}
+
+	public String getEmail() {
+		return email;
 	}
 
 	public Set<Role> getRoles() {

@@ -2,6 +2,7 @@ package com.ibiscus.shopnchek.application.debt;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.Validate;
@@ -20,7 +21,7 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 
 	private String shopperDni;
 
-	private State state;
+	private Set<State> states;
 
 	private Date from;
 
@@ -59,8 +60,8 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 		this.shopperDni = shopperDni;
 	}
 
-	public void setState(final State state) {
-		this.state = state;
+	public void setStates(Set<State> states) {
+		this.states = states;
 	}
 
 	public void setFrom(final Date from) {
@@ -93,7 +94,7 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 			ownerUsername = owner.getUsername();
 		}
 		return debtRepository.find(getStart(), getPageSize(), getOrderBy(), isAscending(),
-				shopperDni, state, from, to, getTipoPago(), getTipoItem(), ownerUsername, null);
+				shopperDni, states, from, to, getTipoPago(), getTipoItem(), ownerUsername, null);
 	}
 
 	@Override
@@ -102,7 +103,7 @@ public class SearchDebtCommand extends SearchCommand<Debt> {
 		if (owner != null && !owner.isAdministrator()) {
 			ownerUsername = owner.getUsername();
 		}
-		return debtRepository.getCount(shopperDni, state, from, to, getTipoPago(),
+		return debtRepository.getCount(shopperDni, states, from, to, getTipoPago(),
 				getTipoItem(), ownerUsername, null);
 	}
 

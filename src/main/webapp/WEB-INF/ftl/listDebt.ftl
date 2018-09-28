@@ -194,7 +194,7 @@
             <th scope="col">Importe</th>
             <th scope="col"><a id="order-fecha" href="#" class="js-order <#if model['orderBy'] == 'fecha'>selected</#if>">F. Visita <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
             <th scope="col">Autoriza</th>
-            <th scope="col">Nro OP</th>
+            <th scope="col">Estado</th>
           </tr>
         </thead>
         <tbody>
@@ -208,7 +208,7 @@
             <td>$ ${item.importe?string["0.##"]?replace(',', '.')}</td>
             <td>${item.fecha?string('dd/MM/yyyy')}</td>
             <td>${item.usuario!''}</td>
-            <td>${(item.nroOperacion?c)!''}</td>
+            <td>${item.estado}</td>
           </tr>
           </#list>
         </tbody>

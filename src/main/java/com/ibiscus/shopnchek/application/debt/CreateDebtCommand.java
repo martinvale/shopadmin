@@ -4,8 +4,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
+import com.ibiscus.shopnchek.application.email.CommunicationService;
+import com.ibiscus.shopnchek.domain.security.UserRepository;
 import org.apache.commons.lang.Validate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +26,14 @@ import com.ibiscus.shopnchek.domain.debt.TipoItem;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.security.User;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.ibiscus.shopnchek.domain.debt.Debt.State.creada;
+
 public class CreateDebtCommand implements Command<List<Debt>> {
+
+	private static final String ADDITIONAL_ROUTE = "debt/edit/";
+
+	private CommunicationService communicationService;
 
 	private DebtRepository debtRepository;
 
@@ -32,6 +42,12 @@ public class CreateDebtCommand implements Command<List<Debt>> {
 	private ClientRepository clientRepository;
 
 	private ShopperRepository shopperRepository;
+
+	private UserRepository userRepository;
+
+	private String from;
+
+	private String site;
 
 	private VisitaDto visitaDto;
 
@@ -72,16 +88,37 @@ public class CreateDebtCommand implements Command<List<Debt>> {
             if (TipoPago.otrosgastos == tipoPago) {
                 route = visitaDto.getRoute();
             }
-			Debt debt = new Debt(tipoItem, tipoPago, visitaDto.getShopperDni(),
+			Debt debt = new Debt(tipoItem, tipoPago, creada, visitaDto.getShopperDni(),
 					debtDto.getImporte(), fecha, debtDto.getObservacion(),
 					null, client, clientDescription, branch, branchDescription,
 					route, null, operator.getUsername());
 			debtRepository.save(debt);
 			Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());
 			debt.updateShopper(shopper);
+			sendMail(debt);
 			debts.add(debt);
 		}
 		return debts;
+	}
+
+	private void sendMail(Debt debt) {
+		Iterable<User> users = getUserToSendNotification();
+		String emailContent = getEmailBody(debt);
+		for (User user : users) {
+			communicationService.sendMail(from, user.getEmail(), "Aprobacion de adicional", emailContent);
+		}
+	}
+
+	private String getEmailBody(Debt debt) {
+		StringBuilder builder = new StringBuilder("El siguiente adicional necesita ser revisado para su aprobacion:\n\n");
+		builder.append(site);
+		builder.append(ADDITIONAL_ROUTE);
+		builder.append(debt.getId());
+		return builder.toString();
+	}
+
+	private Iterable<User> getUserToSendNotification() {
+		return newArrayList(userRepository.findByUsername("fede"));
 	}
 
 	public void setDebtRepository(final DebtRepository debtRepository) {
@@ -106,5 +143,21 @@ public class CreateDebtCommand implements Command<List<Debt>> {
 
 	public void setOperator(final User operator) {
 		this.operator = operator;
+	}
+
+	public void setCommunicationService(CommunicationService communicationService) {
+		this.communicationService = communicationService;
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
+	public void setSite(String site) {
+		this.site = site;
+	}
+
+	public void setUserRepository(UserRepository userRepository) {
+		this.userRepository = userRepository;
 	}
 }

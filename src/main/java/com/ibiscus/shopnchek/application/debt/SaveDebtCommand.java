@@ -78,18 +78,13 @@ public class SaveDebtCommand implements Command<Debt> {
 			branch = branchRepository.get(branchId);
 			branchDescription = branch.getAddress();
 		}
-		Debt debt;
-		if (debtId == null) {
-			debt = new Debt(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
-					survey, client, clientDescription, branch, branchDescription,
-					route, externalId, operator.getUsername());
-			debtRepository.save(debt);
-		} else {
-			debt = debtRepository.get(debtId);
-			debt.update(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
-					survey, client, clientDescription, branch, branchDescription,
-					route, externalId, operator.getUsername());
+		Debt debt = debtRepository.get(debtId);
+		if (debt.isCreated()) {
+			debt.release();
 		}
+		debt.update(tipoItem, tipoPago, shopperDni, importe, fecha, observaciones,
+				survey, client, clientDescription, branch, branchDescription,
+				route, externalId, operator.getUsername());
 		Shopper shopper = shopperRepository.findByDni(debt.getShopperDni());
 		debt.updateShopper(shopper);
 		return debt;

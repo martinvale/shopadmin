@@ -2,6 +2,7 @@ package com.ibiscus.shopnchek.domain.debt;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
@@ -15,6 +16,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import com.ibiscus.shopnchek.domain.debt.Debt.State;
 import com.ibiscus.shopnchek.domain.util.Row;
+
+import static com.google.common.collect.Sets.newHashSet;
 
 public class DebtRepository extends HibernateDaoSupport {
 
@@ -45,15 +48,15 @@ public class DebtRepository extends HibernateDaoSupport {
 	    getHibernateTemplate().delete(debt);
 	}
 
-	public Criteria getCriteria(final String shopperDni, final State state,
+	public Criteria getCriteria(final String shopperDni, Set<State> states,
 			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem,
 			final String owner, Client client) {
 		Criteria criteria = getSession().createCriteria(Debt.class);
 		if (!StringUtils.isBlank(shopperDni)) {
 			criteria.add(Expression.eq("shopperDni", shopperDni));
 		}
-		if (state != null) {
-			criteria.add(Expression.eq("estado", state));
+		if (states != null && !states.isEmpty()) {
+			criteria.add(Expression.in("estado", states));
 		}
 		if (from != null) {
 			criteria.add(Expression.ge("fecha", from));
@@ -78,7 +81,7 @@ public class DebtRepository extends HibernateDaoSupport {
 
 	public List<Debt> find(final String shopperDni, final State state,
 			final Date from, final Date to, final TipoPago tipoPago, final TipoItem tipoItem) {
-		return find(null, null, null, true, shopperDni, state, from, to, tipoPago,
+		return find(null, null, null, true, shopperDni, newHashSet(state), from, to, tipoPago,
 				tipoItem, null, null);
 	}
 
@@ -135,9 +138,9 @@ public class DebtRepository extends HibernateDaoSupport {
 	@SuppressWarnings("unchecked")
 	public List<Debt> find(final Integer start, final Integer count,
 			final String orderBy, final boolean asc, final String shopperDni,
-			final State state, final Date from, final Date to, final TipoPago tipoPago,
+			final Set<State> states, final Date from, final Date to, final TipoPago tipoPago,
 			final TipoItem tipoItem, final String owner, Client client) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago,
+		Criteria criteria = getCriteria(shopperDni, states, from, to, tipoPago,
 				tipoItem, owner, client);
 		if (start != null) {
 			criteria.setFirstResult(start);
@@ -159,9 +162,9 @@ public class DebtRepository extends HibernateDaoSupport {
 		return criteria.list();
 	}
 
-	public Integer getCount(final String shopperDni, final State state, final Date from,
+	public Integer getCount(final String shopperDni, Set<State> states, final Date from,
 			final Date to, final TipoPago tipoPago, final TipoItem tipoItem, final String owner, Client client) {
-		Criteria criteria = getCriteria(shopperDni, state, from, to, tipoPago, tipoItem, owner, client);
+		Criteria criteria = getCriteria(shopperDni, states, from, to, tipoPago, tipoItem, owner, client);
 		return (Integer) criteria.setProjection(Projections.rowCount()).uniqueResult();
 	}
 }

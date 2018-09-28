@@ -28,6 +28,8 @@ public class SaveUserCommand implements Command<User> {
 
 	private boolean enabled;
 
+	private String email;
+
 	private Set<Long> roleIds;
 
 	SaveUserCommand() {
@@ -42,11 +44,11 @@ public class SaveUserCommand implements Command<User> {
 		}
 		User user;
 		if (userId == null) {
-			user = new User(username, name, password, enabled, roles);
+			user = new User(username, name, password, enabled, email, roles);
 			userRepository.save(user);
 		} else {
 			user = userRepository.get(userId);
-			user.update(username, name, password, enabled, roles);
+			user.update(username, name, password, enabled, email, roles);
 		}
 		return user;
 	}
@@ -83,4 +85,7 @@ public class SaveUserCommand implements Command<User> {
 		this.roleIds = roleIds;
 	}
 
+	public void setEmail(String email) {
+		this.email = email;
+	}
 }

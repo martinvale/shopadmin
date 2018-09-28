@@ -21,7 +21,7 @@ import com.ibiscus.shopnchek.domain.admin.Shopper;
 public class Debt {
 
     public enum State {
-        pendiente, asignada, pagada, anulada
+        creada, pendiente, asignada, pagada, anulada
     };
 
     @Id
@@ -115,7 +115,7 @@ public class Debt {
         this.usuario = operator;
     }
 
-    public Debt(final TipoItem tipoItem, final TipoPago tipoPago,
+    public Debt(final TipoItem tipoItem, final TipoPago tipoPago, State state,
             final String shopperDni, final double importe, final Date fecha,
             final String observaciones, final String survey,
             final Client client, final String clientDescription,
@@ -123,6 +123,7 @@ public class Debt {
             final Long externalId, final String operator) {
         this.tipoItem = tipoItem;
         this.tipoPago = tipoPago;
+        this.estado = state;
         this.shopperDni = shopperDni;
         this.importe = importe;
         this.fecha = fecha;
@@ -280,5 +281,9 @@ public class Debt {
 
     public boolean isPending() {
         return State.pendiente == estado;
+    }
+
+    public boolean isCreated() {
+        return State.creada == estado;
     }
 }
