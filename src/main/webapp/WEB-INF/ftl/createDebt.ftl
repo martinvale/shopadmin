@@ -33,7 +33,7 @@
 
       App.widget = App.widget || {};
 
-App.widget.AdicionalEditor = function (container) {
+App.widget.AdicionalEditor = function (container, clients) {
 
   var rowIndex = 1;
 
@@ -93,12 +93,8 @@ App.widget.AdicionalEditor = function (container) {
     });
 
     container.find(".js-client-id").change(function () {
-/*       ui.item.branchs.sort(function (a, b) {
-          var branch1 = a.address.toLowerCase();
-          var branch2 = b.address.toLowerCase();
-          return branch1.localeCompare(branch2);
-        });
-        updateBranchs(ui.item.branchs);*/
+      var clientId = jQuery(this).val();
+      updateBranchs(clients[clientId]);
     });
  
   };
@@ -182,8 +178,17 @@ App.widget.AdicionalEditor = function (container) {
 }
 
       jQuery(document).ready(function() {
+        var clients = {}
+      <#list model["clients"] as client>
+        var branchs = [];
+      <#list client.branchs as branch>
+        branchs.push({id: ${branch.id?c}, address: "${branch.address?json_string}"});
+      </#list>
+        clients[${client.id?c}] = branchs;
+      </#list>
+
         var editorContainer = jQuery(".js-editor-adicional");
-        var editor = App.widget.AdicionalEditor(editorContainer);
+        var editor = App.widget.AdicionalEditor(editorContainer, clients);
         editor.render();
       });
 
