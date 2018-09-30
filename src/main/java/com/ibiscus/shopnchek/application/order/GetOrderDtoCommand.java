@@ -59,7 +59,7 @@ public class GetOrderDtoCommand implements Command<OrderDto> {
         }
         OrderDto orderDto = new OrderDto(order, titular, titularCuenta,
                 order.getCuit(), order.getBanco(), order.getCbu(), order.getIdTransferencia(),
-                order.getObservaciones(), order.getObservacionesShopper());
+                order.getObservaciones(), order.getObservacionesShopper(), order.getTimesReopened());
 
         return orderDto;
     }

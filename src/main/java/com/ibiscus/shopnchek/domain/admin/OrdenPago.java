@@ -437,4 +437,8 @@ public class OrdenPago {
   public boolean isClosedAutomatically() {
       return closedAutomatically;
   }
+
+  public int getTimesReopened() {
+    return timesReopened;
+  }
 }

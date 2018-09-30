@@ -142,10 +142,11 @@ public class SearchOrderDtoCommand extends SearchCommand<OrderDto> {
                 }
                 orderDto = new OrderDto(order, titular, titularCuenta, order.getCuit(), order.getBanco(),
                         order.getCbu(), order.getIdTransferencia(), order.getObservaciones(),
-                        order.getObservacionesShopper(), importe, honorarios, order.getIva());
+                        order.getObservacionesShopper(), importe, honorarios, order.getIva(), order.getTimesReopened());
             } else {
                 orderDto = new OrderDto(order, titular, titularCuenta, order.getCuit(), order.getBanco(), order.getCbu(),
-                        order.getIdTransferencia(), order.getObservaciones(), order.getObservacionesShopper());
+                        order.getIdTransferencia(), order.getObservaciones(), order.getObservacionesShopper(),
+                        order.getTimesReopened());
             }
             orderDtoItems.add(orderDto);
         }

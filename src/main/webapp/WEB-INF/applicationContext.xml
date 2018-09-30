@@ -195,6 +195,14 @@
     <property name="accountRepository" ref="accountRepository" />
   </bean>
 
+  <bean id="searchReopenedOrdersCommand" class="com.ibiscus.shopnchek.application.order.SearchReopenedOrdersCommand"
+        scope="prototype">
+    <property name="orderRepository" ref="orderRepository" />
+    <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="accountRepository" ref="accountRepository" />
+  </bean>
+
   <bean id="payOrderCommand" class="com.ibiscus.shopnchek.application.order.PayOrderCommand" scope="prototype">
     <property name="orderRepository" ref="orderRepository" />
     <property name="proveedorRepository" ref="proveedorRepository" />

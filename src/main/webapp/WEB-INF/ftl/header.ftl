@@ -11,6 +11,7 @@
                 <li><a href="<@spring.url '/orden/create'/>">Nueva</a></li>
                 <li><a href="<@spring.url '/orden/search'/>">Buscar</a></li>
                 <li><a href="<@spring.url '/orden/pending'/>">Pendientes</a></li>
+                <li><a href="<@spring.url '/orden/reopened'/>">Reabiertas</a></li>
                 <li><a href="<@spring.url '/item/debtSearch'/>">Deuda por shopper</a></li>
                 <li><a href="<@spring.url '/orden/export'/>">Exportar &oacute;rdenes de pago</a></li>
               </ul>

@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.ibiscus.shopnchek.application.order.SearchReopenedOrdersCommand;
 import com.ibiscus.shopnchek.domain.security.Activity;
 import com.ibiscus.shopnchek.domain.security.ActivityRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +116,9 @@ public class OrdenPagoController {
 
     @Autowired
     private AsociarMedioPagoCommand asociarMedioPagoCommand;
+
+    @Autowired
+    private SearchReopenedOrdersCommand searchReopenedOrdersCommand;
 
     @Autowired
     private ActivityRepository activityRepository;
@@ -539,6 +543,45 @@ public class OrdenPagoController {
         model.put("result", rsOrdenes);
 
         return "pendientesPago";
+    }
+
+    @RequestMapping(value = "/reopened")
+    public String getReopenedOrders(@ModelAttribute("model") final ModelMap model,
+                         @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date fechaDesde,
+                         @RequestParam(required = false) @DateTimeFormat(pattern = "dd/MM/yyyy") Date fechaHasta) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
+
+        Calendar calendar = Calendar.getInstance();
+        Date fromDate = fechaDesde;
+        if (fromDate == null) {
+            calendar.setTime(new Date());
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            fromDate = calendar.getTime();
+        }
+        Date toDate = fechaHasta;
+        if (toDate == null) {
+            calendar.setTime(new Date());
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            toDate = calendar.getTime();
+        }
+        searchReopenedOrdersCommand.setFechaPagoDesde(fromDate);
+        searchReopenedOrdersCommand.setFechaPagoHasta(toDate);
+        ResultSet<OrderDto> rsOrdenes = searchReopenedOrdersCommand.execute();
+
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        model.put("fechaDesde", dateFormat.format(fromDate));
+        model.put("fechaHasta", dateFormat.format(toDate));
+        model.put("result", rsOrdenes);
+
+        return "reopened";
     }
 
     @RequestMapping(value = "/caratula/{orderId}")

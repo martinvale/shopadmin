@@ -177,4 +177,12 @@ public class OrderRepository extends HibernateDaoSupport {
               .setLong("titular", titular);
       return (OrdenPago) query.uniqueResult();
   }
+
+    public List<OrdenPago> getReopenedOrders(Date from, Date to) {
+        Criteria criteria = getCriteria(null, null, null,
+                null, null, from, to);
+        criteria.add(Expression.gt("timesReopened", 0));
+        criteria.addOrder(Order.asc("numero"));
+        return criteria.list();
+    }
 }

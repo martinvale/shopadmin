@@ -41,10 +41,14 @@ public class OrderDto {
 
     private String observacionesShopper;
 
+    private int timesReopened;
+
     public OrderDto(final OrdenPago order, final String titular, final String titularCuenta,
             final String cuit, final String banco, final String cbu, String transferId, final String observaciones,
-            final String observacionesShopper, final double importe, final double honorarios, final double iva) {
-        this(order, titular, titularCuenta, cuit, banco, cbu, transferId, observaciones, observacionesShopper);
+            final String observacionesShopper, final double importe, final double honorarios, final double iva,
+                    int timesReopened) {
+        this(order, titular, titularCuenta, cuit, banco, cbu, transferId, observaciones, observacionesShopper,
+                timesReopened);
         this.iva = iva;
         if (importe > 0) {
             this.importe = numberFormat.format(importe);
@@ -55,7 +59,7 @@ public class OrderDto {
 
     public OrderDto(final OrdenPago order, final String titular, final String titularCuenta,
             final String cuit, final String banco, final String cbu, String transferId, final String observaciones,
-            final String observacionesShopper) {
+            final String observacionesShopper, int timesReopened) {
         this.numero = order.getNumero();
         this.titular = titular;
         this.titularCuenta = titularCuenta;
@@ -63,6 +67,7 @@ public class OrderDto {
         this.banco = banco;
         this.cbu = cbu;
         this.iva = order.getIva();
+        this.timesReopened = timesReopened;
         if (order.getImporte() > 0) {
             this.importe = numberFormat.format(order.getImporte());
             double impuestos = order.getHonorarios() * (order.getIva() / 100);
@@ -129,5 +134,9 @@ public class OrderDto {
 
     public String getObservacionesShopper() {
         return observacionesShopper;
+    }
+
+    public int getTimesReopened() {
+        return timesReopened;
     }
 }
