@@ -96,7 +96,7 @@ public class SearchTitularCommand extends SearchCommand<TitularDTO> {
             }
         }
         String ultimaFactura = null;
-        OrdenPago order = orderRepository.getMajorBillNumber(titularTipo, titularId);
+        OrdenPago order = orderRepository.getLastCreatedOrder(titularTipo, titularId);
         if (order != null) {
             ultimaFactura = order.getNumeroFactura();
         }
