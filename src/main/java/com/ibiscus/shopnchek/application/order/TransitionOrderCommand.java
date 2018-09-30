@@ -1,8 +1,11 @@
 package com.ibiscus.shopnchek.application.order;
 
+import com.ibiscus.shopnchek.application.email.CommunicationService;
+import com.ibiscus.shopnchek.domain.debt.Debt;
 import com.ibiscus.shopnchek.domain.security.Activity;
 import com.ibiscus.shopnchek.domain.security.ActivityRepository;
 import com.ibiscus.shopnchek.domain.security.User;
+import com.ibiscus.shopnchek.domain.security.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,8 +15,10 @@ import com.ibiscus.shopnchek.domain.admin.OrdenPago;
 import com.ibiscus.shopnchek.domain.admin.OrderRepository;
 import com.ibiscus.shopnchek.domain.admin.OrderState;
 
+import java.util.List;
 import java.util.Map;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 
 public class TransitionOrderCommand implements Command<OrdenPago> {
@@ -31,6 +36,14 @@ public class TransitionOrderCommand implements Command<OrdenPago> {
 	private OrderRepository orderRepository;
 
 	private ActivityRepository activityRepository;
+
+	private UserRepository userRepository;
+
+	private CommunicationService communicationService;
+
+	private String from;
+
+	private List<String> usernamesToNotify;
 
 	private long numero;
 
@@ -50,7 +63,35 @@ public class TransitionOrderCommand implements Command<OrdenPago> {
 		order.transition(state, includeComments, comments);
 		Activity activity = getActivity(order.getNumero(), user, state);
 		activityRepository.save(activity);
+		if (state.getId() == OrderState.ABIERTA) {
+			sendMail(order, user);
+		}
 		return order;
+	}
+
+	private void sendMail(OrdenPago order, User user) {
+		Iterable<User> users = getUserToSendNotification();
+		String emailContent = getEmailBody(order, user);
+		for (User userToNotify : users) {
+			communicationService.sendMail(from, userToNotify.getEmail(), "Order de pago Nro " + order.getNumero()
+					+ " reabierta", emailContent);
+		}
+	}
+
+	private String getEmailBody(OrdenPago order, User user) {
+		StringBuilder builder = new StringBuilder("La orden de pago Nro ");
+		builder.append(order.getNumero());
+		builder.append(" ha sido reabierta por ");
+		builder.append(user.getName());
+		return builder.toString();
+	}
+
+	private Iterable<User> getUserToSendNotification() {
+		List<User> users = newArrayList();
+		for (String username : usernamesToNotify) {
+			users.add(userRepository.findByUsername(username));
+		}
+		return users;
 	}
 
 	private Activity getActivity(long ownerId, User user, OrderState state) {
@@ -79,5 +120,21 @@ public class TransitionOrderCommand implements Command<OrdenPago> {
 
 	public void setActivityRepository(ActivityRepository activityRepository) {
 		this.activityRepository = activityRepository;
+	}
+
+	public void setCommunicationService(CommunicationService communicationService) {
+		this.communicationService = communicationService;
+	}
+
+	public void setFrom(String from) {
+		this.from = from;
+	}
+
+	public void setUserRepository(UserRepository userRepository) {
+		this.userRepository = userRepository;
+	}
+
+	public void setUsernamesToNotify(List<String> usernamesToNotify) {
+		this.usernamesToNotify = usernamesToNotify;
 	}
 }

@@ -107,6 +107,9 @@ public class OrdenPago {
   @Column(name="closed_automatically")
   private boolean closedAutomatically;
 
+  @Column(name = "times_reopened", nullable = false)
+  private int timesReopened;
+
   /** Default constructor for Hibernate. */
   OrdenPago() {
   }
@@ -208,6 +211,9 @@ public class OrdenPago {
           item.getDebt().asignada();
         }
       }
+    }
+    if (state.getId() == OrderState.ABIERTA) {
+      timesReopened++;
     }
   }
 
