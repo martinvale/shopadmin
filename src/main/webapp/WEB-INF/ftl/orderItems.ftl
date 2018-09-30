@@ -679,6 +679,17 @@ App.widget.OrderItemsEditor = function (container, numeroOrden, items, canEdit) 
       });
     });
 
+    container.find(".js-activity").click(function () {
+    	container.find(".js-activity-log").toggle('slow');
+    	var linkText = $(this).text();
+    	if (linkText == '(mostrar)') {
+    		$(this).text('(ocultar)')
+    	} else {
+    		$(this).text('(mostrar)')
+    	}
+    	return false;
+    });
+
   };
 
   var refreshSummary = function () {
@@ -1099,6 +1110,28 @@ textarea.LV_invalid_field:active {
             </div>
           </li>
         </ul>
+
+        <h2 class="subtitulo">Actividad <a href="#" class="js-activity action">(mostrar)</a></h2>
+        <div class="js-activity-log" style="display:none">
+	      <table summary="Actividad" class="table-form">
+	        <thead>
+	          <tr>
+	            <th scope="col" width="10%">Fecha</th>
+	            <th scope="col">Detalle</th>
+	            <th scope="col">Author</th>
+	          </tr>
+	        </thead>
+	        <tbody>
+	          <#list model["activityLog"] as item>
+	          <tr>
+	            <td>${item.creationTime?string('dd/MM/yyyy')}</td>
+	            <td>${item.detail!''}</td>
+	            <td>${item.author.name}</td>
+	          </tr>
+	          </#list>
+	        </tbody>
+	      </table>
+        </div>
 
       <#if order.estaVerificada() || order.estaCerrada()>
         <h2 class="subtitulo">Forma de pago</h2>
