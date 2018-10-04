@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ibiscus.shopnchek.application.client.SearchClientCommand;
+import com.ibiscus.shopnchek.application.debt.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,16 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ibiscus.shopnchek.application.ResultSet;
-import com.ibiscus.shopnchek.application.debt.AssignDebtCommand;
-import com.ibiscus.shopnchek.application.debt.CreateDebtCommand;
-import com.ibiscus.shopnchek.application.debt.DebtDto;
-import com.ibiscus.shopnchek.application.debt.ExportDebtCommand;
-import com.ibiscus.shopnchek.application.debt.GetDebtCommand;
-import com.ibiscus.shopnchek.application.debt.SaveDebtCommand;
-import com.ibiscus.shopnchek.application.debt.SearchDebtCommand;
-import com.ibiscus.shopnchek.application.debt.SearchDebtDtoCommand;
-import com.ibiscus.shopnchek.application.debt.UpdateImporteDebtCommand;
-import com.ibiscus.shopnchek.application.debt.VisitaDto;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 import com.ibiscus.shopnchek.domain.debt.BranchRepository;
@@ -46,6 +37,7 @@ import com.ibiscus.shopnchek.domain.debt.TipoItem;
 import com.ibiscus.shopnchek.domain.debt.TipoPago;
 import com.ibiscus.shopnchek.domain.security.User;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.ibiscus.shopnchek.domain.debt.Debt.State.creada;
 import static com.ibiscus.shopnchek.domain.debt.Debt.State.pendiente;
@@ -73,6 +65,9 @@ public class DebtController {
 
 	@Autowired
 	private SaveDebtCommand saveDebtCommand;
+
+	@Autowired
+	private ApproveDebtCommand approveDebtCommand;
 
 	@Autowired
 	private UpdateImporteDebtCommand updateImporteDebtCommand;
@@ -357,6 +352,14 @@ public class DebtController {
 		model.addAttribute("tiposPago", TipoPago.values());
 		model.addAttribute("debt", debt);
 		return "redirect:../list";
+	}
+
+	@RequestMapping(value="/approve", method = RequestMethod.POST)
+	public @ResponseBody boolean approve(@ModelAttribute("model") final ModelMap model,
+										 @RequestParam(value="additionalIds[]") Long[] additionalIds) {
+		approveDebtCommand.setDebtIds(newArrayList(additionalIds));
+		approveDebtCommand.execute();
+		return true;
 	}
 
 	@RequestMapping(value="/updateImporte", method = RequestMethod.POST)

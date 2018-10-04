@@ -124,6 +124,34 @@
         var ascending = ${model['ascending']?c};
         var table = App.widget.Table(tableElement, {'orderBy': orderBy, 'ascending': ascending}, form);
         table.render();
+
+        var additionalContainer = jQuery(".js-additionals");
+	    additionalContainer.find(".js-approve-selected").click(function (event) {
+	        var selectedItems = [];
+	        additionalContainer.find(":checked").each(function (index) {
+	          var index = this.id.substring(17);
+	          selectedItems.push(index);
+	        });
+	        jQuery.ajax({
+	          url: "approve",
+	          data: {
+	          	'additionalIds': selectedItems
+	          },
+	          method: 'POST'
+	        }).done(function (data) {
+	          formElement.submit();
+	        })
+	    });
+	    additionalContainer.find(":checkbox").change(function (event) {
+	      var checkedOrders = additionalContainer.find(":checked");
+	      var currentCheckbox = this;
+	      if (this.checked) {
+	        additionalContainer.find(".js-approve-selected").prop("disabled", false);
+	      } else {
+	        additionalContainer.find(".js-approve-selected").prop("disabled", checkedOrders.length == 0);
+	      }
+	    });
+
       });
 
     </script>
@@ -184,61 +212,67 @@
           <li><input type="submit" value="Buscar" class="btn-shop-small"></li>
         </ul>
       </form>
-      <table summary="Lista de adicionales" class="table-form js-results">
-        <thead>
-          <tr>
-            <th scope="col">Shopper</th>
-            <th scope="col"><a id="order-clientDescription" href="#" class="js-order <#if model['orderBy'] == 'clientDescription'>selected</#if>">Cliente <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
-            <th scope="col">Sucursal</th>
-            <th scope="col"><a id="order-tipoPago" href="#" class="js-order <#if model['orderBy'] == 'tipoPago'>selected</#if>">Pago <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
-            <th scope="col">Importe</th>
-            <th scope="col"><a id="order-fecha" href="#" class="js-order <#if model['orderBy'] == 'fecha'>selected</#if>">F. Visita <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
-            <th scope="col">Autoriza</th>
-            <th scope="col">Estado</th>
-          </tr>
-        </thead>
-        <tbody>
-          <#assign resultSet = model["result"] />
-          <#list resultSet.items as item>
-          <tr>
-            <td>${(item.shopperDni)!''} <a href="view/${item.id?c}">editar</a></td>
-            <td>${(item.client.name)!(item.clientDescription)!''}</td>
-            <td>${(item.branch.address)!(item.branchDescription)!''}</td>
-            <td>${item.tipoPago.description}</td>
-            <td>$ ${item.importe?string["0.##"]?replace(',', '.')}</td>
-            <td>${item.fecha?string('dd/MM/yyyy')}</td>
-            <td>${item.usuario!''}</td>
-            <td>${item.estado}</td>
-          </tr>
-          </#list>
-        </tbody>
-      </table>
+      <div class="js-additionals">
+		  <div class="box-green">
+		    <input type="button" value="Aprobar" class="btn-shop-small js-approve-selected" disabled="true" />
+		  </div>
+	      <table summary="Lista de adicionales" class="table-form js-results">
+	        <thead>
+	          <tr>
+		        <th scope="col" style="width: 2%">&nbsp;</th>
+	            <th scope="col">Shopper</th>
+	            <th scope="col"><a id="order-clientDescription" href="#" class="js-order <#if model['orderBy'] == 'clientDescription'>selected</#if>">Cliente <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
+	            <th scope="col">Sucursal</th>
+	            <th scope="col"><a id="order-tipoPago" href="#" class="js-order <#if model['orderBy'] == 'tipoPago'>selected</#if>">Pago <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
+	            <th scope="col">Importe</th>
+	            <th scope="col"><a id="order-fecha" href="#" class="js-order <#if model['orderBy'] == 'fecha'>selected</#if>">F. Visita <i class="fa <#if model['ascending']>fa-angle-up<#else>fa-angle-down</#if>"></i></a></th>
+	            <th scope="col">Autoriza</th>
+	            <th scope="col">Estado</th>
+	          </tr>
+	        </thead>
+	        <tbody>
+	          <#assign resultSet = model["result"] />
+	          <#list resultSet.items as item>
+	          <tr>
+	            <td><input type="checkbox" id="js-selected-item-${item.id?c}" <#if item.estado != 'creada'>disabled="true"</#if>/></td>
+	            <td>${(item.shopperDni)!''} <a href="view/${item.id?c}">editar</a></td>
+	            <td>${(item.client.name)!(item.clientDescription)!''}</td>
+	            <td>${(item.branch.address)!(item.branchDescription)!''}</td>
+	            <td>${item.tipoPago.description}</td>
+	            <td>$ ${item.importe?string["0.##"]?replace(',', '.')}</td>
+	            <td>${item.fecha?string('dd/MM/yyyy')}</td>
+	            <td>${item.usuario!''}</td>
+	            <td>${item.estado}</td>
+	          </tr>
+	          </#list>
+	        </tbody>
+	      </table>
 
-      <div class="paginator">
-        <#assign parameters = "shopperDni=${model['shopperDni']!''}&tipoItem=${model['tipoItem']!''}&tipoPago=${model['tipoPago']!''}&from=${model['from']?string('dd/MM/yyyy')!''}&to=${model['to']?string('dd/MM/yyyy')!''}" />
+	      <div class="paginator">
+	        <#assign parameters = "shopperDni=${model['shopperDni']!''}&tipoItem=${model['tipoItem']!''}&tipoPago=${model['tipoPago']!''}&from=${model['from']?string('dd/MM/yyyy')!''}&to=${model['to']?string('dd/MM/yyyy')!''}" />
 
-        <#if model["page"] &gt; 1>
-          <a href="?page=${(model['page'] - 1)}&${parameters}">&lt;&lt;</a>
-        <#else>
-          <span>&lt;&lt;</span>
-        </#if>
+	        <#if model["page"] &gt; 1>
+	          <a href="?page=${(model['page'] - 1)}&${parameters}">&lt;&lt;</a>
+	        <#else>
+	          <span>&lt;&lt;</span>
+	        </#if>
 
-        <#assign maxIndex = model["page"] * model["pageSize"] />
-        <#if maxIndex &gt; resultSet.count>
-          <#assign maxIndex = resultSet.count />
-          <span>&gt;&gt;</span>
-        <#else>
-          <a href="?page=${(model['page'] + 1)}&${parameters}">&gt;&gt;</a>
-        </#if>
+	        <#assign maxIndex = model["page"] * model["pageSize"] />
+	        <#if maxIndex &gt; resultSet.count>
+	          <#assign maxIndex = resultSet.count />
+	          <span>&gt;&gt;</span>
+	        <#else>
+	          <a href="?page=${(model['page'] + 1)}&${parameters}">&gt;&gt;</a>
+	        </#if>
 
-        <#assign start = 0 />
-        <#if resultSet.count &gt; 0>
-          <#assign start = ((model["page"] - 1) * model["pageSize"]) + 1 />
-        </#if>
-        <span class="resultset">Adicionales de ${(start)?c} a ${maxIndex} de ${resultSet.count}</span>
-        <a class="tool" href="export?${parameters}">descargar</a>
-      </div>
-
+	        <#assign start = 0 />
+	        <#if resultSet.count &gt; 0>
+	          <#assign start = ((model["page"] - 1) * model["pageSize"]) + 1 />
+	        </#if>
+	        <span class="resultset">Adicionales de ${(start)?c} a ${maxIndex} de ${resultSet.count}</span>
+	        <a class="tool" href="export?${parameters}">descargar</a>
+	      </div>
+	  </div>
     </div>
   </body>
 </html>

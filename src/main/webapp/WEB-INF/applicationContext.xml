@@ -269,6 +269,10 @@
     <property name="shopperRepository" ref="shopperRepository" />
   </bean>
 
+  <bean id="approveDebtCommand" class="com.ibiscus.shopnchek.application.debt.ApproveDebtCommand" scope="prototype">
+    <property name="debtRepository" ref="debtRepository" />
+  </bean>
+
   <bean id="updateImporteDebtCommand" class="com.ibiscus.shopnchek.application.debt.UpdateImporteDebtCommand" scope="prototype">
     <property name="debtRepository" ref="debtRepository" />
   </bean>
