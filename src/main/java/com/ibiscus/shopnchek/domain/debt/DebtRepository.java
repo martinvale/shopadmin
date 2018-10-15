@@ -101,6 +101,7 @@ public class DebtRepository extends HibernateDaoSupport {
 		builder.append("left join mcdonalds.dbo.shoppers on (deuda.shopper_dni = shoppers.nro_documento COLLATE Traditional_Spanish_CI_AS) ");
 		builder.append("where deuda.fecha >= :from and deuda.fecha <= :to ");
 		builder.append("and deuda.estado <> 'anulada' ");
+		builder.append("and (clients.country = 'AR' or clients.id is null) ");
 		if (states != null && !states.isEmpty()) {
 			builder.append("and (");
 			for (int i = 0; i < states.size(); i++) {
