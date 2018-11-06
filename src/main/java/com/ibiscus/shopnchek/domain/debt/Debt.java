@@ -279,11 +279,20 @@ public class Debt {
         fechaModificacion = new Date();
     }
 
+    public void reopen() {
+        estado = State.pendiente;
+        fechaModificacion = new Date();
+    }
+
     public boolean isPending() {
         return State.pendiente == estado;
     }
 
     public boolean isCreated() {
         return State.creada == estado;
+    }
+
+    public boolean isCancelled() {
+        return State.anulada == estado;
     }
 }

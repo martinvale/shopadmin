@@ -372,6 +372,9 @@ public class ImportFileCommand implements Command<Boolean> {
                                     subCuestionario, client, client.getName(),
                                     branch, null, null, surveyIdValue.longValue(),
                                     null);
+                            if (debt.isCancelled()) {
+                                debt.reopen();
+                            }
                             long startUpdateTime = System.currentTimeMillis();
                             debtRepository.update(debt);
                             logger.debug("Updating honorarios in {} ms",
@@ -406,6 +409,9 @@ public class ImportFileCommand implements Command<Boolean> {
                                     subCuestionario, client, client.getName(),
                                     branch, null, null, surveyIdValue.longValue(),
                                     null);
+                            if (debt.isCancelled()) {
+                                debt.reopen();
+                            }
                             long startUpdateTime = System.currentTimeMillis();
                             debtRepository.update(debt);
                             logger.debug("Updating reintegros in {} ms",

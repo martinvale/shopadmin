@@ -46,6 +46,14 @@ public class ClientRepository extends HibernateDaoSupport {
 	}
 
 	public void delete(Client client) {
+		SQLQuery query = getSession().createSQLQuery("delete from client_principal where client_id = :clientId");
+		query.setLong("clientId", client.getId());
+		query.executeUpdate();
+
+		query = getSession().createSQLQuery("delete from branchs where client_id = :clientId");
+		query.setLong("clientId", client.getId());
+		query.executeUpdate();
+
 		getHibernateTemplate().delete(client);
 	}
 
@@ -55,9 +63,6 @@ public class ClientRepository extends HibernateDaoSupport {
 		query.setLong("clientId", clientId);
 		query.setLong("newClientId", newClientId);
 		query.executeUpdate();
-
-		query = getSession().createSQLQuery("delete from client_principal where client_id = :clientId");
-		query.setLong("clientId", clientId);
 
 		query = getSession().createSQLQuery("update deuda set client_id = :newClientId "
 				+ "where client_id = :clientId");
