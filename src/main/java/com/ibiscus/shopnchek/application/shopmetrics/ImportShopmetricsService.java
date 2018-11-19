@@ -1,8 +1,5 @@
 package com.ibiscus.shopnchek.application.shopmetrics;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -11,11 +8,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -53,80 +48,49 @@ public class ImportShopmetricsService {
     }
 
     public void importFile(String fileName, InputStream inputStream) {
-        File tempFile = null;
-        FileOutputStream fileOutputStream = null;
-        try {
-            tempFile = File.createTempFile(fileName, null);
-            fileOutputStream = new FileOutputStream(tempFile);
-            IOUtils.copy(inputStream, fileOutputStream);
-        } catch (IOException e) {
-            logger.error("Cannot copy " + fileName + " to temp file", e);
-        } finally {
-            IOUtils.closeQuietly(fileOutputStream);
-            IOUtils.closeQuietly(inputStream);
-        }
+        logger.info("Staring to import task: {}", fileName);
 
         String processName = taskService.createTask(fileName);
-
         double startTime = System.currentTimeMillis();
-        importFile(processName, tempFile);
+        try {
+            processFile(processName, inputStream);
+        } catch (Exception e) {
+            taskService.updateTaskErrorMessage(processName, "Invalid import file: " + fileName);
+            throw new RuntimeException("Cannot read the XLS file", e);
+        }
         logger.debug("File processed in {} ms", System.currentTimeMillis() - startTime);
     }
 
-    private void importFile(final String name, final File file) {
-        logger.info("Staring to import task: {}", name);
-
-        Workbook workbook;
-        Sheet sheet;
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(file);
-            workbook = WorkbookFactory.create(fileInputStream);
-            sheet = workbook.getSheetAt(2);
-        } catch (IOException e) {
-            taskService.updateTaskErrorMessage(name, "Invalid import file: " + name);
-            throw new RuntimeException("Cannot read the XLS file", e);
-        } catch (InvalidFormatException e) {
-            taskService.updateTaskErrorMessage(name, "Invalid import file: " + name);
-            throw new RuntimeException("Cannot open the XLS file", e);
-        } finally {
-            IOUtils.closeQuietly(fileInputStream);
-        }
-
-        CreationHelper creationHelper = workbook.getCreationHelper();
-        CellStyle theCellStyle = workbook.createCellStyle();
-        Iterator<Row> rowIterator = sheet.rowIterator();
-        int rowCount = sheet.getLastRowNum();
-        int currentRowIndex = 0;
-        int intervalRowCount = (5 * rowCount) / 100;
-        if (intervalRowCount == 0) {
-            intervalRowCount = 1;
-        }
-
-        Row row = rowIterator.next();
-        Map<Integer, Integer> headers = getCellHeaders(row);
-
-        theCellStyle.setDataFormat(creationHelper.createDataFormat().getFormat(
-                "yyyy-mm-dd"));
-
+    private void processFile(String name, InputStream inputStream) throws IOException, InvalidFormatException {
         List<ShopmetricsUserDto> users = new LinkedList<ShopmetricsUserDto>();
-
-        taskService.start(name);
-        boolean salir = false;
+        OPCPackage opcPackage = OPCPackage.open(inputStream);
         try {
+            Workbook workbook = WorkbookFactory.create(opcPackage);
+            Sheet sheet = workbook.getSheetAt(2);
+
+            Iterator<Row> rowIterator = sheet.rowIterator();
+            int rowCount = sheet.getLastRowNum();
+            int currentRowIndex = 0;
+            int intervalRowCount = (5 * rowCount) / 100;
+            if (intervalRowCount == 0) {
+                intervalRowCount = 1;
+            }
+
+            Row row = rowIterator.next();
+            Map<Integer, Integer> headers = getCellHeaders(row);
+
+            taskService.start(name);
+            boolean salir = false;
             while (rowIterator.hasNext() && !salir) {
                 row = rowIterator.next();
                 currentRowIndex++;
                 try {
                     long startTime = System.currentTimeMillis();
                     salir = visitService.importRow(headers, row);
-                    logger.debug("Row import total time: {} ms",
-                            System.currentTimeMillis() - startTime);
+                    logger.debug("Row import total time: {} ms", System.currentTimeMillis() - startTime);
                 } catch (ShopperNotFoundException e) {
-                    logger.warn("Cannot import Shopmetrics item for shopper with login "
-                            + e.getIdentifier());
-                    users.add(new ShopmetricsUserDto(e.getIdentifier(), null,
-                            null));
+                    logger.warn("Cannot import Shopmetrics item for shopper with login ", e.getIdentifier());
+                    users.add(new ShopmetricsUserDto(e.getIdentifier(),null,null));
                 }
                 if ((currentRowIndex % intervalRowCount) == 0) {
                     taskService.updatePorcentage(name, (currentRowIndex * 100) / rowCount);
@@ -135,6 +99,7 @@ public class ImportShopmetricsService {
         } catch (Exception e) {
             logger.error("Cannot import file " + name, e);
         } finally {
+            opcPackage.close();
             logger.info("Finish file {} import", name);
         }
         taskService.finish(name, users);
@@ -147,7 +112,7 @@ public class ImportShopmetricsService {
 
         int currentPos = 0;
         while (cellIterator.hasNext()) {
-            Cell cell = (Cell) cellIterator.next();
+            Cell cell = cellIterator.next();
             if (cell.getStringCellValue().equalsIgnoreCase("Survey ID")) {
                 headers.put(ColSurveyID, currentPos);
             }

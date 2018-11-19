@@ -61,7 +61,6 @@ public class ImportController {
     InputStream inputStream = null;
     try {
       inputStream = file.getInputStream();
-      //String processName = importService.process(file.getOriginalFilename(), inputStream, context);
       importShopmetricsService.importFile(file.getOriginalFilename(), inputStream);
       IOUtils.closeQuietly(inputStream);
       List<BatchTaskStatus> tasks = batchTaskStatusRepository.find();
