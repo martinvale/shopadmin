@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.servlet.ServletContext;
 
+import com.ibiscus.shopnchek.application.shopmetrics.ImportShopmetricsService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ibiscus.shopnchek.application.Command;
-import com.ibiscus.shopnchek.application.shopmetrics.ImportFileCommand;
 import com.ibiscus.shopnchek.application.shopmetrics.ImportService;
 import com.ibiscus.shopnchek.domain.security.User;
 import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatus;
@@ -32,7 +31,7 @@ public class ImportController {
   private ImportService importService;
 
   @Autowired
-  private ImportFileCommand importFileCommand;
+  private ImportShopmetricsService importShopmetricsService;
 
   @Autowired
   private BatchTaskStatusRepository batchTaskStatusRepository;
@@ -63,9 +62,7 @@ public class ImportController {
     try {
       inputStream = file.getInputStream();
       //String processName = importService.process(file.getOriginalFilename(), inputStream, context);
-      importFileCommand.setFileName(file.getOriginalFilename());
-      importFileCommand.setInputStream(inputStream);
-      importFileCommand.execute();
+      importShopmetricsService.importFile(file.getOriginalFilename(), inputStream);
       IOUtils.closeQuietly(inputStream);
       List<BatchTaskStatus> tasks = batchTaskStatusRepository.find();
       model.addAttribute("tasks", tasks);

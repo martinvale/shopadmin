@@ -162,11 +162,23 @@
 
   <bean id="importerService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportService">
     <property name="orderRepository" ref="orderRepository" />
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="proveedorRepository" ref="proveedorRepository" />
+  </bean>
+
+  <bean id="importShopmetricsService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportShopmetricsService">
+    <constructor-arg ref="visitService" />
+    <constructor-arg ref="taskService" />
+  </bean>
+
+  <bean id="visitService" class="com.ibiscus.shopnchek.application.shopmetrics.VisitService">
     <property name="debtRepository" ref="debtRepository" />
     <property name="clientRepository" ref="clientRepository" />
     <property name="branchRepository" ref="branchRepository" />
     <property name="shopperRepository" ref="shopperRepository" />
-    <property name="proveedorRepository" ref="proveedorRepository" />
+  </bean>
+
+  <bean id="taskService" class="com.ibiscus.shopnchek.application.shopmetrics.TaskService">
     <property name="batchTaskStatusRepository" ref="batchTaskStatusRepository" />
   </bean>
 
@@ -367,14 +379,6 @@
 
   <bean id="searchProveedorCommand" class="com.ibiscus.shopnchek.application.proveedor.SearchProveedorCommand" scope="prototype">
     <property name="proveedorRepository" ref="proveedorRepository" />
-  </bean>
-
-  <bean id="importFileCommand" class="com.ibiscus.shopnchek.application.shopmetrics.ImportFileCommand" scope="prototype">
-    <property name="debtRepository" ref="debtRepository" />
-    <property name="clientRepository" ref="clientRepository" />
-    <property name="branchRepository" ref="branchRepository" />
-    <property name="shopperRepository" ref="shopperRepository" />
-    <property name="batchTaskStatusRepository" ref="batchTaskStatusRepository" />
   </bean>
 
   <bean id="fileImportTask" class="com.ibiscus.shopnchek.application.shopmetrics.FileImportTask">

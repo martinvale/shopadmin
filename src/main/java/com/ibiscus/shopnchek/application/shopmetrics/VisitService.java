@@ -1,52 +1,20 @@
 package com.ibiscus.shopnchek.application.shopmetrics;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import com.ibiscus.shopnchek.application.Command;
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
-import com.ibiscus.shopnchek.domain.debt.Branch;
-import com.ibiscus.shopnchek.domain.debt.BranchRepository;
-import com.ibiscus.shopnchek.domain.debt.Client;
-import com.ibiscus.shopnchek.domain.debt.ClientRepository;
-import com.ibiscus.shopnchek.domain.debt.Debt;
-import com.ibiscus.shopnchek.domain.debt.DebtRepository;
-import com.ibiscus.shopnchek.domain.debt.TipoItem;
-import com.ibiscus.shopnchek.domain.debt.TipoPago;
-import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatus;
-import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatusRepository;
+import com.ibiscus.shopnchek.domain.debt.*;
+import org.apache.poi.ss.usermodel.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 
-public class ImportFileCommand implements Command<Boolean> {
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-    private static final Logger logger = LoggerFactory
-            .getLogger(ImportFileCommand.class);
+public class VisitService {
+
+    private static final Logger logger = LoggerFactory.getLogger(VisitService.class);
 
     private static final int ColSurveyID = 0;
     private static final int ColCliente = 1;
@@ -74,162 +42,8 @@ public class ImportFileCommand implements Command<Boolean> {
 
     private ShopperRepository shopperRepository;
 
-    private BatchTaskStatusRepository batchTaskStatusRepository;
-
-    private String fileName;
-
-    private InputStream inputStream;
-
-    @Override
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    public Boolean execute() {
-        String processName = null;
-        File tempFile = null;
-        FileOutputStream fileOutputStream = null;
-        try {
-            tempFile = File.createTempFile(fileName, null);
-            fileOutputStream = new FileOutputStream(tempFile);
-            IOUtils.copy(inputStream, fileOutputStream);
-        } catch (IOException e) {
-            logger.error("Cannot copy " + fileName + " to temp file", e);
-        } finally {
-            IOUtils.closeQuietly(fileOutputStream);
-            IOUtils.closeQuietly(inputStream);
-        }
-
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm");
-        processName = fileName + dateFormat.format(new Date());
-        BatchTaskStatus batchTaskStatus = new BatchTaskStatus(processName);
-        batchTaskStatusRepository.save(batchTaskStatus);
-
-        importFile(processName, tempFile);
-
-        return true;
-    }
-
-    private void importFile(final String name, final File file) {
-        logger.info("Staring to import task: {}", name);
-
-        Workbook workbook;
-        Sheet sheet;
-        FileInputStream fileInputStream = null;
-        try {
-            fileInputStream = new FileInputStream(file);
-            workbook = WorkbookFactory.create(fileInputStream);
-            sheet = workbook.getSheetAt(2);
-        } catch (IOException e) {
-            updateTaskErrorMessage(name, "Invalid import file: " + name);
-            throw new RuntimeException("Cannot read the XLS file", e);
-        } catch (InvalidFormatException e) {
-            updateTaskErrorMessage(name, "Invalid import file: " + name);
-            throw new RuntimeException("Cannot open the XLS file", e);
-        } finally {
-            IOUtils.closeQuietly(fileInputStream);
-        }
-
-        CreationHelper creationHelper = workbook.getCreationHelper();
-        CellStyle theCellStyle = workbook.createCellStyle();
-        Iterator<Row> rowIterator = sheet.rowIterator();
-        int rowCount = sheet.getLastRowNum();
-        int currentRowIndex = 0;
-        int intervalRowCount = (5 * rowCount) / 100;
-        if (intervalRowCount == 0) {
-            intervalRowCount = 1;
-        }
-
-        Row row = (Row) rowIterator.next();
-        Map<Integer, Integer> headers = getCellHeaders(row);
-
-        theCellStyle.setDataFormat(creationHelper.createDataFormat().getFormat(
-                "yyyy-mm-dd"));
-
-        List<ShopmetricsUserDto> users = new LinkedList<ShopmetricsUserDto>();
-
-        start(name);
-        boolean salir = false;
-        try {
-            while (rowIterator.hasNext() && !salir) {
-                row = (Row) rowIterator.next();
-                currentRowIndex++;
-                try {
-                    long startTime = System.currentTimeMillis();
-                    salir = addRow(headers, row);
-                    logger.debug("Row import total time: {} ms",
-                            System.currentTimeMillis() - startTime);
-                } catch (ShopperNotFoundException e) {
-                    logger.warn("Cannot import Shopmetrics item for shopper with login "
-                            + e.getIdentifier());
-                    users.add(new ShopmetricsUserDto(e.getIdentifier(), null,
-                            null));
-                }
-                if ((currentRowIndex % intervalRowCount) == 0) {
-                    updatePorcentage(name, (currentRowIndex * 100) / rowCount);
-                }
-            }
-        } catch (Exception e) {
-            logger.error("Cannot import file " + name, e);
-        } finally {
-            logger.info("Finish file {} import", name);
-        }
-        finish(name, users);
-    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    private void updateTaskErrorMessage(final String name,
-            final String errorMessage) {
-        BatchTaskStatus batchTaskStatus = batchTaskStatusRepository
-                .getByName(name);
-        batchTaskStatus.error(errorMessage);
-        batchTaskStatusRepository.update(batchTaskStatus);
-    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    private void updatePorcentage(final String name, final int porcentage) {
-        BatchTaskStatus batchTaskStatus = batchTaskStatusRepository
-                .getByName(name);
-        batchTaskStatus.setProcentage(porcentage);
-        batchTaskStatusRepository.update(batchTaskStatus);
-    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    private void start(final String name) {
-        BatchTaskStatus batchTaskStatus = batchTaskStatusRepository
-                .getByName(name);
-        batchTaskStatus.start();
-        batchTaskStatusRepository.update(batchTaskStatus);
-    }
-
-    private String getImportErrorInfo(final List<ShopmetricsUserDto> users) {
-        String additionalInfo = null;
-        if (!users.isEmpty()) {
-            StringBuilder builder = new StringBuilder("[");
-            boolean first = true;
-            for (ShopmetricsUserDto userDto : users) {
-                if (!first) {
-                    builder.append(",");
-                }
-                first = false;
-                builder.append("\"");
-                builder.append(userDto.getLogin());
-                builder.append("\"");
-            }
-            builder.append("]");
-            additionalInfo = builder.toString();
-        }
-        return additionalInfo;
-    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    private void finish(final String name, final List<ShopmetricsUserDto> users) {
-        BatchTaskStatus batchTaskStatus = batchTaskStatusRepository
-                .getByName(name);
-        batchTaskStatus.finish();
-        batchTaskStatus.setAdditionalInfo(getImportErrorInfo(users));
-        batchTaskStatusRepository.update(batchTaskStatus);
-    }
-
-    @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
-    private boolean addRow(final Map<Integer, Integer> headers, final Row row) {
+    @Transactional
+    public boolean importRow(final Map<Integer, Integer> headers, final Row row) {
         boolean end = false;
         Cell cell = row.getCell(headers.get(ColSurveyID));
         Double surveyIdValue = null;
@@ -455,66 +269,6 @@ public class ImportFileCommand implements Command<Boolean> {
         return end;
     }
 
-    private Map<Integer, Integer> getCellHeaders(final Row row) {
-        Map<Integer, Integer> headers = new HashMap<Integer, Integer>();
-
-        Iterator<Cell> cellIterator = row.cellIterator();
-
-        int currentPos = 0;
-        while (cellIterator.hasNext()) {
-            Cell cell = (Cell) cellIterator.next();
-            if (cell.getStringCellValue().equalsIgnoreCase("Survey ID")) {
-                headers.put(ColSurveyID, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Client")) {
-                headers.put(ColCliente, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Login")) {
-                headers.put(Collogin, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("First Name")) {
-                headers.put(ColNombre, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Last Name")) {
-                headers.put(ColApellido, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("PayRate")) {
-                headers.put(ColHonorarios, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase(
-                    "Purchase Reimbursement")) {
-                headers.put(ColReintegros, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Currency")) {
-                headers.put(Colmoneda, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Ok Pay")) {
-                headers.put(ColOK_Pay, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Survey Date")) {
-                headers.put(ColFecha, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Survey")) {
-                headers.put(ColSubcuestionario, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Store ID")) {
-                headers.put(ColIDSucursal, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Location Name")) {
-                headers.put(ColNombreSucursal, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("Address")) {
-                headers.put(ColDireccionSucursal, currentPos);
-            }
-            if (cell.getStringCellValue().equalsIgnoreCase("City")) {
-                headers.put(ColCiudadSucursal, currentPos);
-            }
-
-            currentPos++;
-        }
-        return headers;
-    }
-
     public void setDebtRepository(DebtRepository debtRepository) {
         this.debtRepository = debtRepository;
     }
@@ -530,18 +284,4 @@ public class ImportFileCommand implements Command<Boolean> {
     public void setShopperRepository(ShopperRepository shopperRepository) {
         this.shopperRepository = shopperRepository;
     }
-
-    public void setBatchTaskStatusRepository(
-            BatchTaskStatusRepository batchTaskStatusRepository) {
-        this.batchTaskStatusRepository = batchTaskStatusRepository;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    public void setInputStream(InputStream inputStream) {
-        this.inputStream = inputStream;
-    }
-
 }
