@@ -688,4 +688,14 @@ public class OrdenPagoController {
             throw new RuntimeException("Cannot write the XLS file", e);
         }
     }
+    @RequestMapping(value = "/mark")
+    public String mark(@ModelAttribute("model") final ModelMap model) {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        model.addAttribute("user", user);
+        model.addAttribute("mediosPago", orderRepository.findMediosPago());
+        importService.mark();
+        return "createOrder";
+    }
+
 }

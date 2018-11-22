@@ -11,14 +11,10 @@ import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import javax.servlet.ServletContext;
+import javax.sql.DataSource;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.Validate;
@@ -36,6 +32,7 @@ import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFColor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +58,10 @@ import com.ibiscus.shopnchek.domain.tasks.BatchTaskStatusRepository;
 public class ImportService {
 
     private final Logger logger = LoggerFactory.getLogger(ImportService.class);
+
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     private enum Position {
         ODD(1), EVEN(0);
@@ -90,6 +91,8 @@ public class ImportService {
     private ShopperRepository shopperRepository;
 
     private ProveedorRepository proveedorRepository;
+
+    private DataSource dataSource;
 
     // private ExecutorService executor = Executors.newFixedThreadPool(10);
 
@@ -389,5 +392,22 @@ public class ImportService {
         }
 
         return cellStyles;
+    }
+
+    public void mark() {
+        Set<Long> processedDebtIds = new HashSet<Long>();
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        List<Map<String, Object>> result = jdbcTemplate.queryForList("select distinct i.orden_nro, i.id, i.debt_id from items_orden i\n" +
+                "where i.debt_id in (select debt_id from items_orden where orden_nro is not null group by debt_id having count(debt_id) > 1)\n" +
+                "order by i.id desc");
+        for (Map<String, Object> row : result) {
+            Long debtId = (Long) row.get("debt_id");
+            if (processedDebtIds.contains(debtId)) {
+                int affected = jdbcTemplate.update("update items_orden set marked = 1 where id = ?", row.get("id"));
+                logger.info("marked {} row", affected);
+            } else {
+                processedDebtIds.add(debtId);
+            }
+        }
     }
 }

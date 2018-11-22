@@ -164,6 +164,7 @@
     <property name="orderRepository" ref="orderRepository" />
     <property name="shopperRepository" ref="shopperRepository" />
     <property name="proveedorRepository" ref="proveedorRepository" />
+    <property name="dataSource" ref="dataSource" />
   </bean>
 
   <bean id="importShopmetricsService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportShopmetricsService">
