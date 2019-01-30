@@ -98,7 +98,7 @@ public class DebtRepository extends HibernateDaoSupport {
 		builder.append("sum(case when deuda.tipo_pago = 'otrosgastos' then deuda.importe else 0 end) as otros ");
 		builder.append("from deuda ");
 		builder.append("left join clients on (deuda.client_id = clients.id or deuda.client_description = clients.name) ");
-		builder.append("left join mcdonalds.dbo.shoppers on (deuda.shopper_dni = shoppers.nro_documento COLLATE Traditional_Spanish_CI_AS) ");
+		builder.append("left join shoppers on (deuda.shopper_dni = shoppers.identity_id) ");
 		builder.append("where deuda.fecha >= :from and deuda.fecha <= :to ");
 		builder.append("and deuda.estado <> 'anulada' ");
 		builder.append("and (clients.country = 'AR' or clients.id is null) ");

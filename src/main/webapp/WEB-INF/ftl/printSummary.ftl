@@ -108,7 +108,7 @@
               <td>${row.getValue("name")!''}</td>
             </#if>
             <#if model["includeShopper"]!false>
-              <td>${row.getValue("apellido_y_nombre")!''}</td>
+              <td>${row.getValue("surname")!''} ${row.getValue("firstName")!''}</td>
             </#if>
               <td>$ ${row.getValue("honorarios")?string(",##0.00")}</td>
               <#assign honorariosAnio = honorariosAnio + row.getValue("honorarios") />

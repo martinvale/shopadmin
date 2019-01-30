@@ -42,7 +42,7 @@ public class SearchTitularCommand extends SearchCommand<TitularDTO> {
         List<Shopper> shoppers = shopperRepository.find(name);
         for (Shopper shopper : shoppers) {
             titulares.add(getTitularDTO(shopper.getId(), TitularDTO.SHOPPER,
-                    shopper.getName(), shopper.getEmail(), shopper.getLogin()));
+                    shopper.getName(), shopper.getEmail(), shopper.getLoginShopmetrics()));
         }
         Collections.sort(titulares, new Comparator<TitularDTO>() {
 

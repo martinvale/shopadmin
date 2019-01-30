@@ -3,8 +3,6 @@ package com.ibiscus.shopnchek.web.controller.site;
 import java.io.InputStream;
 import java.util.List;
 
-import javax.servlet.ServletContext;
-
 import com.ibiscus.shopnchek.application.shopmetrics.ImportShopmetricsService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +33,6 @@ public class ImportController {
 
   @Autowired
   private BatchTaskStatusRepository batchTaskStatusRepository;
-
-  @Autowired
-  private ServletContext context;
 
   @RequestMapping(value="/shopmetrics")
   public String renderShopmetrics(

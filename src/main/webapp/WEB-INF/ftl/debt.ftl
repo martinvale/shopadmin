@@ -28,7 +28,7 @@ App.widget.AdicionalEditor = function (container) {
   var branchSelector = container.find(".js-sucursales");
 
   var shopperSelector = new App.widget.ShopperSelector(
-      container.find(".js-shopper-selector"), false, "<@spring.url '/services/shoppers/suggest' />");
+      container.find(".js-shopper-selector"), false, "<@spring.url '/shoppers/suggest' />");
 
   var validations = [];
 

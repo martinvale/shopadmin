@@ -8,16 +8,19 @@ import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+
 public class ShopperRepository extends HibernateDaoSupport {
 
   @SuppressWarnings("unchecked")
   public List<Shopper> find(final String pattern) {
     Criteria criteria = getSession().createCriteria(Shopper.class);
-    criteria.add(Expression.eq("pais", 1));
-    if (pattern != null && !pattern.isEmpty()) {
-      criteria.add(Expression.like("name", pattern + "%"));
+    criteria.add(Expression.eq("country", 1));
+    if (isNotEmpty(pattern)) {
+      criteria.add(Expression.like("surname", pattern + "%"));
     }
-    criteria.addOrder(Order.asc("name"));
+    criteria.addOrder(Order.asc("surname"));
+    criteria.addOrder(Order.asc("firstName"));
     return (List<Shopper>) criteria.list();
   }
 
@@ -25,14 +28,8 @@ public class ShopperRepository extends HibernateDaoSupport {
   public Shopper findByDni(final String dni) {
     Validate.notNull(dni, "The shopper dni cannot be null");
     Criteria criteria = getSession().createCriteria(Shopper.class);
-    criteria.add(Expression.eq("dni", dni));
-    Shopper shopper = null;
-    //TODO Volver a usar unique result cuando arreglen la base de shoppers
-    List<Shopper> shoppers = criteria.list();
-    if (shoppers.size() > 0) {
-    	shopper = shoppers.get(0);
-    }
-    return shopper;
+    criteria.add(Expression.eq("identityId", dni));
+    return (Shopper) criteria.uniqueResult();
   }
 
   @SuppressWarnings("unchecked")
@@ -40,17 +37,14 @@ public class ShopperRepository extends HibernateDaoSupport {
     Validate.notNull(login, "The login id cannot be null");
     Criteria criteria = getSession().createCriteria(Shopper.class);
     criteria.add(Expression.eq("login", login));
-    Shopper shopper = null;
-    //TODO Volver a usar unique result cuando arreglen la base de shoppers
-    List<Shopper> shoppers = criteria.list();
-    if (shoppers.size() > 0) {
-    	shopper = shoppers.get(0);
-    }
-    return shopper;
+    return (Shopper) criteria.uniqueResult();
   }
 
   public Shopper get(final long id) {
     return (Shopper) getSession().get(Shopper.class, id);
   }
 
+    public void save(Shopper shopper) {
+      getSession().save(shopper);
+    }
 }

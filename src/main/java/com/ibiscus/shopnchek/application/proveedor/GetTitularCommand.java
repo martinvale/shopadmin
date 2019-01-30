@@ -35,7 +35,7 @@ public class GetTitularCommand implements Command<TitularDTO> {
         if (titularTipo == 1) {
             Shopper shopper = shopperRepository.get(titularId);
             titularNombre = shopper.getName();
-            loginShopmetrics = shopper.getLogin();
+            loginShopmetrics = shopper.getLoginShopmetrics();
             email = shopper.getEmail();
         } else {
             Proveedor proveedor = proveedorRepository.get(titularId);

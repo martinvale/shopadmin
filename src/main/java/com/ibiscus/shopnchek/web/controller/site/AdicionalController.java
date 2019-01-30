@@ -1,9 +1,6 @@
 package com.ibiscus.shopnchek.web.controller.site;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,6 +29,8 @@ import com.ibiscus.shopnchek.domain.security.User;
 import com.ibiscus.shopnchek.domain.security.UserRepository;
 import com.ibiscus.shopnchek.domain.util.ResultSet;
 
+import static java.util.Collections.emptyList;
+
 @Controller
 @RequestMapping("/adicional")
 public class AdicionalController {
@@ -43,10 +42,6 @@ public class AdicionalController {
   @Autowired
   private OrderRepository orderRepository;
 
-  /** Repository of sucursales MCD. */
-  @Autowired
-  private SucursalMCDRepository sucursalMCDRepository;
-
   /** Repository of sucursales Shopmetrics. */
   @Autowired
   private SucursalShopmetricsRepository sucursalShopmetricsRepository;
@@ -56,8 +51,8 @@ public class AdicionalController {
   private ShopperRepository shopperRepository;
 
   /** Repository of programs. */
-  @Autowired
-  private ProgramRepository programRepository;
+  /*@Autowired
+  private ProgramRepository programRepository;*/
 
   /** Repository of item order. */
   @Autowired
@@ -73,7 +68,7 @@ public class AdicionalController {
         .getPrincipal();
     model.addAttribute("user", user);
 
-    List<Programa> programas = programRepository.find();
+    List<Programa> programas = emptyList();
     model.addAttribute("programas", programas);
 
     List<ClienteShopmetrics> clientes = itemOrdenRepository.findClientes();
@@ -85,7 +80,7 @@ public class AdicionalController {
     List<Shopper> shoppers = shopperRepository.find(null);
     model.addAttribute("shoppers", shoppers);
 
-    List<SucursalMCD> sucursalesMCD = sucursalMCDRepository.find();
+    List<SucursalMCD> sucursalesMCD = emptyList();
     model.addAttribute("sucursalesMCD", sucursalesMCD);
 
     List<SucursalShopmetrics> sucursalesShopmetrics = sucursalShopmetricsRepository.find();
@@ -102,7 +97,7 @@ public class AdicionalController {
         .getPrincipal();
     model.addAttribute("user", user);
 
-    List<Programa> programas = programRepository.find();
+    List<Programa> programas = emptyList();
     model.addAttribute("programas", programas);
 
     List<ClienteShopmetrics> clientes = itemOrdenRepository.findClientes();
@@ -114,7 +109,7 @@ public class AdicionalController {
     List<Shopper> shoppers = shopperRepository.find(null);
     model.addAttribute("shoppers", shoppers);
 
-    List<SucursalMCD> sucursalesMCD = sucursalMCDRepository.find();
+    List<SucursalMCD> sucursalesMCD = emptyList();
     model.addAttribute("sucursalesMCD", sucursalesMCD);
 
     List<SucursalShopmetrics> sucursalesShopmetrics = sucursalShopmetricsRepository.find();
@@ -149,7 +144,7 @@ public class AdicionalController {
         .getPrincipal();
     model.addAttribute("user", user);
 
-    List<Programa> programas = programRepository.find();
+    List<Programa> programas = emptyList();
     model.addAttribute("programas", programas);
 
     List<ClienteShopmetrics> clientes = itemOrdenRepository.findClientes();
@@ -161,7 +156,7 @@ public class AdicionalController {
     List<Shopper> shoppers = shopperRepository.find(null);
     model.addAttribute("shoppers", shoppers);
 
-    List<SucursalMCD> sucursalesMCD = sucursalMCDRepository.find();
+    List<SucursalMCD> sucursalesMCD = emptyList();
     model.addAttribute("sucursalesMCD", sucursalesMCD);
 
     List<SucursalShopmetrics> sucursalesShopmetrics = sucursalShopmetricsRepository.find();
@@ -171,10 +166,7 @@ public class AdicionalController {
       clienteId = -1;
     }
     if (tipoItem == 2) {
-      Programa programa = programRepository.get(clienteId);
-      clienteNombre = programa.getNombre();
-      SucursalMCD sucursal = sucursalMCDRepository.get(sucursalId);
-      sucursalNombre = sucursal.getDescription();
+      throw new UnsupportedOperationException("Cannot create this kind of additional");
     } else if (tipoItem == 5) {
       ClienteShopmetrics client = itemOrdenRepository.getCliente(clienteId);
       clienteNombre = client.getNombre();

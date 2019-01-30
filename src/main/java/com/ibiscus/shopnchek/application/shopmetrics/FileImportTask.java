@@ -330,14 +330,14 @@ public class FileImportTask implements Runnable {
 					logger.debug("Getting honorarios in {} ms", System.currentTimeMillis() - startGetTime);
 					if (debt == null) {
 						debt = new Debt(TipoItem.shopmetrics,
-								TipoPago.honorarios, shopper.getDni(),
+								TipoPago.honorarios, shopper.getIdentityId(),
 								honorarios, fecha, null, subCuestionario,
 								client, null, branch, null,
 								surveyIdValue.longValue(), null);
 						debtRepository.save(debt);
 					} else {
 						debt.update(TipoItem.shopmetrics, TipoPago.honorarios,
-								shopper.getDni(), honorarios, fecha, null,
+								shopper.getIdentityId(), honorarios, fecha, null,
 								subCuestionario, client, null, branch, null,
 								null, surveyIdValue.longValue(), null);
 						long startUpdateTime = System.currentTimeMillis();
@@ -356,14 +356,14 @@ public class FileImportTask implements Runnable {
 					logger.debug("Getting reintegros in {} ms", System.currentTimeMillis() - startGetTime);
 					if (debt == null) {
 						debt = new Debt(TipoItem.shopmetrics,
-								TipoPago.reintegros, shopper.getDni(),
+								TipoPago.reintegros, shopper.getIdentityId(),
 								reintegros, fecha, null, subCuestionario,
 								client, null, branch, null,
 								surveyIdValue.longValue(), null);
 						debtRepository.save(debt);
 					} else {
 						debt.update(TipoItem.shopmetrics, TipoPago.reintegros,
-								shopper.getDni(), reintegros, fecha, null,
+								shopper.getIdentityId(), reintegros, fecha, null,
 								subCuestionario, client, null, branch, null,
 								null, surveyIdValue.longValue(), null);
 						long startUpdateTime = System.currentTimeMillis();

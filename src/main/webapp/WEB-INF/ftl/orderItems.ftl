@@ -58,7 +58,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
   });
 
   var shopperSelector = new App.widget.ShopperSelector(container.find(".js-shopper-selector"),
-      false, "<@spring.url '/services/shoppers/suggest'/>");
+      false, "<@spring.url '/shoppers/suggest'/>");
 
   var createEndpoints = {
     1: 'create',

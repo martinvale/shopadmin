@@ -23,6 +23,7 @@ import com.ibiscus.shopnchek.domain.util.Row;
 
 import static com.ibiscus.shopnchek.domain.debt.Debt.State.asignada;
 import static com.ibiscus.shopnchek.domain.debt.Debt.State.pagada;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 public class ReportService {
 
@@ -137,8 +138,9 @@ public class ReportService {
             orderBy.add("clients.id");
         }
         if (includeShopper) {
-            orderBy.add("shoppers.apellido_y_nombre");
-            orderBy.add("shoppers.nro_documento");
+            orderBy.add("shoppers.surname");
+            orderBy.add("shoppers.firstName");
+            orderBy.add("shoppers.identity_id");
         }
         return orderBy;
     }
@@ -148,13 +150,25 @@ public class ReportService {
             Key key = new Key((Integer) row.getValue("year"),
                     (Integer) row.getValue("month"), (BigInteger) row.getValue("id"),
                     (String) row.getValue("name"),
-                    (String) row.getValue("nro_documento"),
-                    (String) row.getValue("apellido_y_nombre"));
+                    (String) row.getValue("identity_id"),
+                    getFullName((String) row.getValue("surname"), (String) row.getValue("firstName")));
             SummaryValue sustraendo = new SummaryValue((Double) row.getValue("honorarios"),
                     (Double) row.getValue("reintegros"), (Double) row.getValue("otros"));
 
             report.updateSustraendo(key, sustraendo);
         }
+    }
+
+    private String getFullName(String surname, String firstName) {
+        StringBuilder builder = new StringBuilder();
+        if (isNotEmpty(surname)) {
+            builder.append(surname);
+        }
+        if (isNotEmpty(firstName)) {
+            builder.append(", ");
+            builder.append(firstName);
+        }
+        return builder.toString();
     }
 
     private Report getReport(List<Row> productionRows) {
@@ -163,8 +177,8 @@ public class ReportService {
             Key key = new Key((Integer) row.getValue("year"),
                     (Integer) row.getValue("month"), (BigInteger) row.getValue("id"),
                     (String) row.getValue("name"),
-                    (String) row.getValue("nro_documento"),
-                    (String) row.getValue("apellido_y_nombre"));
+                    (String) row.getValue("identity_id"),
+                    getFullName((String) row.getValue("surname"), (String) row.getValue("firstName")));
             SummaryValue minuendo = new SummaryValue((Double) row.getValue("honorarios"),
                     (Double) row.getValue("reintegros"), (Double) row.getValue("otros"));
             RowValues rowValues = new RowValues(key, minuendo);

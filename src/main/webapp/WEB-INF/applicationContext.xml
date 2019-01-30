@@ -107,15 +107,7 @@
   </bean>
 
   <bean id="shopperRepository" class="com.ibiscus.shopnchek.domain.admin.ShopperRepository">
-    <property name="sessionFactory" ref="sessionFactory2"></property>
-  </bean>
-
-  <bean id="programRepository" class="com.ibiscus.shopnchek.domain.admin.ProgramRepository">
-    <property name="sessionFactory" ref="sessionFactory2"></property>
-  </bean>
-
-  <bean id="sucursalMCDRepository" class="com.ibiscus.shopnchek.domain.admin.SucursalMCDRepository">
-    <property name="sessionFactory" ref="sessionFactory2"></property>
+    <property name="sessionFactory" ref="sessionFactory"></property>
   </bean>
 
   <bean id="feedRepository" class="com.ibiscus.shopnchek.domain.debt.FeedRepository">
@@ -343,6 +335,18 @@
     <property name="roleRepository" ref="roleRepository" />
   </bean>
 
+  <bean id="getShopperCommand" class="com.ibiscus.shopnchek.application.shopper.GetShopperCommand">
+    <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
+  <bean id="searchShopperCommand" class="com.ibiscus.shopnchek.application.shopper.SearchShopperCommand">
+    <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
+  <bean id="createShopperCommand" class="com.ibiscus.shopnchek.application.shopper.CreateShopperCommand">
+    <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
   <bean id="saveShopperCommand" class="com.ibiscus.shopnchek.application.shopper.SaveShopperCommand" scope="prototype">
     <property name="shopperRepository" ref="shopperRepository" />
   </bean>
@@ -439,41 +443,6 @@
     <property name="hibernateProperties">
       <props>
         <prop key="hibernate.dialect">${jdbc.dialect}</prop>
-        <prop key="hibernate.show_sql">false</prop>
-      </props>
-    </property>
-  </bean>
-
-  <bean id="dataSource2" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-    <property name="driverClassName" value="${jdbc2.driverClassName}" />
-    <property name="url" value="${jdbc2.databaseurl}" />
-    <property name="username" value="${jdbc2.username}" />
-    <property name="password" value="${jdbc2.password}" />
-  </bean>
-  <!-- bean id="dataSource2" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
-    <property name="driverClass" value="${jdbc2.driverClassName}" />
-    <property name="jdbcUrl" value="${jdbc2.databaseurl}" />
-    <property name="user" value="${jdbc2.username}" />
-    <property name="password" value="${jdbc2.password}" />
-
-    <property name="acquireIncrement" value="5" />
-    <property name="minPoolSize" value="5" />
-    <property name="maxPoolSize" value="20" />
-    <property name="maxIdleTime" value="30" />
-  </bean-->
-
-
-  <bean id="sessionFactory2" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
-    <property name="dataSource" ref="dataSource2"></property>
-    <property name="configLocation">
-      <value>classpath:hibernate.cfg.xml</value>
-    </property>
-    <property name="configurationClass">
-      <value>org.hibernate.cfg.AnnotationConfiguration</value>
-    </property>
-    <property name="hibernateProperties">
-      <props>
-        <prop key="hibernate.dialect">${jdbc2.dialect}</prop>
         <prop key="hibernate.show_sql">false</prop>
       </props>
     </property>

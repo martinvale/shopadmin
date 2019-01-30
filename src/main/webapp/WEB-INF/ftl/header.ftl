@@ -64,6 +64,7 @@
             <li><a href="#"><i class="icon-user"></i>Administraci&oacute;n</a>
               <ul class="sub-menu">
                 <li><a href="<@spring.url '/users/list'/>">Usuarios</a></li>
+                <li><a href="<@spring.url '/shoppers/'/>">Shoppers</a></li>
                 <li><a href="<@spring.url '/proveedores/'/>">Proveedores</a></li>
                 <li><a href="<@spring.url '/titular/'/>">Titulares</a></li>
                 <li><a href="<@spring.url '/services/client/'/>">Clientes</a></li>
