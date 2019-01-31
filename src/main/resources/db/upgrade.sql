@@ -40,10 +40,33 @@ create table shoppers (
 	enabled bit not null,
 	creation_date datetime not null,
 	last_modification_date datetime not null,
-	constraint pk_shopper primary key (id),
-	constraint idx_identity unique (identity_type, identity_id),
-	constraint idx_shopmetrics unique (login_shopmetrics)
+	constraint pk_shopper primary key (id)
+--	constraint idx_identity unique (identity_type, identity_id),
+--	constraint idx_shopmetrics unique (login_shopmetrics)
 )
+
+insert into shoppers (country, surname, firstName, address,
+	region, state, postal_code, identity_id, work_phone,
+	particular_phone, cell_phone, email, email2, cobra_sf,
+	referrer, observations, birth_date, gender, neighborhood,
+	education, enabled, creation_date, last_modification_date,
+	identity_type, confidentiality, login_shopmetrics)
+select case when Pais is null then 1 else Pais end, Apellido_y_nombre, '',
+    case when Domicilio is null then '' else Domicilio end,
+    Localidad,
+	case when Provincia is null then '' else Provincia end,
+    Codigo_Postal, NRO_Documento, Tel_Lab,
+	Tel_Part, Celular, [E-mail], [E-mail2], Cobra_SF,
+	Referido, Observaciones,
+	case len([Fecha de nacimiento]) when 10 then cast([Fecha de nacimiento] as datetime) else getdate() end,
+	case GENERO when 'M' then 'MALE' else 'FEMALE' end,
+	BARRIO, NIVEL_ESTUDIOS, case ESTADO when 'ACTIVO' then 1 else 0 end,
+    case when FECHA_ALTA is null then getdate() else FECHA_ALTA end,
+    case when FECHA_ALTA is null then getdate() else FECHA_ALTA end,
+    case when TipoDocumento is null then 'DNI' else '' end, AcuerdoConfidencialidad,
+    case Login_Shopmetrics when '' then null else Login_Shopmetrics end
+from [mcdonalds].[dbo].[SHOPPERS]
+where ESTADO != 'INACTIVO'
 
 
 insert into shoppers (country, surname, firstName, address,
@@ -52,21 +75,12 @@ insert into shoppers (country, surname, firstName, address,
 	referrer, observations, birth_date, gender, neighborhood,
 	education, enabled, creation_date, last_modification_date,
 	identity_type, confidentiality, login_shopmetrics)
-select Pais, Apellido_y_nombre, '', Domicilio, Localidad,
-	Provincia, Codigo_Postal, NRO_Documento, Tel_Lab,
-	Tel_Part, Celular, [E-mail], [E-mail2], Cobra_SF,
-	Referido, Observaciones,
+select Pais, '', '', Domicilio, Localidad,
+	Provincia, Codigo_Postal, NRO_Documento, '',
+	'', '', '', '', Cobra_SF,
+	Referido, '',
 	case len([Fecha de nacimiento]) when 10 then cast([Fecha de nacimiento] as datetime) else NULL end,
 	case GENERO when 'M' then 'MALE' else 'FEMALE' end,
 	BARRIO, NIVEL_ESTUDIOS, case ESTADO when 'ACTIVO' then 1 else 0 end,
-	FECHA_ALTA, FECHA_ALTA, TipoDocumento, AcuerdoConfidencialidad, Login_Shopmetrics
+	FECHA_ALTA, FECHA_ALTA, TipoDocumento, AcuerdoConfidencialidad, ''
 from [mcdonalds].[dbo].[SHOPPERS]
-where
-	len(Apellido_y_nombre) > 300
-	or len(Tel_Lab) > 50
-	or len(Tel_Part) > 50
-	or len(Celular) > 50
-	or len([E-mail]) > 50
-	or len([E-mail2]) > 50
-	or len(Observaciones) > 300
-	or len(Login_Shopmetrics) > 300
