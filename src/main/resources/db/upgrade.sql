@@ -32,7 +32,7 @@ create table shoppers (
 	cobra_sf bit null,
 	referrer varchar(50) null,
 	observations varchar(300) null,
-	birth_date datetime not null,
+	birth_date datetime null,
 	gender varchar(6) not null,
 	education varchar(150) null,
 	confidentiality bit not null,

@@ -5,14 +5,14 @@
     <title>Shopnchek</title>
     <meta http-equiv="cleartype" content="on">
 
-    <link rel="stylesheet" href="../../css/jquery-ui/jquery-ui.css">
+    <link rel="stylesheet" href="../css/jquery-ui/jquery-ui.css">
 
-    <link rel="stylesheet" href="../../css/base.css">
-    <link rel="stylesheet" href="../../css/shop.css">
-    <link rel="stylesheet" href="../../css/custom.css">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/shop.css">
+    <link rel="stylesheet" href="../css/custom.css">
 
-    <script src="../../script/jquery.js"></script>
-    <script src="../../script/jquery-ui.js"></script>
+    <script src="../script/jquery.js"></script>
+    <script src="../script/jquery-ui.js"></script>
 
     <script type="text/javascript">
 

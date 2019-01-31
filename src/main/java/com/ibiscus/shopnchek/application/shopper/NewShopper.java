@@ -21,16 +21,16 @@ public class NewShopper {
   private String cellPhone;
   private String email;
   private String email2;
-  private Boolean cobraSf;
+  private Boolean cobraSf = Boolean.FALSE;
   private String referrer;
   private String observations;
   @DateTimeFormat(pattern="dd/MM/yyyy")
   private Date birthDate;
   private String gender;
   private String education;
-  private Boolean confidentiality;
+  private Boolean confidentiality = Boolean.FALSE;
   private String loginShopmetrics;
-  private Boolean enabled;
+  private Boolean enabled = Boolean.FALSE;
 
   NewShopper() {
   }
