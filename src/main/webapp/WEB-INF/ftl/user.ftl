@@ -66,6 +66,10 @@
               <input type="password" id="password" name="password" value="${(editionUser.password)!''}" />
             </div>
             <div class="field">
+              <label class="field-name" for="email">E-mail: </label>
+              <input type="text" id="email" name="email" value="${(editionUser.email)!''}" />
+            </div>
+            <div class="field">
               <label class="field-name">Roles:</label>
               <select name="roles" multiple="multiple">
               <#list model["roles"] as role>
