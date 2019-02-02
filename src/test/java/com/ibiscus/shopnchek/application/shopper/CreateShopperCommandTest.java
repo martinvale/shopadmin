@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.ibiscus.shopnchek.application.shopper.NewShopperBuilder.newBuilder;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -24,11 +23,16 @@ public class CreateShopperCommandTest {
 
     @Test
     public void execute() {
-        NewShopper newShopper = newBuilder().build();
+        NewShopper newShopper = getNewShopper();
 
         Shopper shopper = command.execute(newShopper);
 
         assertThat(shopper, isCreatedFrom(newShopper));
+    }
+
+    private NewShopper getNewShopper() {
+        return new NewShopperBuilder()
+            .build();
     }
 
     private Matcher<Shopper> isCreatedFrom(final NewShopper newShopper) {
@@ -48,7 +52,7 @@ public class CreateShopperCommandTest {
                 if (!StringUtils.equals(shopper.getIdentityId(), newShopper.getIdentityId())) {
                     return false;
                 }
-                if (!StringUtils.equals(shopper.getName(), newShopper.getSurname())) {
+                if (!StringUtils.equals(shopper.getSurname(), newShopper.getSurname())) {
                     return false;
                 }
                 if (!StringUtils.equals(shopper.getFirstName(), newShopper.getFirstName())) {

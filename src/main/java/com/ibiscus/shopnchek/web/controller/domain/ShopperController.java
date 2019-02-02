@@ -1,5 +1,6 @@
 package com.ibiscus.shopnchek.web.controller.domain;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.ibiscus.shopnchek.application.shopper.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.ibiscus.shopnchek.domain.admin.Shopper;
 import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 
 @Controller
@@ -24,14 +26,17 @@ public class ShopperController extends SimpleFormController{
   @Autowired
   private GetShopperCommand getShopperCommand;
 
-    @Autowired
-    private SearchShopperCommand searchShopperCommand;
+  @Autowired
+  private SearchShopperCommand searchShopperCommand;
 
   @Autowired
   private CreateShopperCommand createShopperCommand;
 
   @Autowired
   private SaveShopperCommand saveShopperCommand;
+
+  @Autowired
+  private ImportShoppersFileCommand importShoppersFileCommand;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String list(@ModelAttribute("model") ModelMap model, String name) {
@@ -83,4 +88,15 @@ public class ShopperController extends SimpleFormController{
   public @ResponseBody List<Shopper> suggest(@RequestParam String term) {
     return shopperRepository.find(term);
   }
+
+  @RequestMapping(value="/import", method=RequestMethod.POST)
+  public String importFile(MultipartFile file) {
+    try {
+      importShoppersFileCommand.execute(file);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return "redirect:.";
+  }
+
 }

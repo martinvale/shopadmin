@@ -183,7 +183,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
         container.spin();
 
         jQuery.ajax({
-          url: "../item/deuda/" + currentShopper.dni,
+          url: "../item/deuda/" + currentShopper.identityId,
           data: {
             'includeIplan': false,
             'includeGac': includeGac.is(':checked'),

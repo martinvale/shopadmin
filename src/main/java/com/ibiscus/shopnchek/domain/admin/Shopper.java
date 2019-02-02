@@ -10,7 +10,26 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 public class Shopper {
 
   public enum GENDER {
-    MALE, FEMALE;
+    MALE("M"), FEMALE("F");
+
+    private final String code;
+
+    GENDER(String code) {
+      this.code = code;
+    }
+
+    public String getCode() {
+      return code;
+    }
+
+    public static GENDER byCode(String value) {
+      for (GENDER gender : values()) {
+        if (gender.code.equals(value)) {
+          return gender;
+        }
+      }
+      throw new IllegalArgumentException(String.format("Cannot find a gender value for %s", value));
+    }
   }
 
   @Id
@@ -100,6 +119,31 @@ public class Shopper {
   Shopper() {
   }
 
+  public Shopper(String loginShopmetrics, String surname, String firstName, String address, String region, String state,
+                 Integer country, String postalCode, String workPhone, String particularPhone, String cellPhone,
+                 String email, Date birthDate, GENDER gender,  String education, Boolean confidentiality,
+                 Date creationDate) {
+    this.loginShopmetrics = loginShopmetrics;
+    this.surname = surname;
+    this.firstName = firstName;
+    this.address = address;
+    this.region = region;
+    this.state = state;
+    this.country = country;
+    this.postalCode = postalCode;
+    this.workPhone = workPhone;
+    this.particularPhone = particularPhone;
+    this.cellPhone = cellPhone;
+    this.email = email;
+    this.birthDate = birthDate;
+    this.gender = gender;
+    this.education = education;
+    this.confidentiality = confidentiality;
+    this.enabled = true;
+    this.creationDate = creationDate;
+    this.lastModificationDate = creationDate;
+  }
+
   public Shopper(String identityType, String identityId, String surname, String firstName,
                  String address, String neighborhood, String region, String state,
                  Integer country, String postalCode, String workPhone, String particularPhone,
@@ -141,7 +185,7 @@ public class Shopper {
   public String getName() {
       StringBuilder builder = new StringBuilder(surname);
       if (isNotBlank(firstName)) {
-          builder.append(", ");
+          builder.append(" ");
           builder.append(firstName);
       }
       return builder.toString();
@@ -284,8 +328,30 @@ public class Shopper {
     this.lastModificationDate = new Date();
   }
 
+  public void updateFromShopmetrics(String surname, String firstName, String address, String region, String state, Integer country,
+                                    String postalCode, String workPhone, String particularPhone, String cellPhone,
+                                    String email, Date birthDate, GENDER gender,  String education, Boolean confidentiality) {
+    this.surname = surname;
+    this.firstName = firstName;
+    this.address = address;
+    this.region = region;
+    this.state = state;
+    this.country = country;
+    this.postalCode = postalCode;
+    this.workPhone = workPhone;
+    this.particularPhone = particularPhone;
+    this.cellPhone = cellPhone;
+    this.email = email;
+    this.birthDate = birthDate;
+    this.gender = gender;
+    this.education = education;
+    this.confidentiality = confidentiality;
+    this.lastModificationDate = new Date();
+  }
+
   public void update(String loginShopmetrics) {
     this.loginShopmetrics = loginShopmetrics;
+    this.lastModificationDate = new Date();
   }
 
   @Override

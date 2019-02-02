@@ -4,7 +4,7 @@ App.widget.ShopperSelector = function (container, skipValidation, url, onSelect)
 
   var clearButton = container.find('.js-clear');
 
-  var serviceUrl = url || "../services/shoppers/suggest";
+  var serviceUrl = url || "../shoppers/suggest";
 
   var currentShopper = null;
 
@@ -33,7 +33,7 @@ App.widget.ShopperSelector = function (container, skipValidation, url, onSelect)
         currentShopper = ui.item;
         selector.val(ui.item.name);
         container.find(".js-shopper-id").val(ui.item.id);
-        container.find(".js-shopper-dni").val(ui.item.dni);
+        container.find(".js-shopper-dni").val(ui.item.identityId);
         selectHandler(ui.item);
         return false;
       }

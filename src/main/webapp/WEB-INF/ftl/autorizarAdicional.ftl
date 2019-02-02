@@ -479,7 +479,7 @@ App.widget.AdicionalEditor = function (container, itemId, enabled, sucursalesMCD
                   <select id="shopper" name="shopper">
                     <option value="Seleccionar">Seleccione un shopper</option>
                   <#list model["shoppers"] as shopper>
-                    <option value="${shopper.dni}" <#if shopper.dni == shopperDni>selected="true"</#if>>${shopper.name!''}</option>
+                    <option value="${shopper.identityId}" <#if shopper.identityId == shopperDni>selected="true"</#if>>${shopper.name!''}</option>
                   </#list>
                   </select>
                 </li>

@@ -224,7 +224,7 @@ App.widget.DeudaShopperSelector = function (container, numeroOrden, callback,
         jQuery.ajax({
           url: urlService,
           data: {
-            'shopperDni': currentShopper.dni,
+            'shopperDni': currentShopper.identityId,
             'from': desdeField.val(),
             'to': hastaField.val(),
             'tipoPago': tipoPagoField.val()

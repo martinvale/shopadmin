@@ -36,7 +36,7 @@ public class ShopperRepository extends HibernateDaoSupport {
   public Shopper findByLogin(final String login) {
     Validate.notNull(login, "The login id cannot be null");
     Criteria criteria = getSession().createCriteria(Shopper.class);
-    criteria.add(Expression.eq("login", login));
+    criteria.add(Expression.eq("loginShopmetrics", login));
     return (Shopper) criteria.uniqueResult();
   }
 
@@ -45,6 +45,6 @@ public class ShopperRepository extends HibernateDaoSupport {
   }
 
     public void save(Shopper shopper) {
-      getSession().save(shopper);
+      getSession().saveOrUpdate(shopper);
     }
 }

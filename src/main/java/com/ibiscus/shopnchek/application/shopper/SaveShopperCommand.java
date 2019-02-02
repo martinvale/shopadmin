@@ -26,7 +26,20 @@ public class SaveShopperCommand {
 		return shopper;
 	}
 
-    public void setShopperRepository(ShopperRepository shopperRepository) {
+	@Transactional
+	public Shopper executeFromShopmetrics(EditedShopper editedShopper) {
+		Shopper shopper = shopperRepository.get(editedShopper.getId());
+		shopper.updateFromShopmetrics(editedShopper.getSurname(), editedShopper.getFirstName(),
+				editedShopper.getAddress(), editedShopper.getRegion(), editedShopper.getState(), editedShopper.getCountry(),
+				editedShopper.getPostalCode(), editedShopper.getWorkPhone(),
+				editedShopper.getParticularPhone(), editedShopper.getCellPhone(),
+				editedShopper.getEmail(), editedShopper.getBirthDate(),
+				Shopper.GENDER.byCode(editedShopper.getGender()), editedShopper.getEducation(),
+				editedShopper.getConfidentiality());
+		return shopper;
+	}
+
+	public void setShopperRepository(ShopperRepository shopperRepository) {
         this.shopperRepository = shopperRepository;
     }
 }

@@ -107,7 +107,7 @@ App.widget.BuscadorDeudaShopper = function (container) {
       var hastaField = container.find("input[name='hasta']");
 
       if (currentShopper) {
-        var url = "printDebt?dniShopper=" + currentShopper.dni + '&includeMcd='
+        var url = "printDebt?dniShopper=" + currentShopper.identityId + '&includeMcd='
             + includeMcd.is(':checked') + '&includeGac=' + includeGac.is(':checked') + '&includeAdicionales='
             + includeAdicionales.is(':checked') + '&includeShopmetrics=' + includeShopmetrics.is(':checked')
             + '&applyDate=' + applyDate.is(':checked') + '&desde=' + desdeField.val()
@@ -127,7 +127,7 @@ App.widget.BuscadorDeudaShopper = function (container) {
       var hastaField = container.find("input[name='hasta']");
 
       if (currentShopper) {
-        location.href = "exportDeuda?dniShopper=" + currentShopper.dni + '&includeMcd='
+        location.href = "exportDeuda?dniShopper=" + currentShopper.identityId + '&includeMcd='
             + includeMcd.is(':checked') + '&includeGac=' + includeGac.is(':checked') + '&includeAdicionales='
             + includeAdicionales.is(':checked') + '&includeShopmetrics=' + includeShopmetrics.is(':checked')
             + '&applyDate=' + applyDate.is(':checked') + '&desde=' + desdeField.val()
@@ -150,7 +150,7 @@ App.widget.BuscadorDeudaShopper = function (container) {
         container.spin();
 
         jQuery.ajax({
-          url: "../item/deuda/" + currentShopper.dni,
+          url: "../item/deuda/" + currentShopper.identityId,
           data: {
             'includeIplan': false,
             'includeGac': includeGac.is(':checked'),

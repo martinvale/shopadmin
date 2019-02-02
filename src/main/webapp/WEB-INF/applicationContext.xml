@@ -347,8 +347,14 @@
     <property name="shopperRepository" ref="shopperRepository" />
   </bean>
 
-  <bean id="saveShopperCommand" class="com.ibiscus.shopnchek.application.shopper.SaveShopperCommand" scope="prototype">
+  <bean id="saveShopperCommand" class="com.ibiscus.shopnchek.application.shopper.SaveShopperCommand">
     <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
+  <bean id="importShoppersFileCommand" class="com.ibiscus.shopnchek.application.shopper.ImportShoppersFileCommand">
+    <property name="shopperRepository" ref="shopperRepository" />
+    <property name="saveShopperCommand" ref="saveShopperCommand" />
+    <property name="createShopperCommand" ref="createShopperCommand" />
   </bean>
 
   <bean id="getTitularCommand" class="com.ibiscus.shopnchek.application.proveedor.GetTitularCommand" scope="prototype">

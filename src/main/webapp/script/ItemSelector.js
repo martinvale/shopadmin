@@ -97,7 +97,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback,
     container.find(".js-mcd-items .js-buscar" ).click(function () {
       var currentShopper = shopperSelector.getCurrentShopper();
       jQuery.ajax({
-        url: "../item/mdc/" + currentShopper.dni
+        url: "../item/mdc/" + currentShopper.identityId
       }).done(function (data) {
         visitas = data;
         rows = rows.render({'itemsOrden': data}, rowsTemplate);
@@ -112,7 +112,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback,
     container.find(".js-items-adicionales .js-buscar" ).click(function () {
       var currentShopper = shopperSelector.getCurrentShopper();
       jQuery.ajax({
-        url: "../item/adicionales/" + currentShopper.dni
+        url: "../item/adicionales/" + currentShopper.identityId
       }).done(function (data) {
         adicionales = data;
         rowsAdicionales = rowsAdicionales.render({'itemsOrden': data}, rowsAdicionalesTemplate);
@@ -136,7 +136,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback,
         ordenNro: numeroOrden,
         tipoPago: visita.tipoPago,
         asignacion: visita.asignacion,
-        shopperDni: currentShopper.dni,
+        shopperDni: currentShopper.identityId,
         importe: visita.importe,
         cliente: visita.programa,
         sucursal: visita.local,
@@ -162,7 +162,7 @@ App.widget.ItemsSelector = function (container, numeroOrden, callback,
         ordenNro: numeroOrden,
         tipoPago: adicional.tipoPago,
         asignacion: adicional.id,
-        shopperDni: currentShopper.dni,
+        shopperDni: currentShopper.identityId,
         importe: adicional.importe,
         cliente: adicional.cliente,
         sucursal: adicional.sucursal,

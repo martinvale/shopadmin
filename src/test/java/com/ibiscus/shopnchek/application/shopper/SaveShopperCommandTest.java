@@ -58,7 +58,7 @@ public class SaveShopperCommandTest {
                 if (!StringUtils.equals(shopper.getIdentityId(), editedShopper.getIdentityId())) {
                     return false;
                 }
-                if (!StringUtils.equals(shopper.getName(), editedShopper.getSurname())) {
+                if (!StringUtils.equals(shopper.getSurname(), editedShopper.getSurname())) {
                     return false;
                 }
                 if (!StringUtils.equals(shopper.getFirstName(), editedShopper.getFirstName())) {
