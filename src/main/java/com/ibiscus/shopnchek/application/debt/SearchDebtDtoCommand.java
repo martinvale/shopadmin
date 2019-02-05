@@ -56,6 +56,7 @@ public class SearchDebtDtoCommand extends SearchCommand<DebtDto> {
 		if (from != null && to != null) {
 			Validate.isTrue(from.before(to), "The FROM date must be before the TO date");
 		}
+		Validate.notEmpty(shopperDni, "The Shopper DNI is mandatory");
 		List<DebtDto> debtDtoItems = new LinkedList<DebtDto>();
 
 		List<Debt> debtItems = debtRepository.find(getStart(), getPageSize(), getOrderBy(),

@@ -13,9 +13,16 @@ import static org.apache.commons.lang.StringUtils.isNotEmpty;
 public class ShopperRepository extends HibernateDaoSupport {
 
   @SuppressWarnings("unchecked")
-  public List<Shopper> find(final String pattern) {
+  public List<Shopper> find(String pattern) {
+    return find(pattern, false);
+  }
+
+  public List<Shopper> find(String pattern, boolean filterEnabled) {
     Criteria criteria = getSession().createCriteria(Shopper.class);
     criteria.add(Expression.eq("country", 1));
+    if (filterEnabled) {
+      criteria.add(Expression.eq("enabled", true));
+    }
     if (isNotEmpty(pattern)) {
       criteria.add(Expression.like("surname", pattern + "%"));
     }
@@ -29,6 +36,7 @@ public class ShopperRepository extends HibernateDaoSupport {
     Validate.notNull(dni, "The shopper dni cannot be null");
     Criteria criteria = getSession().createCriteria(Shopper.class);
     criteria.add(Expression.eq("identityId", dni));
+    criteria.add(Expression.eq("country", 1));
     return (Shopper) criteria.uniqueResult();
   }
 

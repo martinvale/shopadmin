@@ -86,7 +86,7 @@ public class ShopperController extends SimpleFormController{
 
   @RequestMapping(value = "/suggest", method = RequestMethod.GET)
   public @ResponseBody List<Shopper> suggest(@RequestParam String term) {
-    return shopperRepository.find(term);
+    return shopperRepository.find(term, true);
   }
 
   @RequestMapping(value="/import", method=RequestMethod.POST)
