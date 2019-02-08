@@ -40,11 +40,16 @@ public class ShopperRepository extends HibernateDaoSupport {
     return (Shopper) criteria.uniqueResult();
   }
 
+  public Shopper findByLogin(String login) {
+    return findByLogin(login, true);
+  }
+
   @SuppressWarnings("unchecked")
-  public Shopper findByLogin(final String login) {
+  public Shopper findByLogin(String login, boolean filterEnabled) {
     Validate.notNull(login, "The login id cannot be null");
     Criteria criteria = getSession().createCriteria(Shopper.class);
     criteria.add(Expression.eq("loginShopmetrics", login));
+    criteria.add(Expression.eq("enabled", filterEnabled));
     return (Shopper) criteria.uniqueResult();
   }
 

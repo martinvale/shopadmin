@@ -57,6 +57,7 @@
             <li><a href="#"><i class="icon-home"></i>Importaci&oacute;n</a>
               <ul class="sub-menu">
                 <li><a href="<@spring.url '/orden/'/>../import/shopmetrics">Shopmetrics</a></li>
+                <li><a href="<@spring.url '/orden/'/>../shoppers/import">Shoppers</a></li>
               </ul>
             </li>
           </#if>

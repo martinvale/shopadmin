@@ -26,21 +26,15 @@
       App.widget = App.widget || {};
 
       jQuery(document).ready(function() {
-        jQuery(".js-import" ).click(function () {
-          jQuery("#shopper-import").show();
-          return false;
-        });
-        var form = jQuery(".js-search-form");
+        var form = jQuery(".js-import-form");
         var loadingIndicator = new App.widget.LoadingIndicator(form);
         form.find("input[type=submit]").click(function () {
           loadingIndicator.start();
         });
-
       });
 
     </script>
 
-    <script src="../script/ShopperSelector.js"></script>
     <script src="../script/LoadingIndicator.js"></script>
 
   </head>
@@ -48,36 +42,32 @@
     <#include "header.ftl" />
 
     <div class="container-box-plantilla">
-      <h2 class="container-tit">B&uacute;squeda de Shoppers</h2>
-      <form action="" class="form-shop form-shop-big js-search-form" method="GET">
+      <h2 class="container-tit">Importaci&oacute;n de Shoppers</h2>
+      <form action="import" class="form-shop form-shop-big js-import-form" enctype="multipart/form-data" method="POST">
         <div class="cell box-green buscador">
           <div class="field">
-            <label for="name">Nombre: </label>
-            <input type="text" id="name" name="name" value="${(model['name'])!''}" />
+            <label for="name">Archivo a importar: </label>
+            <input type="file" id="file" name="file" />
           </div>
+          <ul class="action-columns">
+            <li><input type="submit" value="Importar" class="btn-shop-small"></li>
+          </ul>
         </div>
-        <ul class="action-columns">
-          <li><input type="submit" value="Buscar" class="btn-shop-small"></li>
-        </ul>
       </form>
-      <ul class="action-columns">
-        <li><a href="create" class="btn-shop-small">Nuevo shopper</a></li>
-      </ul>
-      <table summary="Lista de Shoppers" class="table-form js-results">
+      <table summary="Resultado de la importacion" class="table-form js-results">
         <thead>
           <tr>
-            <th scope="col">Shopper</th>
-            <th scope="col">DNI</th>
+            <th scope="col">Nombre</th>
+            <th scope="col">Detalle</th>
             <th scope="col">Estado</th>
           </tr>
         </thead>
         <tbody>
-          <#assign resultSet = model["shoppers"] />
-          <#list resultSet as shopper>
+          <#list model["items"] as item>
           <tr>
-            <td>${(shopper.name)!''} <a href="${shopper.id?c}">editar</a></td>
-            <td>${shopper.identityId!''}</td>
-            <td>${shopper.enabled?string("Activo", "Inactivo")}</td>
+            <td>${item.identifier}</td>
+            <td>${item.detail}</td>
+            <td>${item.status}</td>
             </tr>
           </#list>
         </tbody>

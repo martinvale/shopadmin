@@ -82,3 +82,9 @@ set account.billing_id = shoppers.id
 from account
 	inner join shoppers on (account.billing_id = shoppers.original_id)
 where billing_tipo = 1
+
+update ordenes
+set ordenes.proveedor = shoppers.id
+from ordenes
+    inner join shoppers on (ordenes.proveedor = shoppers.original_id)
+where ordenes.proveedor_tipo = 1

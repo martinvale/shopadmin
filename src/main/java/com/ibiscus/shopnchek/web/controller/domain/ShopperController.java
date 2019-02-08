@@ -16,6 +16,8 @@ import com.ibiscus.shopnchek.domain.admin.ShopperRepository;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.SimpleFormController;
 
+import static java.util.Collections.emptyList;
+
 @Controller
 @RequestMapping(value="/shoppers")
 public class ShopperController extends SimpleFormController{
@@ -89,14 +91,25 @@ public class ShopperController extends SimpleFormController{
     return shopperRepository.find(term, true);
   }
 
-  @RequestMapping(value="/import", method=RequestMethod.POST)
-  public String importFile(MultipartFile file) {
+  @RequestMapping(value = "/import", method = RequestMethod.GET)
+  public String prepareToImport(@ModelAttribute("model") ModelMap model) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    model.addAttribute("user", user);
+    model.addAttribute("items", emptyList());
+    return "importShoppers";
+  }
+
+  @RequestMapping(value="/import", method = RequestMethod.POST)
+  public String importFile(@ModelAttribute("model") ModelMap model, MultipartFile file) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    model.addAttribute("user", user);
     try {
-      importShoppersFileCommand.execute(file);
+      List<ImportItemResult> result = importShoppersFileCommand.execute(file);
+      model.addAttribute("items", result);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
-    return "redirect:.";
+    return "importShoppers";
   }
 
 }

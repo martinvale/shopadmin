@@ -15,9 +15,9 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.*;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.ibiscus.shopnchek.domain.admin.Shopper.GENDER.FEMALE;
 import static com.ibiscus.shopnchek.domain.admin.Shopper.GENDER.MALE;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
@@ -56,7 +56,8 @@ public class ImportShoppersFileCommand {
 	ImportShoppersFileCommand() {
 	}
 
-	public void execute(MultipartFile file) throws IOException {
+	public List<ImportItemResult> execute(MultipartFile file) throws IOException {
+		List<ImportItemResult> result = newArrayList();
 		String name = file.getOriginalFilename();
 		LOGGER.info("Start to import file: {}", name);
 		try {
@@ -66,13 +67,14 @@ public class ImportShoppersFileCommand {
 			while (rowIterator.hasNext()) {
 				Row row = rowIterator.next();
 				long startTime = System.currentTimeMillis();
-				importRow(row);
+				result.add(importRow(row));
 				LOGGER.debug("Row import time: {} ms", System.currentTimeMillis() - startTime);
 			}
 		} catch (Exception e) {
 			LOGGER.error(String.format("Cannot import file %s", name), e);
 		}
 		LOGGER.info("Finish to import file: {}", name);
+		return result;
 	}
 
 	private Iterator<Row> getRowIterator(Sheet sheet) {
@@ -83,19 +85,40 @@ public class ImportShoppersFileCommand {
 	}
 
 	@Transactional
-	public void importRow(Row row) {
+	public ImportItemResult importRow(Row row) {
 		Cell cell = row.getCell(LOGIN_COLUMN);
+		String rowDescriptor = getRowDescriptor(row);
 		LOGGER.info("Importing row for shopper: {}", cell.getStringCellValue());
-		Shopper shopper = shopperRepository.findByLogin(cell.getStringCellValue());
-		if (shopper != null) {
-			LOGGER.info("Updating shopper: {}", cell.getStringCellValue());
-			EditedShopper editedShopper = createUpdatedShopper(shopper.getId(), row);
-			saveShopperCommand.executeFromShopmetrics(editedShopper);
-		} else {
-			LOGGER.info("Creating shopper: {}", cell.getStringCellValue());
-			NewShopper newShopper = createNewShopper(row);
-			createShopperCommand.execute(newShopper);
+		try {
+			Shopper shopper = shopperRepository.findByLogin(cell.getStringCellValue(), false);
+			if (shopper != null) {
+				LOGGER.info("Updating shopper: {}", cell.getStringCellValue());
+				EditedShopper editedShopper = createUpdatedShopper(shopper.getId(), row);
+				saveShopperCommand.executeFromShopmetrics(editedShopper);
+			} else {
+				LOGGER.info("Creating shopper: {}", cell.getStringCellValue());
+				NewShopper newShopper = createNewShopper(row);
+				createShopperCommand.execute(newShopper);
+			}
+			return new ImportItemResult(rowDescriptor);
+		} catch (Exception e) {
+			return new ImportItemResult(rowDescriptor, e.getMessage());
 		}
+	}
+
+	private String getRowDescriptor(Row row) {
+		StringBuilder builder = new StringBuilder();
+		Cell cell = row.getCell(SURNAME_COLUMN);
+		builder.append(cell.getStringCellValue());
+		builder.append(", ");
+		cell = row.getCell(FIRST_NAME_COLUMN);
+		builder.append(cell.getStringCellValue());
+		builder.append(" (");
+		cell = row.getCell(LOGIN_COLUMN);
+		builder.append(cell.getStringCellValue());
+		builder.append(")");
+
+		return builder.toString();
 	}
 
 	private EditedShopper createUpdatedShopper(Long id, Row row) {
