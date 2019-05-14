@@ -33,12 +33,8 @@
               <input type="text" id="name" name="name" value="${(editionClient.name)!''}" />
             </div>
             <div class="field">
-              <label class="field-name">Reasignar a:</label>
-              <select id="newClientId" name="newClientId">
-              <#list model["clients"] as client>
-                <option value="${client.id?c}">${client.name}</option>
-              </#list>
-              <select>
+              <label class="field-name" for="clientsToReassign">Listado de IDs de los clientes (separados por coma) a reasignar:</label>
+              <textarea id="clientsToReassign" name="clientsToReassign"></textarea>
             </div>
           </div>
         </div>

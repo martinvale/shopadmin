@@ -37,7 +37,7 @@ public class GetOrderCommand implements Command<OrdenPago> {
 					int result = 0;
 					if (o1.getShopper() != null && o2.getShopper() != null) {
 						result = o1.getShopper().getName().compareTo(o2.getShopper().getName());
-						if (result == 0 && o1.getCliente() != null) {
+						if (result == 0 && o1.getCliente() != null && o2.getCliente() != null) {
 							result = o1.getCliente().compareTo(o2.getCliente());
 							if (result == 0 && o1.getSucursal() != null) {
 								result = o1.getSucursal().compareTo(o2.getSucursal());

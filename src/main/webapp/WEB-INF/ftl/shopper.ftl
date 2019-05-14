@@ -112,7 +112,7 @@
               </div>
               <div class="field">
                 <label class="field-name" for="cellPhone">Celular: </label>
-                <input type="text" id="cellPhone" name="cellPhone" value="${(editionShopper.workPhone)!''}" />
+                <input type="text" id="cellPhone" name="cellPhone" value="${(editionShopper.cellPhone)!''}" />
               </div>
               <div class="field">
                 <label class="field-name" for="email">E-mail: </label>

@@ -110,6 +110,7 @@ App.widget.clientes = function (container, clientes) {
       <table summary="Lista de items" class="table-form js-clientes">
         <thead>
           <tr>
+            <th scope="col" width="5%">ID</th>
             <th scope="col">Nombre</th>
             <th scope="col" width="20%">Pais</th>
           </tr>
@@ -117,6 +118,7 @@ App.widget.clientes = function (container, clientes) {
         <tbody>
           <#list model["clients"] as cliente>
           <tr id="cliente-${cliente.id?c}">
+            <td>${cliente.id?c}</td>
             <td>${cliente.name} <a href="${cliente.id?c}">editar</a> <a href="reassign/${cliente.id?c}">reasignar</a> <a class="js-delete-${cliente.id?c}" href="#">borrar</a></td>
             <td>${cliente.country!''}</td>
           </tr>

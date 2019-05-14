@@ -65,18 +65,15 @@ public class ClientController {
         ClientDto client = clientService.get(id);
         model.put("client", client);
 
-        searchClientCommand.setName(null);
-        model.put("clients", searchClientCommand.execute());
-
         return "clientReassign";
     }
 
     @RequestMapping(value = "/reassign", method = RequestMethod.POST)
-    public String reassign(@ModelAttribute("model") final ModelMap model, Long clientId, Long newClientId) {
+    public String reassign(@ModelAttribute("model") final ModelMap model, Long clientId, String clientsToReassign) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         model.addAttribute("user", user);
 
-        clientService.reassign(clientId, newClientId);
+        clientService.reassign(clientId, clientsToReassign);
         return "redirect:../";
     }
 

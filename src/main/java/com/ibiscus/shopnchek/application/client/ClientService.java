@@ -37,7 +37,11 @@ public class ClientService {
         }
     }
 
-    public int reassign(long clientId, long newClientId) {
-        return clientRepository.reassign(clientId, newClientId);
+    public void reassign(long clientId, String clientsToReassign) {
+        String[] clientsIds = clientsToReassign.split(",");
+        for (String clientIdToReassign : clientsIds) {
+            Long clientIdValue = Long.valueOf(clientIdToReassign.trim());
+            clientRepository.reassign(clientIdValue, clientId);
+        }
     }
 }

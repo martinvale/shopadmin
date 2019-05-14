@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.hibernate.Criteria;
+import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
@@ -24,7 +26,15 @@ public class ShopperRepository extends HibernateDaoSupport {
       criteria.add(Expression.eq("enabled", true));
     }
     if (isNotEmpty(pattern)) {
-      criteria.add(Expression.like("surname", pattern + "%"));
+      String nameParts[] = pattern.split(",");
+      for (String namePart : nameParts) {
+        Criterion nameCriterion = Restrictions.or(
+                Restrictions.like("surname", namePart.trim() + "%"),
+                Restrictions.like("firstName", namePart.trim() + "%")
+        );
+        criteria.add(nameCriterion);
+        //criteria.add(Expression.like("surname", pattern + "%"));
+      }
     }
     criteria.addOrder(Order.asc("surname"));
     criteria.addOrder(Order.asc("firstName"));

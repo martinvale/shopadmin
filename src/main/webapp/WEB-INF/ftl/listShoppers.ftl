@@ -66,7 +66,8 @@
       <table summary="Lista de Shoppers" class="table-form js-results">
         <thead>
           <tr>
-            <th scope="col">Shopper</th>
+            <th scope="col">Apellido</th>
+            <th scope="col">Nombre</th>
             <th scope="col">DNI</th>
             <th scope="col">Estado</th>
           </tr>
@@ -75,7 +76,8 @@
           <#assign resultSet = model["shoppers"] />
           <#list resultSet as shopper>
           <tr>
-            <td>${(shopper.name)!''} <a href="${shopper.id?c}">editar</a></td>
+            <td>${(shopper.surname)!''} <a href="${shopper.id?c}">editar</a></td>
+            <td>${(shopper.firstName)!''}</td>
             <td>${shopper.identityId!''}</td>
             <td>${shopper.enabled?string("Activo", "Inactivo")}</td>
             </tr>
