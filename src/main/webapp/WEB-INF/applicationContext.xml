@@ -148,7 +148,7 @@
     <constructor-arg index="0" value="smtp.office365.com" />
     <constructor-arg index="1" value="587" />
     <constructor-arg index="2" value="pagosshopnchek@shopnchek.com.ar" />
-    <constructor-arg index="3" value="DOejj339" />
+    <constructor-arg index="3" value="Loy08017" />
     <!-- constructor-arg index="3" value="Hopa9059" /-->
   </bean>
 
