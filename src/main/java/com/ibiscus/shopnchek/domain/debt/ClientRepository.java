@@ -68,6 +68,10 @@ public class ClientRepository extends HibernateDaoSupport {
 				+ "where client_id = :clientId");
 		query.setLong("clientId", clientId);
 		query.setLong("newClientId", newClientId);
-		return query.executeUpdate();
+		query.executeUpdate();
+
+		Client client = get(clientId);
+		delete(client);
+		return 1;
 	}
 }

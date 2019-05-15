@@ -27,13 +27,16 @@ public class ShopperRepository extends HibernateDaoSupport {
     }
     if (isNotEmpty(pattern)) {
       String nameParts[] = pattern.split(",");
-      for (String namePart : nameParts) {
-        Criterion nameCriterion = Restrictions.or(
-                Restrictions.like("surname", namePart.trim() + "%"),
-                Restrictions.like("firstName", namePart.trim() + "%")
-        );
-        criteria.add(nameCriterion);
-        //criteria.add(Expression.like("surname", pattern + "%"));
+      if (nameParts.length > 1) {
+        for (String namePart : nameParts) {
+          Criterion nameCriterion = Restrictions.or(
+                  Restrictions.like("surname", namePart.trim() + "%"),
+                  Restrictions.like("firstName", namePart.trim() + "%")
+          );
+          criteria.add(nameCriterion);
+        }
+      } else {
+        criteria.add(Expression.like("surname", nameParts[0] + "%"));
       }
     }
     criteria.addOrder(Order.asc("surname"));
