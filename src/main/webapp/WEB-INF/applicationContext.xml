@@ -145,11 +145,10 @@
   </bean>
 
   <bean id="communicationService" class="com.ibiscus.shopnchek.application.email.CommunicationService">
-    <constructor-arg index="0" value="smtp.office365.com" />
-    <constructor-arg index="1" value="587" />
-    <constructor-arg index="2" value="pagosshopnchek@shopnchek.com.ar" />
-    <constructor-arg index="3" value="Loy08017" />
-    <!-- constructor-arg index="3" value="Hopa9059" /-->
+    <constructor-arg index="0" value="${email.host}" />
+    <constructor-arg index="1" value="${email.port}" />
+    <constructor-arg index="2" value="${email.pagos.account}" />
+    <constructor-arg index="3" value="${email.pagos.pass}" />
   </bean>
 
   <bean id="importerService" class="com.ibiscus.shopnchek.application.shopmetrics.ImportService">
@@ -401,7 +400,17 @@
   </bean>
 
   <!-- Properties -->
-  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <bean id="encConfig" class="org.jasypt.encryption.pbe.config.EnvironmentStringPBEConfig">
+    <property name="algorithm" value="PBEWithMD5AndDES"/>
+    <property name="passwordEnvName" value ="ENCRYPTION_PWD"/>
+  </bean>
+
+  <bean id="configurationEncryptor" class="org.jasypt.encryption.pbe.StandardPBEStringEncryptor">
+    <property name="config" ref="encConfig"/>
+  </bean>
+
+  <bean id="propertyConfigurer" class="org.jasypt.spring3.properties.EncryptablePropertyPlaceholderConfigurer">
+    <constructor-arg ref="configurationEncryptor"/>
     <property name="location" value="/WEB-INF/shopnchek.properties" />
   </bean>
 
