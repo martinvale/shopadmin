@@ -105,23 +105,17 @@ public class VisitService {
                     String ciudadSucursal = row.getCell(
                             headers.get(ColCiudadSucursal))
                             .getStringCellValue();
-                    String honorariosValue = row.getCell(
-                            headers.get(ColHonorarios)).getStringCellValue();
+                    Cell honorariosCell = row.getCell(headers.get(ColHonorarios));
                     Double honorarios = null;
-                    if (honorariosValue != null && !honorariosValue.isEmpty()) {
-                        honorariosValue = honorariosValue.replaceAll(",", "");
-                        honorarios = new Double(honorariosValue);
+                    if (hasNumericValue(honorariosCell)) {
+                        honorarios = honorariosCell.getNumericCellValue();
                     }
                     Double reintegros = null;
                     Integer reintegroPos = headers.get(ColReintegros);
                     if (reintegroPos != null) {
-                        String reintegrosValue = row.getCell(reintegroPos)
-                                .getStringCellValue();
-                        if (reintegrosValue != null
-                                && !reintegrosValue.isEmpty()) {
-                            reintegrosValue = reintegrosValue.replaceAll(",",
-                                    "");
-                            reintegros = new Double(reintegrosValue);
+                        Cell reintegrosCell = row.getCell(reintegroPos);
+                        if (hasNumericValue(reintegrosCell)) {
+                            reintegros = reintegrosCell.getNumericCellValue();
                         }
                     }
 
@@ -240,10 +234,8 @@ public class VisitService {
                     }
                 }
             } else {
-                String honorariosValue = row
-                        .getCell(headers.get(ColHonorarios))
-                        .getStringCellValue();
-                if (honorariosValue != null && !honorariosValue.isEmpty()) {
+                Cell honorariosCell = row.getCell(headers.get(ColHonorarios));
+                if (hasNumericValue(honorariosCell)) {
                     Debt debt = debtRepository.getByExternalId(
                             surveyIdValue.longValue(), TipoItem.shopmetrics,
                             TipoPago.honorarios);
@@ -252,10 +244,8 @@ public class VisitService {
                         debtRepository.update(debt);
                     }
                 }
-                String reintegrosValue = row
-                        .getCell(headers.get(ColReintegros))
-                        .getStringCellValue();
-                if (reintegrosValue != null && !reintegrosValue.isEmpty()) {
+                Cell reintegrosCell = row.getCell(headers.get(ColReintegros));
+                if (hasNumericValue(reintegrosCell)) {
                     Debt debt = debtRepository.getByExternalId(
                             surveyIdValue.longValue(), TipoItem.shopmetrics,
                             TipoPago.reintegros);
@@ -267,6 +257,16 @@ public class VisitService {
             }
         }
         return end;
+    }
+
+    private boolean hasNumericValue(Cell cell) {
+        if (cell == null) {
+            return false;
+        }
+        if (cell.getCellType() == Cell.CELL_TYPE_STRING) {
+            return false;
+        }
+        return true;
     }
 
     public void setDebtRepository(DebtRepository debtRepository) {
