@@ -1,6 +1,7 @@
 package com.ibiscus.shopnchek.web.controller.domain;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import com.ibiscus.shopnchek.application.shopper.*;
@@ -39,6 +40,9 @@ public class ShopperController extends SimpleFormController{
 
   @Autowired
   private ImportShoppersFileCommand importShoppersFileCommand;
+
+  @Autowired
+  private BulkDeleteShopperCommand bulkDeleteShopperCommand;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String list(@ModelAttribute("model") ModelMap model, String name) {
@@ -110,6 +114,24 @@ public class ShopperController extends SimpleFormController{
       throw new RuntimeException(e);
     }
     return "importShoppers";
+  }
+
+  @RequestMapping(value = "/bulkDelete", method = RequestMethod.GET)
+  public String viewBulkDelete(@ModelAttribute("model") ModelMap model) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    model.addAttribute("user", user);
+    return "shopperBulkDelete";
+  }
+
+  @RequestMapping(value = "/bulkDelete", method = RequestMethod.POST)
+  public String executeBulkDelete(@ModelAttribute("model") ModelMap model, String shoppers) {
+    User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    model.addAttribute("user", user);
+
+    if (shoppers != null) {
+      bulkDeleteShopperCommand.execute(Arrays.asList(shoppers.split("\\r\\n")));
+    }
+    return "redirect:.";
   }
 
 }

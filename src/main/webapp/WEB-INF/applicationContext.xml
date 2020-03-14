@@ -350,6 +350,10 @@
     <property name="shopperRepository" ref="shopperRepository" />
   </bean>
 
+  <bean id="bulkDeleteShopperCommand" class="com.ibiscus.shopnchek.application.shopper.BulkDeleteShopperCommand">
+    <property name="shopperRepository" ref="shopperRepository" />
+  </bean>
+
   <bean id="importShoppersFileCommand" class="com.ibiscus.shopnchek.application.shopper.ImportShoppersFileCommand">
     <property name="shopperRepository" ref="shopperRepository" />
     <property name="saveShopperCommand" ref="saveShopperCommand" />

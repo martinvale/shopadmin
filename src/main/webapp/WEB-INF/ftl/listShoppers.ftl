@@ -62,6 +62,7 @@
       </form>
       <ul class="action-columns">
         <li><a href="create" class="btn-shop-small">Nuevo shopper</a></li>
+        <li><a href="bulkDelete" class="btn-shop-small">Deshabilitar en forma masiva</a></li>
       </ul>
       <table summary="Lista de Shoppers" class="table-form js-results">
         <thead>

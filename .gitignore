@@ -3,5 +3,6 @@
 .settings
 mem.mv.db
 target
+samples
 .idea
 shopadmin.iml

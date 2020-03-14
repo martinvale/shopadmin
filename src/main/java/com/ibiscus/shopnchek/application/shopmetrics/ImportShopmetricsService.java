@@ -37,6 +37,7 @@ public class ImportShopmetricsService {
     private static final int ColReintegros = 12;
     private static final int Colmoneda = 14;
     private static final int ColOK_Pay = 15;
+    private static final int ColOtrosGastos = 16;
 
     private final VisitService visitService;
 
@@ -131,8 +132,7 @@ public class ImportShopmetricsService {
             if (cell.getStringCellValue().equalsIgnoreCase("PayRate")) {
                 headers.put(ColHonorarios, currentPos);
             }
-            if (cell.getStringCellValue().equalsIgnoreCase(
-                    "Purchase Reimbursement")) {
+            if (cell.getStringCellValue().equalsIgnoreCase("Reintegro")) {
                 headers.put(ColReintegros, currentPos);
             }
             if (cell.getStringCellValue().equalsIgnoreCase("Currency")) {
@@ -158,6 +158,9 @@ public class ImportShopmetricsService {
             }
             if (cell.getStringCellValue().equalsIgnoreCase("City")) {
                 headers.put(ColCiudadSucursal, currentPos);
+            }
+            if (cell.getStringCellValue().equalsIgnoreCase("Otros Gastos")) {
+                headers.put(ColOtrosGastos, currentPos);
             }
 
             currentPos++;

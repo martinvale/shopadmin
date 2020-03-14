@@ -354,6 +354,10 @@ public class Shopper {
     this.lastModificationDate = new Date();
   }
 
+  public void disable() {
+    this.enabled = Boolean.FALSE;
+  }
+
   @Override
   public String toString() {
     return "Shopper{" +

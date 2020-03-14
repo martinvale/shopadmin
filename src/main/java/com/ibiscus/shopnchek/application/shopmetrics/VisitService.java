@@ -31,6 +31,7 @@ public class VisitService {
     private static final int ColReintegros = 12;
     private static final int Colmoneda = 14;
     private static final int ColOK_Pay = 15;
+    private static final int ColAdicional = 16;
 
     private static final String OK_FOR_BILLING = "OK";
 
@@ -116,6 +117,14 @@ public class VisitService {
                         Cell reintegrosCell = row.getCell(reintegroPos);
                         if (hasNumericValue(reintegrosCell)) {
                             reintegros = reintegrosCell.getNumericCellValue();
+                        }
+                    }
+                    Double otrosGastos = null;
+                    Integer otrosGastosPos = headers.get(ColAdicional);
+                    if (otrosGastosPos != null) {
+                        Cell otrosGastosCell = row.getCell(otrosGastosPos);
+                        if (hasNumericValue(otrosGastosCell)) {
+                            otrosGastos = otrosGastosCell.getNumericCellValue();
                         }
                     }
 
@@ -232,6 +241,34 @@ public class VisitService {
                             debtRepository.remove(debt);
                         }
                     }
+
+                    debt = debtRepository.getByExternalId(
+                            surveyIdValue.longValue(), TipoItem.shopmetrics,
+                            TipoPago.otrosgastos);
+                    if (otrosGastos != null) {
+                        if (debt == null) {
+                            debt = new Debt(TipoItem.shopmetrics,
+                                    TipoPago.otrosgastos, shopper.getIdentityId(),
+                                    otrosGastos, fecha, null, subCuestionario,
+                                    client, client.getName(), branch, null,
+                                    surveyIdValue.longValue(), null);
+                            debtRepository.save(debt);
+                        } else {
+                            debt.update(TipoItem.shopmetrics, TipoPago.otrosgastos,
+                                    shopper.getIdentityId(), otrosGastos, fecha, null,
+                                    subCuestionario, client, client.getName(),
+                                    branch, null, null, surveyIdValue.longValue(),
+                                    null);
+                            if (debt.isCancelled()) {
+                                debt.reopen();
+                            }
+                            debtRepository.update(debt);
+                        }
+                    } else {
+                        if (debt != null && debt.isPending()) {
+                            debtRepository.remove(debt);
+                        }
+                    }
                 }
             } else {
                 Cell honorariosCell = row.getCell(headers.get(ColHonorarios));
@@ -252,6 +289,19 @@ public class VisitService {
                     if (debt != null) {
                         debt.anulada();
                         debtRepository.update(debt);
+                    }
+                }
+                Integer otrosGastosPos = headers.get(ColAdicional);
+                if (otrosGastosPos != null) {
+                    Cell adicionalCell = row.getCell(otrosGastosPos);
+                    if (hasNumericValue(adicionalCell)) {
+                        Debt debt = debtRepository.getByExternalId(
+                                surveyIdValue.longValue(), TipoItem.shopmetrics,
+                                TipoPago.otrosgastos);
+                        if (debt != null) {
+                            debt.anulada();
+                            debtRepository.update(debt);
+                        }
                     }
                 }
             }
