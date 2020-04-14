@@ -19,12 +19,16 @@ public class Proveedor {
   @Column(name="email", length=100)
   private String email;
 
+  @Column
+  private boolean enabled;
+
   Proveedor() {
   }
 
   public Proveedor(final String unaDescripcion, final String email) {
     this.description = unaDescripcion;
     this.email = email;
+    this.enabled = true;
   }
 
   public void update(final String unaDescripcion, final String email) {
@@ -34,6 +38,10 @@ public class Proveedor {
 
   public void updateId(final long theId) {
     id = theId;
+  }
+
+  public void disable() {
+    enabled = false;
   }
 
   public long getId() {
@@ -47,4 +55,9 @@ public class Proveedor {
   public String getEmail() {
     return email;
   }
+
+  public boolean isEnabled() {
+    return enabled;
+  }
+
 }

@@ -16,6 +16,7 @@ public class ProveedorRepository extends HibernateDaoSupport {
   public List<Proveedor> find(final int start, final int size,
       final String pattern) {
     Criteria criteria = getSession().createCriteria(Proveedor.class);
+    criteria.add(Expression.eq("enabled", true));
     if (pattern != null && !pattern.isEmpty()) {
       criteria.add(Expression.like("description", "%" + pattern + "%"));
     }
@@ -38,6 +39,7 @@ public class ProveedorRepository extends HibernateDaoSupport {
 
   public int getProveedoresCount(final String name) {
     Criteria criteria = getSession().createCriteria(Proveedor.class);
+    criteria.add(Expression.eq("enabled", true));
     if (name != null && !name.isEmpty()) {
       criteria.add(Expression.like("description", name + "%"));
     }
@@ -66,7 +68,7 @@ public class ProveedorRepository extends HibernateDaoSupport {
   @Transactional(readOnly = false, propagation = Propagation.REQUIRED)
   public void delete(final long id) {
     Proveedor proveedor = get(id);
-    getSession().delete(proveedor);
+    proveedor.disable();
   }
 
 }
