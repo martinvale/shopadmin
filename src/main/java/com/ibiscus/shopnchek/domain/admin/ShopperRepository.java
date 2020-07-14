@@ -50,6 +50,7 @@ public class ShopperRepository extends HibernateDaoSupport {
     Criteria criteria = getSession().createCriteria(Shopper.class);
     criteria.add(Expression.eq("identityId", dni));
     criteria.add(Expression.eq("country", 1));
+    criteria.add(Expression.eq("enabled", true));
     return (Shopper) criteria.uniqueResult();
   }
 
