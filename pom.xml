@@ -16,7 +16,7 @@
     <jetty.version>8.1.8.v20121106</jetty.version>
     <quartz.version>2.2.2</quartz.version>
     <sql-jdbc.version>4.0</sql-jdbc.version>
-    <dbh2.version>1.4.187</dbh2.version>
+    <dbh2.version>2.1.210</dbh2.version>
     <logging.version>1.7.23</logging.version>
   </properties>
 
